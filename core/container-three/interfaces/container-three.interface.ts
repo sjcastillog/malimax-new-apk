@@ -1,5 +1,3 @@
-// core/container-three/interfaces/workflow-container-three.interface.ts
-
 export interface WorkflowImageI {
   id: number | null;
   src: string;

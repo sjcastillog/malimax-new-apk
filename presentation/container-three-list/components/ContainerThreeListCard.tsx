@@ -1,4 +1,4 @@
-import { WorkflowThreeI } from "@/core/container-three/interfaces/";
+import { WorkflowContainerThreeI } from "@/core/container-three/interfaces/";
 import { ThemedText } from "@/presentation/theme/components/ThemedText";
 import { ThemedView } from "@/presentation/theme/components/ThemedView";
 import { useThemeColor } from "@/presentation/theme/hooks/useThemeColor";
@@ -7,7 +7,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ShowContainerThreeModal } from "./ShowModalContainerThree";
 
 interface Props {
-  container: WorkflowThreeI;
+  container: WorkflowContainerThreeI;
   dark: boolean;
 }
 
@@ -93,7 +93,7 @@ export const ContainerThreeListCard = ({ container, dark }: Props) => {
                 lightColor="#8E8E93"
                 darkColor="#98989D"
               >
-                Ciudad
+                Cliente
               </ThemedText>
               <ThemedText
                 style={styles.infoValue}
@@ -101,25 +101,25 @@ export const ContainerThreeListCard = ({ container, dark }: Props) => {
                 lightColor="#1C1C1E"
                 darkColor="#F2F2F7"
               >
-                {container.city || "N/A"}
+                {container.client || "N/A"}
               </ThemedText>
             </View>
             {/* Finca */}
-            {container.companyTransport && (
+            {container.entryPort && (
               <View style={styles.infoItem}>
                 <ThemedText
                   style={styles.infoLabel}
                   lightColor="#8E8E93"
                   darkColor="#98989D"
                 >
-                  Compania Transporte
+                  Puerto de Ingreso
                 </ThemedText>
                 <ThemedText
                   style={styles.farmLabel}
                   lightColor="#8E8E93"
                   darkColor="#98989D"
                 >
-                  🏡 {container.companyTransport}
+                  🏡 {container.entryPort}
                 </ThemedText>
               </View>
             )}

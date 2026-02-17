@@ -1,10 +1,4 @@
-import { generateWfThreePdfReportbyId } from "@/core/container-three/actions";
-import { ThemedText } from "@/presentation/theme/components/ThemedText";
-import { ThemedView } from "@/presentation/theme/components/ThemedView";
-import { useThemeColor } from "@/presentation/theme/hooks/useThemeColor";
 import { Ionicons } from "@expo/vector-icons";
-import { Directory, File, Paths } from "expo-file-system";
-import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,6 +7,7 @@ import {
   FlatList,
   Image,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -29,20 +24,11 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { useContainerThree } from "../hooks";
+import { useContainerThree } from "../hooks/useContainerThree";
 
 interface PhotoItem {
   uri: string;
   title: string;
-  alt?: string;
-  comment?: string | null;
-  status?: boolean | null;
-}
-
-interface VideoItem {
-  uri: string;
-  title: string;
-  status?: boolean | null;
   comment?: string | null;
 }
 
@@ -58,45 +44,27 @@ const { width, height } = Dimensions.get("window");
 const IMAGE_SIZE = (width - 64) / 2;
 
 const fieldTitles: Record<string, string> = {
-  // CONTENEDOR (2 fotos)
+  // PANORÁMICO
   containerPanoramicPhoto: "Panorámica Contenedor",
-  containerPanoramicCheck: "Panorámica Check",
 
-  // NAVIERA (6 fotos - 3 originales + 3 check)
+  // NAVIERA
   navieraBottlePhoto: "Botella Naviera",
-  navieraBottleCheck: "Botella Naviera Check",
   navieraWirePhoto: "Cable Naviera",
-  navieraWireCheck: "Cable Naviera Check",
   navieraLabelPhoto: "Etiqueta Naviera",
-  navieraLabelCheck: "Etiqueta Naviera Check",
 
-  // EXPORTADOR (6 fotos)
+  // EXPORTADOR
   exporterBottlePhoto: "Botella Exportador",
-  exporterBottleCheck: "Botella Exportador Check",
   exporterWirePhoto: "Cable Exportador",
-  exporterWireCheck: "Cable Exportador Check",
   exporterLabelPhoto: "Etiqueta Exportador",
-  exporterLabelCheck: "Etiqueta Exportador Check",
 
-  // OTRO (6 fotos)
+  // OTRO
   otherBottlePhoto: "Botella Otro",
-  otherBottleCheck: "Botella Otro Check",
   otherWirePhoto: "Cable Otro",
-  otherWireCheck: "Cable Otro Check",
   otherLabelPhoto: "Etiqueta Otro",
-  otherLabelCheck: "Etiqueta Otro Check",
 
-  // GPS (4 fotos)
+  // GPS
   gpsPhoto: "GPS",
-  gpsCheck: "GPS Check",
   gpsStampPhoto: "Sello GPS",
-  gpsStampCheck: "Sello GPS Check",
-
-  // INGENIERÍA (4 fotos)
-  engineryPhoto1: "Ingeniería 1",
-  engineryCheck1: "Ingeniería 1 Check",
-  engineryPhoto2: "Ingeniería 2",
-  engineryCheck2: "Ingeniería 2 Check",
 };
 
 const commentFields: Record<string, string> = {
@@ -112,27 +80,6 @@ const commentFields: Record<string, string> = {
   otherLabelPhoto: "otherLabelComment",
   gpsPhoto: "gpsComment",
   gpsStampPhoto: "gpsStampComment",
-  engineryPhoto1: "engineryComment1",
-  engineryPhoto2: "engineryComment2",
-};
-
-const statusFields: Record<string, string> = {
-  containerPanoramicPhoto: "containerPanoramicStatus",
-  navieraBottlePhoto: "navieraBottleStatus",
-  navieraWirePhoto: "navieraWireStatus",
-  navieraLabelPhoto: "navieraLabelStatus",
-  exporterBottlePhoto: "exporterBottleStatus",
-  exporterWirePhoto: "exporterWireStatus",
-  exporterLabelPhoto: "exporterLabelStatus",
-  otherBottlePhoto: "otherBottleStatus",
-  otherWirePhoto: "otherWireStatus",
-  otherLabelPhoto: "otherLabelStatus",
-  gpsPhoto: "gpsStatus",
-  gpsStampPhoto: "gpsStampStatus",
-  engineryPhoto1: "engineryStatus1",
-  engineryPhoto2: "engineryStatus2",
-  engineryVideo: "engineryVideoStatus",
-  doorVideo: "doorVideoStatus",
 };
 
 export const ShowContainerThreeModal = ({
@@ -144,127 +91,56 @@ export const ShowContainerThreeModal = ({
 }: ShowContainerThreeModalProps) => {
   const { containerThreeQuery } = useContainerThree(containerId);
 
-  const [activeTab, setActiveTab] = useState<"photos" | "videos">("photos");
+  const [activeTab, setActiveTab] = useState<"form" | "photos">("form");
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
-  const [videos, setVideos] = useState<VideoItem[]>([]);
   const [selectedImage, setSelectedImage] = useState<PhotoItem | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  const backgroundColor = useThemeColor(
-    { light: "#FFFFFF", dark: "#000000" },
-    "background",
-  );
-  const primaryColor = useThemeColor({}, "primary");
-  const secondaryColor = useThemeColor({}, "secondary");
-  const textColor = useThemeColor(
-    { light: "#000000", dark: "#FFFFFF" },
-    "text",
-  );
-  const cardBg = useThemeColor(
-    { light: "#F9F9F9", dark: "#1C1C1E" },
-    "background",
-  );
-  const borderColor = useThemeColor(
-    { light: "#E5E5EA", dark: "#38383A" },
-    "border",
-  );
+  // ✨ COLORES SEGÚN MODO
+  const backgroundColor = dark ? "#000000" : "#FFFFFF";
+  const textColor = dark ? "#FFFFFF" : "#000000";
+  const primaryColor = dark ? "#91caff" : "#000080";
+  const secondaryColor = "#52c41a";
+  const cardBg = dark ? "#1C1C1E" : "#F9F9F9";
+  const borderColor = dark ? "#38383A" : "#E5E5EA";
+  const sectionBg = dark ? "#1C1C1E" : "#fafafa";
+  const fieldBg = dark ? "#2C2C2E" : "#FFFFFF";
 
   useEffect(() => {
     if (containerThreeQuery.data) {
       const data = containerThreeQuery.data;
       const photoArray: PhotoItem[] = [];
-      const videoArray: VideoItem[] = [];
 
-      // Procesar todas las fotos
+      // Procesar FOTOS ESTÁTICAS (12 fotos)
       Object.entries(data).forEach(([key, value]) => {
         if (key.includes("Photo") && value && typeof value === "string") {
           const commentField = commentFields[key] as any;
-          const statusField = statusFields[key] as any;
           const comment = commentField ? data[commentField] : null;
-          const status = statusField ? data[statusField] : null;
 
           photoArray.push({
             uri: value,
             title: fieldTitles[key] || key,
-            alt: key,
             comment: comment,
-            status: status,
           });
         }
       });
 
-      // Procesar videos con status
-      if (data.engineryVideo) {
-        videoArray.push({
-          uri: data.engineryVideo,
-          title: "Video Ingeniería",
-          status: data.engineryVideoStatus || null,
-          comment: data.engineryVideoComment || null,
-        });
-      }
-      if (data.doorVideo) {
-        videoArray.push({
-          uri: data.doorVideo,
-          title: "Video Puerta",
-          status: data.doorVideoStatus || null,
-          comment: data.doorVideoComment || null,
+      // Procesar IMÁGENES DINÁMICAS
+      if (data.images && Array.isArray(data.images)) {
+        data.images.forEach((img: any, index: number) => {
+          if (img.src) {
+            photoArray.push({
+              uri: img.src,
+              title: `Foto Adicional de Salida ${index + 1}`,
+              comment: img.comment || null,
+            });
+          }
         });
       }
 
       setPhotos(photoArray);
-      setVideos(videoArray);
     }
   }, [containerThreeQuery.data]);
-
-  const handleGeneratePdf = async () => {
-    setIsGeneratingPdf(true);
-
-    try {
-      const { data: pdfBase64 } =
-        await generateWfThreePdfReportbyId(containerId);
-
-      if (!pdfBase64) {
-        throw new Error("No se recibió el PDF del servidor");
-      }
-
-      const cleanBase64 = pdfBase64
-        .replace(/^data:application\/pdf;base64,/, "")
-        .trim();
-
-      const fileName = `Reporte-Proceso-3-${containerNumber}-${Date.now()}.pdf`;
-      const cacheDir = new Directory(Paths.cache);
-      const pdfFile = new File(cacheDir, fileName);
-
-      await pdfFile.write(cleanBase64, { encoding: "base64" });
-
-      const canShare = await Sharing.isAvailableAsync();
-
-      if (!canShare) {
-        throw new Error("La función de compartir no está disponible");
-      }
-
-      await Sharing.shareAsync(pdfFile.uri, {
-        mimeType: "application/pdf",
-        dialogTitle: "Guardar o Compartir PDF",
-        UTI: "com.adobe.pdf",
-      });
-
-      Alert.alert(
-        "¡Éxito!",
-        "PDF generado. Usa el menú de compartir para guardarlo donde desees.",
-        [{ text: "OK" }],
-      );
-    } catch (error) {
-      console.error("❌ Error:", error);
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "No se pudo generar el PDF",
-        [{ text: "OK" }],
-      );
-    } finally {
-      setIsGeneratingPdf(false);
-    }
-  };
 
   const renderPhotoItem = ({ item }: { item: PhotoItem }) => (
     <TouchableOpacity
@@ -277,9 +153,7 @@ export const ShowContainerThreeModal = ({
         style={styles.photo}
         resizeMode="cover"
       />
-      <View
-        style={[styles.photoOverlay, { backgroundColor: "rgba(0,0,0,0.6)" }]}
-      >
+      <View style={styles.photoOverlay}>
         <Text style={styles.photoTitle} numberOfLines={2}>
           {item.title}
         </Text>
@@ -291,39 +165,6 @@ export const ShowContainerThreeModal = ({
       </View>
     </TouchableOpacity>
   );
-  // const renderVideoItem = ({ item }: { item: VideoItem }) => (
-  //   <View style={[styles.videoCard, { backgroundColor: cardBg, borderColor }]}>
-  //     <VideoReproductorComponent videoSource={item.uri} />
-  //     <View
-  //       style={[styles.videoTitleContainer, { borderTopColor: borderColor }]}
-  //     >
-  //       <View style={styles.videoHeaderRow}>
-  //         <Text style={[styles.videoTitle, { color: textColor }]}>
-  //           {item.title}
-  //         </Text>
-  //         {item.status !== null && item.status !== undefined && (
-  //           <View
-  //             style={[
-  //               styles.videoStatusBadge,
-  //               {
-  //                 backgroundColor: item.status ? "#52c41a" : "#ff4d4f",
-  //               },
-  //             ]}
-  //           >
-  //             <Text style={styles.videoStatusText}>
-  //               {item.status ? "✓ CORRECTO" : "✗ ERROR"}
-  //             </Text>
-  //           </View>
-  //         )}
-  //       </View>
-  //       {item.comment && (
-  //         <Text style={styles.videoComment} numberOfLines={2}>
-  //           💬 {item.comment}
-  //         </Text>
-  //       )}
-  //     </View>
-  //   </View>
-  // );
 
   const scale = useSharedValue(1);
   const savedScale = useSharedValue(1);
@@ -386,53 +227,65 @@ export const ShowContainerThreeModal = ({
         presentationStyle="pageSheet"
         onRequestClose={onClose}
       >
-        <ThemedView style={[styles.container, { backgroundColor }]}>
-          {/* Header */}
+        <View style={[styles.container, { backgroundColor }]}>
+          {/* HEADER */}
           <View style={[styles.header, { borderBottomColor: borderColor }]}>
             <View style={styles.headerContent}>
-              <ThemedText style={styles.headerTitle}>
+              <Text style={[styles.headerTitle, { color: textColor }]}>
                 Contenedor N°{" "}
-                <Text style={{ color: dark ? secondaryColor : primaryColor }}>
-                  {containerNumber}
-                </Text>
-              </ThemedText>
-              <ThemedText style={styles.headerSubtitle}>
-                Inspección Proceso 3
-              </ThemedText>
-            </View>
-            {/* Botones de acción */}
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                onPress={handleGeneratePdf}
-                disabled={isGeneratingPdf}
+                <Text style={{ color: primaryColor }}>{containerNumber}</Text>
+              </Text>
+              <Text
                 style={[
-                  styles.pdfButton,
-                  {
-                    backgroundColor: isGeneratingPdf
-                      ? "#ccc"
-                      : dark
-                        ? secondaryColor
-                        : primaryColor,
-                  },
+                  styles.headerSubtitle,
+                  { color: textColor, opacity: 0.6 },
                 ]}
               >
-                {isGeneratingPdf ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <Ionicons name="document-text" size={22} color="#FFFFFF" />
-                )}
-              </TouchableOpacity>
+                Inspección Proceso 3 - Salida
+              </Text>
+            </View>
 
+            <View style={styles.headerActions}>
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Ionicons name="close" size={28} color="red" />
+                <Ionicons name="close" size={28} color="#ff4d4f" />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Tabs */}
+          {/* TABS */}
           <View
             style={[styles.tabContainer, { borderBottomColor: borderColor }]}
           >
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === "form" && {
+                  borderBottomColor: primaryColor,
+                  borderBottomWidth: 3,
+                },
+              ]}
+              onPress={() => setActiveTab("form")}
+            >
+              <Ionicons
+                name="document-text-outline"
+                size={20}
+                color={activeTab === "form" ? primaryColor : textColor}
+                style={{ opacity: activeTab === "form" ? 1 : 0.5 }}
+              />
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: textColor },
+                  activeTab === "form" && {
+                    color: primaryColor,
+                    fontWeight: "700",
+                  },
+                ]}
+              >
+                Formulario
+              </Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={[
                 styles.tab,
@@ -444,104 +297,78 @@ export const ShowContainerThreeModal = ({
               onPress={() => setActiveTab("photos")}
             >
               <Ionicons
-                name="images"
+                name="images-outline"
                 size={20}
-                color={
-                  activeTab === "photos"
-                    ? dark
-                      ? secondaryColor
-                      : primaryColor
-                    : textColor
-                }
+                color={activeTab === "photos" ? primaryColor : textColor}
+                style={{ opacity: activeTab === "photos" ? 1 : 0.5 }}
               />
-              <ThemedText
+              <Text
                 style={[
                   styles.tabText,
+                  { color: textColor },
                   activeTab === "photos" && {
-                    color: dark ? secondaryColor : primaryColor,
+                    color: primaryColor,
                     fontWeight: "700",
                   },
                 ]}
               >
                 Fotos ({photos.length})
-              </ThemedText>
+              </Text>
             </TouchableOpacity>
-
-            {/* <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === "videos" && {
-                  borderBottomColor: primaryColor,
-                  borderBottomWidth: 3,
-                },
-              ]}
-              onPress={() => setActiveTab("videos")}
-            >
-              <Ionicons
-                name="videocam"
-                size={20}
-                color={
-                  activeTab === "videos"
-                    ? dark
-                      ? secondaryColor
-                      : primaryColor
-                    : textColor
-                }
-              />
-              <ThemedText
-                style={[
-                  styles.tabText,
-                  activeTab === "videos" && {
-                    color: dark ? secondaryColor : primaryColor,
-                    fontWeight: "700",
-                  },
-                ]}
-              >
-                Videos ({videos.length})
-              </ThemedText>
-            </TouchableOpacity> */}
           </View>
 
-          {/* Content */}
+          {/* CONTENT */}
           {containerThreeQuery.isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={primaryColor} />
-              <ThemedText style={styles.loadingText}>Cargando...</ThemedText>
+              <Text style={[styles.loadingText, { color: textColor }]}>
+                Cargando...
+              </Text>
             </View>
           ) : containerThreeQuery.isError ? (
             <View style={styles.loadingContainer}>
-              <Ionicons name="alert-circle" size={48} color="red" />
-              <ThemedText style={styles.loadingText}>
+              <Ionicons name="alert-circle" size={48} color="#ff4d4f" />
+              <Text style={[styles.loadingText, { color: textColor }]}>
                 Error al cargar datos
-              </ThemedText>
+              </Text>
             </View>
           ) : (
-            <FlatList
-              data={activeTab === "photos" ? photos : videos}
-              renderItem={activeTab === "photos" ? renderPhotoItem : null}
-              keyExtractor={(item, index) => `${activeTab}-${index}`}
-              numColumns={activeTab === "photos" ? 2 : 1}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Ionicons
-                    name={activeTab === "photos" ? "images" : "videocam"}
-                    size={64}
-                    color={borderColor}
-                  />
-                  <ThemedText style={styles.emptyText}>
-                    No hay {activeTab === "photos" ? "fotos" : "videos"}{" "}
-                    disponibles
-                  </ThemedText>
-                </View>
-              }
-            />
+            <>
+              {activeTab === "form" && (
+                <FormTab
+                  data={containerThreeQuery.data}
+                  dark={dark}
+                  textColor={textColor}
+                  sectionBg={sectionBg}
+                  fieldBg={fieldBg}
+                  borderColor={borderColor}
+                  primaryColor={primaryColor}
+                />
+              )}
+              {activeTab === "photos" && (
+                <FlatList
+                  data={photos}
+                  renderItem={renderPhotoItem}
+                  keyExtractor={(item, index) => `photo-${index}`}
+                  numColumns={2}
+                  contentContainerStyle={styles.listContent}
+                  showsVerticalScrollIndicator={false}
+                  ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                      <Ionicons name="images" size={64} color={borderColor} />
+                      <Text style={[styles.emptyText, { color: textColor }]}>
+                        No hay fotos disponibles
+                      </Text>
+                    </View>
+                  }
+                />
+              )}
+            </>
           )}
-        </ThemedView>
+        </View>
       </Modal>
 
-      {/* Modal para ver imagen en fullscreen con comentario y status */}
+      {/* MODAL FULLSCREEN IMAGEN */}
       {selectedImage && (
         <Modal
           visible={!!selectedImage}
@@ -570,31 +397,12 @@ export const ShowContainerThreeModal = ({
                 </Animated.View>
               </GestureDetector>
 
-              {/* Header con título y status */}
               <View style={styles.imageViewerHeader}>
                 <Text style={styles.imageViewerTitle}>
                   {selectedImage.title}
                 </Text>
-                {selectedImage.status !== null &&
-                  selectedImage.status !== undefined && (
-                    <View
-                      style={[
-                        styles.fullscreenStatusBadge,
-                        {
-                          backgroundColor: selectedImage.status
-                            ? "#52c41a"
-                            : "#ff4d4f",
-                        },
-                      ]}
-                    >
-                      <Text style={styles.fullscreenStatusText}>
-                        {selectedImage.status ? "✓ CORRECTO" : "✗ ERROR"}
-                      </Text>
-                    </View>
-                  )}
               </View>
 
-              {/* Comentario si existe */}
               {selectedImage.comment && (
                 <View style={styles.imageViewerCommentContainer}>
                   <View style={styles.imageViewerCommentHeader}>
@@ -609,7 +417,6 @@ export const ShowContainerThreeModal = ({
                 </View>
               )}
 
-              {/* Botón cerrar */}
               <TouchableOpacity
                 style={styles.imageViewerClose}
                 onPress={() => {
@@ -627,6 +434,190 @@ export const ShowContainerThreeModal = ({
   );
 };
 
+// ============================================
+// COMPONENTE DEL TAB DE FORMULARIO
+// ============================================
+interface FormTabProps {
+  data: any;
+  dark: boolean;
+  textColor: string;
+  sectionBg: string;
+  fieldBg: string;
+  borderColor: string;
+  primaryColor: string;
+}
+
+const FormTab = ({
+  data,
+  dark,
+  textColor,
+  sectionBg,
+  fieldBg,
+  borderColor,
+  primaryColor,
+}: FormTabProps) => {
+  if (!data) return null;
+
+  return (
+    <ScrollView
+      style={styles.formContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* INFORMACIÓN DEL PROCESO 2 */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          📦 DATOS DEL PROCESO 2 (CONTENEDOR LLENO)
+        </Text>
+      </View>
+      <FormField
+        label="Contenedor"
+        value={data.container}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Cliente"
+        value={data.client}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="RUC/Identificación"
+        value={data.clientIdentification}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* INFORMACIÓN DEL PROCESO 3 */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          🚢 PROCESO 3 - SALIDA
+        </Text>
+      </View>
+      <FormField
+        label="Puerto de Ingreso"
+        value={data.entryPort}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* DATOS GENERALES */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          📍 DATOS GENERALES
+        </Text>
+      </View>
+      <FormField
+        label="Coordenadas"
+        value={data.coordinates}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Coordenadas Panorámica"
+        value={data.containerPanoramicCoordinates}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* HORARIOS */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          ⏰ HORARIOS
+        </Text>
+      </View>
+      <FormField
+        label="Hora Inicio"
+        value={data.hourInit}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Hora Fin"
+        value={data.hourEnd}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* OBSERVACIONES */}
+      {data.observation && (
+        <>
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: sectionBg, borderColor },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+              📝 OBSERVACIONES
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.observationContainer,
+              { backgroundColor: fieldBg, borderBottomColor: borderColor },
+            ]}
+          >
+            <Text style={[styles.observationText, { color: textColor }]}>
+              {data.observation}
+            </Text>
+          </View>
+        </>
+      )}
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
+  );
+};
+
+interface FormFieldProps {
+  label: string;
+  value: any;
+  textColor: string;
+  fieldBg: string;
+  borderColor: string;
+}
+
+const FormField = ({
+  label,
+  value,
+  textColor,
+  fieldBg,
+  borderColor,
+}: FormFieldProps) => {
+  if (!value) return null;
+
+  return (
+    <View
+      style={[
+        styles.formField,
+        { backgroundColor: fieldBg, borderBottomColor: borderColor },
+      ]}
+    >
+      <Text style={[styles.fieldLabel, { color: textColor, opacity: 0.6 }]}>
+        {label}
+      </Text>
+      <Text style={[styles.fieldValue, { color: textColor }]}>{value}</Text>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -637,20 +628,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 16,
     borderBottomWidth: 1,
   },
   headerContent: {
     flex: 1,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: "800",
+    fontSize: 20,
+    fontWeight: "700",
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
-    opacity: 0.6,
+    fontSize: 13,
   },
   headerActions: {
     flexDirection: "row",
@@ -674,7 +664,6 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    paddingHorizontal: 20,
     borderBottomWidth: 1,
   },
   tab: {
@@ -682,12 +671,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: 14,
+    gap: 6,
+    borderBottomWidth: 3,
+    borderBottomColor: "transparent",
   },
   tabText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "500",
   },
   loadingContainer: {
     flex: 1,
@@ -696,8 +687,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   loadingText: {
-    fontSize: 16,
-    opacity: 0.6,
+    fontSize: 14,
   },
   emptyContainer: {
     flex: 1,
@@ -707,9 +697,49 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   emptyText: {
-    fontSize: 16,
-    opacity: 0.6,
+    fontSize: 14,
   },
+
+  // FORMULARIO
+  formContainer: {
+    flex: 1,
+  },
+  section: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  formField: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  fieldValue: {
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  observationContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  observationText: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
+
+  // FOTOS
   listContent: {
     padding: 16,
   },
@@ -736,6 +766,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 8,
+    backgroundColor: "rgba(0,0,0,0.7)",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -747,33 +778,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   commentBadge: {
-    backgroundColor: "rgba(52, 199, 89, 0.9)",
+    backgroundColor: "#52c41a",
     borderRadius: 10,
     padding: 4,
     marginLeft: 4,
   },
-  videoCard: {
-    width: width - 32,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  videoTitleContainer: {
-    padding: 12,
-    borderTopWidth: 1,
-  },
-  videoTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
+
+  // IMAGE VIEWER
   imageViewerContainer: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.95)",
@@ -800,7 +811,7 @@ const styles = StyleSheet.create({
     bottom: 40,
     left: 20,
     right: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
     borderRadius: 12,
     padding: 16,
     zIndex: 10,
@@ -830,15 +841,5 @@ const styles = StyleSheet.create({
   fullscreenImage: {
     width: width,
     height: height,
-  },
-  fullscreenStatusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  fullscreenStatusText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "bold",
   },
 });

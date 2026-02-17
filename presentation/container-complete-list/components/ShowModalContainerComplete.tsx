@@ -1,17 +1,3 @@
-import {
-  generateWfCompletePdfReportbyId,
-  getContainerCompleteById,
-} from "@/core/container-complete/actions";
-import { WorkflowAllDataI } from "@/core/container-complete/interfaces";
-import { generateWfOnePdfReportbyId } from "@/core/container-one/actions";
-import { generateWfThreePdfReportbyId } from "@/core/container-three/actions";
-import { generateWfTwoPdfReportbyId } from "@/core/container-two/actions";
-import { ThemedText } from "@/presentation/theme/components/ThemedText";
-import { ThemedView } from "@/presentation/theme/components/ThemedView";
-import { useThemeColor } from "@/presentation/theme/hooks/useThemeColor";
-import { Ionicons } from "@expo/vector-icons";
-import { Directory, File, Paths } from "expo-file-system";
-import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -20,6 +6,7 @@ import {
   FlatList,
   Image,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -36,19 +23,19 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
 import { useContainerOne } from "../../container-one-list/hooks";
+import { getContainerOneById } from "@/core/container-one/actions";
+import { getContainerTwoById } from "@/core/container-two/actions";
+import { getContainerThreeById } from "@/core/container-three/actions";
+import { generateWfOnePdfReportbyId } from "@/core/container-one/actions";
+import { Directory, File, Paths } from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 interface PhotoItem {
   uri: string;
   title: string;
-  alt?: string;
   comment?: string | null;
-  processType: "process1" | "process2" | "process3";
-}
-
-interface VideoItem {
-  uri: string;
-  title: string;
   processType: "process1" | "process2" | "process3";
 }
 
@@ -63,105 +50,20 @@ interface ShowContainerCompleteModalProps {
 const { width, height } = Dimensions.get("window");
 const IMAGE_SIZE = (width - 64) / 2;
 
-// Campos que pertenecen al PROCESO 1
-const process1PhotoFields = [
-  "emptyPanoramicPhoto",
-  "emptyStampNavieraPhoto",
-  "emptyOtherStampPhoto",
-  "emptySatelliteLockStampPhoto",
-  "emptySatelliteLockPhoto",
-  "emptyAditionalStampPhoto",
-  "emptySideRightPhoto",
-  "emptySideLeftPhoto",
-  "emptySideUpPhoto",
-  "emptySideDownPhoto",
-  "emptyFrontPhoto",
-  "emptyRearPhoto",
-  "emptyEirPhoto",
-  "emptyPreviousInspectionDocumentPhoto",
-  "emptyPlatePhoto",
-  "emptyDriverIdentificationPhoto",
-  "emptyFloorPhoto",
-  "emptyRoofPhoto",
-  "emptyMirrorCoverPhoto",
-  "emptyInternalPhoto1",
-  "emptyInternalPhoto2",
-  "emptyInternalPhoto3",
-  "emptyInternalPhoto4",
-  "emptyInternalPhoto5",
-  "emptyInternalPhoto6",
-  "exitOtherStampPhoto",
-  "exitPanoramicPhoto",
-  "exitStampNavieraPhoto",
-  "exitSatelliteLockStampPhoto",
-  "exitEngineryPhoto1",
-  "exitEngineryPhoto2",
-];
-
-// Campos que pertenecen al PROCESO 2
-const process2PhotoFields = [
-  "emptyPanoramicCheckPhoto",
-  "emptyPanoramicValidationPhoto",
-  "emptyStampNavieraCheckPhoto",
-  "emptyStampNavieraValidationPhoto",
-  "emptyOtherStampCheckPhoto",
-  "emptyOtherStampValidationPhoto",
-  "emptySatelliteLockCheckPhoto",
-  "emptySatelliteLockValidationPhoto",
-  "exitEngineryCheckPhoto1",
-  "exitEngineryValidationPhoto1",
-  "exitEngineryCheckPhoto2",
-  "exitEngineryValidationPhoto2",
-  "chargingProcessPhoto1",
-  "chargingProcessPhoto2",
-  "containerPanoramicPhoto",
-  "navieraBottlePhoto",
-  "navieraWirePhoto",
-  "navieraLabelPhoto",
-  "exporterBottlePhoto",
-  "exporterWirePhoto",
-  "exporterLabelPhoto",
-  "otherBottlePhoto",
-  "otherWirePhoto",
-  "otherLabelPhoto",
-  "gpsPhoto",
-  "gpsStampPhoto",
-];
-
-// Campos que pertenecen al PROCESO 3
-const process3PhotoFields = [
-  "containerPanoramicCheck",
-  "navieraBottleCheck",
-  "navieraLabelCheck",
-  "navieraWireCheck",
-  "exporterBottleCheck",
-  "exporterLabelCheck",
-  "exporterWireCheck",
-  "otherBottleCheck",
-  "otherLabelCheck",
-  "otherWireCheck",
-  "gpsCheck",
-  "gpsStampCheck",
-  "engineryPhoto1",
-  "engineryCheck1",
-  "engineryPhoto2",
-  "engineryCheck2",
-];
-
 const fieldTitles: Record<string, string> = {
   // PROCESO 1
   emptyPanoramicPhoto: "Panorámica Vacío",
   emptyStampNavieraPhoto: "Sello Naviera Vacío",
   emptyOtherStampPhoto: "Otro Sello Vacío",
-  emptySatelliteLockStampPhoto: "Sello Candado Satelital Vacío",
-  emptySatelliteLockPhoto: "Candado Satelital Vacío",
-  emptyAditionalStampPhoto: "Sello Adicional Vacío",
-  emptySideRightPhoto: "Lado Derecho Vacío",
-  emptySideLeftPhoto: "Lado Izquierdo Vacío",
-  emptySideUpPhoto: "Lado Superior Vacío",
-  emptySideDownPhoto: "Lado Inferior Vacío",
-  emptyFrontPhoto: "Frente Vacío",
-  emptyRearPhoto: "Posterior Vacío",
+  emptySatelliteLockStampPhoto: "Sello Candado Satelital",
+  emptySatelliteLockPhoto: "Candado Satelital",
+  emptyAditionalStampPhoto: "Sello Adicional",
+  emptySideRightPhoto: "Lado Derecho",
+  emptySideLeftPhoto: "Lado Izquierdo",
+  emptySideUpPhoto: "Lado Superior",
+  emptySideDownPhoto: "Lado Inferior",
+  emptyFrontPhoto: "Frente",
+  emptyRearPhoto: "Posterior",
   emptyEirPhoto: "EIR",
   emptyPreviousInspectionDocumentPhoto: "Doc. Inspección Previa",
   emptyPlatePhoto: "Placa Vehículo",
@@ -176,57 +78,28 @@ const fieldTitles: Record<string, string> = {
   emptyInternalPhoto5: "Foto Interna 5",
   emptyInternalPhoto6: "Foto Interna 6",
   exitOtherStampPhoto: "Otro Sello Salida",
-  exitPanoramicPhoto: "Panorámica Salida",
+  exitPanoramicPhoto: "Panorámica Salida P1",
   exitStampNavieraPhoto: "Sello Naviera Salida",
   exitSatelliteLockStampPhoto: "Sello Candado Satelital Salida",
-  exitEngineryPhoto1: "Maquinaria 1",
-  exitEngineryPhoto2: "Maquinaria 2",
-
-  // PROCESO 2
-  emptyPanoramicCheckPhoto: "Panorámica Check P2",
-  emptyPanoramicValidationPhoto: "Panorámica Validación P2",
-  emptyStampNavieraCheckPhoto: "Sello Naviera Check P2",
-  emptyStampNavieraValidationPhoto: "Sello Naviera Validación P2",
-  emptyOtherStampCheckPhoto: "Otro Sello Check P2",
-  emptyOtherStampValidationPhoto: "Otro Sello Validación P2",
-  emptySatelliteLockCheckPhoto: "Candado Satelital Check P2",
-  emptySatelliteLockValidationPhoto: "Candado Satelital Validación P2",
-  exitEngineryCheckPhoto1: "Maquinaria 1 Check P2",
-  exitEngineryValidationPhoto1: "Maquinaria 1 Validación P2",
-  exitEngineryCheckPhoto2: "Maquinaria 2 Check P2",
-  exitEngineryValidationPhoto2: "Maquinaria 2 Validación P2",
-  chargingProcessPhoto1: "Proceso Carga 1",
-  chargingProcessPhoto2: "Proceso Carga 2",
-  containerPanoramicPhoto: "Panorámica Contenedor",
-  navieraBottlePhoto: "Botella Naviera",
-  navieraWirePhoto: "Cable Naviera",
-  navieraLabelPhoto: "Etiqueta Naviera",
-  exporterBottlePhoto: "Botella Exportador",
-  exporterWirePhoto: "Cable Exportador",
-  exporterLabelPhoto: "Etiqueta Exportador",
-  otherBottlePhoto: "Botella Otro",
-  otherWirePhoto: "Cable Otro",
-  otherLabelPhoto: "Etiqueta Otro",
-  gpsPhoto: "GPS",
-  gpsStampPhoto: "Sello GPS",
+  exitEngineryPhoto1: "Maquinaria 1 P1",
+  exitEngineryPhoto2: "Maquinaria 2 P1",
+  engineryPhoto1: "Maquinaria 1",
+  engineryPhoto2: "Maquinaria 2",
+  exitTemporarySealingPhoto: "Sellado Temporal",
 
   // PROCESO 3
-  containerPanoramicCheck: "Panorámica Check P3",
-  navieraBottleCheck: "Botella Naviera Check P3",
-  navieraLabelCheck: "Etiqueta Naviera Check P3",
-  navieraWireCheck: "Cable Naviera Check P3",
-  exporterBottleCheck: "Botella Exportador Check P3",
-  exporterLabelCheck: "Etiqueta Exportador Check P3",
-  exporterWireCheck: "Cable Exportador Check P3",
-  otherBottleCheck: "Botella Otro Check P3",
-  otherLabelCheck: "Etiqueta Otro Check P3",
-  otherWireCheck: "Cable Otro Check P3",
-  gpsCheck: "GPS Check P3",
-  gpsStampCheck: "Sello GPS Check P3",
-  engineryPhoto1: "Maquinaria 1 P3",
-  engineryCheck1: "Maquinaria 1 Check P3",
-  engineryPhoto2: "Maquinaria 2 P3",
-  engineryCheck2: "Maquinaria 2 Check P3",
+  containerPanoramicPhoto: "Panorámica Contenedor P3",
+  navieraBottlePhoto: "Botella Naviera P3",
+  navieraWirePhoto: "Cable Naviera P3",
+  navieraLabelPhoto: "Etiqueta Naviera P3",
+  exporterBottlePhoto: "Botella Exportador P3",
+  exporterWirePhoto: "Cable Exportador P3",
+  exporterLabelPhoto: "Etiqueta Exportador P3",
+  otherBottlePhoto: "Botella Otro P3",
+  otherWirePhoto: "Cable Otro P3",
+  otherLabelPhoto: "Etiqueta Otro P3",
+  gpsPhoto: "GPS P3",
+  gpsStampPhoto: "Sello GPS P3",
 };
 
 const commentFields: Record<string, string> = {
@@ -252,16 +125,11 @@ const commentFields: Record<string, string> = {
   exitStampNavieraPhoto: "exitStampNavieraComment",
   exitEngineryPhoto1: "exitEngineryComment1",
   exitEngineryPhoto2: "exitEngineryComment2",
+  engineryPhoto1: "engineryComment1",
+  engineryPhoto2: "engineryComment2",
+  exitTemporarySealingPhoto: "exitTemporarySealingComment",
 
-  // PROCESO 2
-  emptyPanoramicCheckPhoto: "emptyPanoramicCheckComment",
-  emptyStampNavieraCheckPhoto: "emptyStampNavieraCheckComment",
-  emptyOtherStampCheckPhoto: "emptyOtherStampCheckComment",
-  emptySatelliteLockCheckPhoto: "emptySatelliteLockCheckComment",
-  exitEngineryCheckPhoto1: "exitEngineryCheckComment1",
-  exitEngineryCheckPhoto2: "exitEngineryCheckComment2",
-  chargingProcessPhoto1: "chargingProcessComment1",
-  chargingProcessPhoto2: "chargingProcessComment2",
+  // PROCESO 3
   containerPanoramicPhoto: "containerPanoramicComment",
   navieraBottlePhoto: "navieraBottleComment",
   navieraWirePhoto: "navieraWireComment",
@@ -274,24 +142,6 @@ const commentFields: Record<string, string> = {
   otherLabelPhoto: "otherLabelComment",
   gpsPhoto: "gpsComment",
   gpsStampPhoto: "gpsStampComment",
-
-  // PROCESO 3
-  containerPanoramicCheck: "containerPanoramicComment",
-  navieraBottleCheck: "navieraBottleComment",
-  navieraLabelCheck: "navieraLabelComment",
-  navieraWireCheck: "navieraWireComment",
-  exporterBottleCheck: "exporterBottleComment",
-  exporterLabelCheck: "exporterLabelComment",
-  exporterWireCheck: "exporterWireComment",
-  otherBottleCheck: "otherBottleComment",
-  otherLabelCheck: "otherLabelComment",
-  otherWireCheck: "otherWireComment",
-  gpsCheck: "gpsComment",
-  gpsStampCheck: "gpsStampComment",
-  engineryPhoto1: "engineryComment1",
-  engineryCheck1: "engineryComment1",
-  engineryPhoto2: "engineryComment2",
-  engineryCheck2: "engineryComment2",
 };
 
 export const ShowContainerCompleteModal = ({
@@ -303,269 +153,157 @@ export const ShowContainerCompleteModal = ({
 }: ShowContainerCompleteModalProps) => {
   const { containerOneQuery } = useContainerOne(containerId);
 
-  const [activeTab, setActiveTab] = useState<
-    "all" | "process1" | "process2" | "process3"
-  >("all");
+  const [activeMainTab, setActiveMainTab] = useState<"form" | "photos">("form");
+  const [activeProcessTab, setActiveProcessTab] = useState<"all" | "process1" | "process2" | "process3">("all");
+  const [dataOne, setDataOne] = useState<any>(null);
+  const [dataTwo, setDataTwo] = useState<any>(null);
+  const [dataThree, setDataThree] = useState<any>(null);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
-  const [videos, setVideos] = useState<VideoItem[]>([]);
   const [selectedImage, setSelectedImage] = useState<PhotoItem | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const [dataWf, setDataWf] = useState<WorkflowAllDataI | null>(null);
-  const [pdfType, setPdfType] = useState<
-    "complete" | "process1" | "process2" | "process3" | null
-  >(null);
 
-  const backgroundColor = useThemeColor(
-    { light: "#FFFFFF", dark: "#000000" },
-    "background",
-  );
-  const primaryColor = useThemeColor({}, "primary");
-  const secondaryColor = useThemeColor({}, "secondary");
-  const textColor = useThemeColor(
-    { light: "#000000", dark: "#FFFFFF" },
-    "text",
-  );
-  const cardBg = useThemeColor(
-    { light: "#F9F9F9", dark: "#1C1C1E" },
-    "background",
-  );
-  const borderColor = useThemeColor(
-    { light: "#E5E5EA", dark: "#38383A" },
-    "border",
-  );
+  // ✨ COLORES SEGÚN MODO
+  const backgroundColor = dark ? "#000000" : "#FFFFFF";
+  const textColor = dark ? "#FFFFFF" : "#000000";
+  const primaryColor = dark ? "#91caff" : "#000080";
+  const cardBg = dark ? "#1C1C1E" : "#F9F9F9";
+  const borderColor = dark ? "#38383A" : "#E5E5EA";
+  const sectionBg = dark ? "#1C1C1E" : "#fafafa";
+  const fieldBg = dark ? "#2C2C2E" : "#FFFFFF";
 
   useEffect(() => {
     if (containerOneQuery.data) {
-      handleData();
+      loadCompleteData();
     }
   }, [containerOneQuery.data]);
 
-  const handleData = async () => {
-    const allData = await getContainerCompleteById(
-      containerOneQuery.data!.id!,
-    );
-    setDataWf(allData);
-    const photoArray: PhotoItem[] = [];
-    const videoArray: VideoItem[] = [];
+  const loadCompleteData = async () => {
+    try {
+      const photoArray: PhotoItem[] = [];
 
-    // Función para determinar el proceso
-    const getProcessType = (
-      key: string,
-    ): "process1" | "process2" | "process3" => {
-      if (process1PhotoFields.includes(key)) return "process1";
-      if (process2PhotoFields.includes(key)) return "process2";
-      if (process3PhotoFields.includes(key)) return "process3";
-      return "process1"; // default
-    };
+      // CARGAR PROCESO 1
+      const process1 = await getContainerOneById(containerOneQuery.data!.id!);
+      setDataOne(process1);
 
-    // Procesar fotos del PROCESO 1
-    if (allData.wfOne) {
-      Object.entries(allData.wfOne).forEach(([key, value]) => {
-        if (key.includes("Photo") && value && typeof value === "string") {
-          const commentField = commentFields[key] as keyof typeof allData.wfOne;
-          const comment = commentField
-            ? (allData.wfOne[commentField] as string)
-            : null;
-
-          photoArray.push({
-            uri: value,
-            title: fieldTitles[key] || key,
-            alt: key,
-            comment: comment,
-            processType: "process1",
-          });
-        }
-      });
-
-      // Videos del proceso 1
-      if (allData.wfOne.emptyInternalVideo) {
-        videoArray.push({
-          uri: allData.wfOne.emptyInternalVideo,
-          title: "Video Interno Vacío",
-          processType: "process1",
-        });
-      }
-      if (allData.wfOne.exitDoorVideo) {
-        videoArray.push({
-          uri: allData.wfOne.exitDoorVideo,
-          title: "Video Puerta Salida",
-          processType: "process1",
-        });
-      }
-      if (allData.wfOne.exitEngineryVideo) {
-        videoArray.push({
-          uri: allData.wfOne.exitEngineryVideo,
-          title: "Video Maquinaria Salida",
-          processType: "process1",
-        });
-      }
-    }
-
-    // Procesar fotos del PROCESO 2
-    if (allData.wfTwo) {
-      Object.entries(allData.wfTwo).forEach(([key, value]) => {
-        if (key.includes("Photo") && value && typeof value === "string") {
-          const commentField = commentFields[key] as keyof typeof allData.wfTwo;
-          const comment = commentField
-            ? (allData.wfTwo[commentField] as string)
-            : null;
-
-          photoArray.push({
-            uri: value,
-            title: fieldTitles[key] || key,
-            alt: key,
-            comment: comment,
-            processType: "process2",
-          });
-        }
-      });
-
-      // Videos del proceso 2
-      if (allData.wfTwo.exitDoorCheckVideo) {
-        videoArray.push({
-          uri: allData.wfTwo.exitDoorCheckVideo,
-          title: "Video Puerta Check P2",
-          processType: "process2",
-        });
-      }
-      if (allData.wfTwo.exitDoorValidationVideo) {
-        videoArray.push({
-          uri: allData.wfTwo.exitDoorValidationVideo,
-          title: "Video Puerta Validación P2",
-          processType: "process2",
-        });
-      }
-      if (allData.wfTwo.exitEngineryCheckVideo) {
-        videoArray.push({
-          uri: allData.wfTwo.exitEngineryCheckVideo,
-          title: "Video Maquinaria Check P2",
-          processType: "process2",
-        });
-      }
-      if (allData.wfTwo.exitEngineryValidationVideo) {
-        videoArray.push({
-          uri: allData.wfTwo.exitEngineryValidationVideo,
-          title: "Video Maquinaria Validación P2",
-          processType: "process2",
-        });
-      }
-      if (allData.wfTwo.chargingProcessVideo) {
-        videoArray.push({
-          uri: allData.wfTwo.chargingProcessVideo,
-          title: "Video Proceso Carga",
-          processType: "process2",
-        });
-      }
-      if (allData.wfTwo.exitDoorVideo) {
-        videoArray.push({
-          uri: allData.wfTwo.exitDoorVideo,
-          title: "Video Puerta P2",
-          processType: "process2",
-        });
-      }
-      if (allData.wfTwo.exitEngineryVideo) {
-        videoArray.push({
-          uri: allData.wfTwo.exitEngineryVideo,
-          title: "Video Maquinaria P2",
-          processType: "process2",
-        });
-      }
-    }
-
-    // Procesar fotos del PROCESO 3
-    if (allData.wfThree) {
-      Object.entries(allData.wfThree).forEach(([key, value]) => {
-        if (key.includes("Photo") || key.includes("Check")) {
-          if (value && typeof value === "string" && !key.includes("B64")) {
-            const commentField = commentFields[
-              key
-            ] as keyof typeof allData.wfThree;
-            const comment = commentField
-              ? (allData.wfThree[commentField] as string)
-              : null;
+      if (process1) {
+        // Fotos estáticas del proceso 1
+        Object.entries(process1).forEach(([key, value]) => {
+          if (key.includes("Photo") && value && typeof value === "string") {
+            const commentField = commentFields[key] as any;
+            const comment = commentField ? process1[commentField] : null;
 
             photoArray.push({
               uri: value,
               title: fieldTitles[key] || key,
-              alt: key,
               comment: comment,
-              processType: "process3",
+              processType: "process1",
             });
           }
+        });
+
+        // Fotos dinámicas del proceso 1
+        if (process1.images && Array.isArray(process1.images)) {
+          process1.images.forEach((img: any, index: number) => {
+            if (img.src) {
+              photoArray.push({
+                uri: img.src,
+                title: `Foto Adicional P1 ${index + 1}`,
+                comment: img.comment || null,
+                processType: "process1",
+              });
+            }
+          });
         }
-      });
 
-      // Videos del proceso 3
-      if (allData.wfThree.engineryVideo) {
-        videoArray.push({
-          uri: allData.wfThree.engineryVideo,
-          title: "Video Maquinaria P3",
-          processType: "process3",
-        });
+        // CARGAR PROCESO 2 (si existe)
+        try {
+          const process2 = await getContainerTwoById(process1.malimaxTwoId!);
+          setDataTwo(process2);
+
+          if (process2 && process2.images && Array.isArray(process2.images)) {
+            process2.images.forEach((img: any, index: number) => {
+              if (img.src) {
+                photoArray.push({
+                  uri: img.src,
+                  title: `Foto de Carga ${index + 1}`,
+                  comment: img.comment || null,
+                  processType: "process2",
+                });
+              }
+            });
+          }
+
+          // CARGAR PROCESO 3 (si existe)
+          if (process2) {
+            try {
+              const process3 = await getContainerThreeById(process1.malimaxThreeId!);
+              setDataThree(process3);
+
+              if (process3) {
+                // Fotos estáticas del proceso 3
+                Object.entries(process3).forEach(([key, value]) => {
+                  if (key.includes("Photo") && value && typeof value === "string") {
+                    const commentField = commentFields[key] as any;
+                    const comment = commentField ? process3[commentField] : null;
+
+                    photoArray.push({
+                      uri: value,
+                      title: fieldTitles[key] || key,
+                      comment: comment,
+                      processType: "process3",
+                    });
+                  }
+                });
+
+                // Fotos dinámicas del proceso 3
+                if (process3.images && Array.isArray(process3.images)) {
+                  process3.images.forEach((img: any, index: number) => {
+                    if (img.src) {
+                      photoArray.push({
+                        uri: img.src,
+                        title: `Foto de Salida ${index + 1}`,
+                        comment: img.comment || null,
+                        processType: "process3",
+                      });
+                    }
+                  });
+                }
+              }
+            } catch (error) {
+              console.log("Proceso 3 no existe aún");
+            }
+          }
+        } catch (error) {
+          console.log("Proceso 2 no existe aún");
+        }
       }
-      if (allData.wfThree.doorVideo) {
-        videoArray.push({
-          uri: allData.wfThree.doorVideo,
-          title: "Video Puerta P3",
-          processType: "process3",
-        });
-      }
+
+      setPhotos(photoArray);
+    } catch (error) {
+      console.error("Error loading complete data:", error);
+      Alert.alert("Error", "No se pudieron cargar los datos completos");
     }
-
-    setPhotos(photoArray);
-    setVideos(videoArray);
   };
 
-  const handleGeneratePdf = async (
-    type: "complete" | "process1" | "process2" | "process3",
-  ) => {
+  const handleGeneratePdf = async () => {
+    if (!containerOneQuery.data?.id) {
+      Alert.alert("Error", "No hay datos disponibles");
+      return;
+    }
+
     setIsGeneratingPdf(true);
-    setPdfType(type);
 
     try {
-      let pdfBase64: string | null = null;
-      let fileName = "";
-
-      switch (type) {
-        case "complete":
-          const { data } = await generateWfCompletePdfReportbyId(containerId);
-          pdfBase64 = data;
-          fileName = `Reporte-Completo-${containerNumber}.pdf`;
-          break;
-
-        case "process1":
-          const { data: data1 } = await generateWfOnePdfReportbyId(
-            dataWf?.wfOne.id!,
-          );
-          pdfBase64 = data1;
-          fileName = `Reporte-Proceso-1-${containerNumber}.pdf`;
-          break;
-
-        case "process2":
-          const { data: data2 } = await generateWfTwoPdfReportbyId(
-            dataWf?.wfTwo.id!,
-          );
-          pdfBase64 = data2;
-          fileName = `Reporte-Proceso-2-${containerNumber}.pdf`;
-          break;
-
-        case "process3":
-          const { data: data3 } = await generateWfThreePdfReportbyId(
-            dataWf?.wfThree.id!,
-          );
-          pdfBase64 = data3;
-          fileName = `Reporte-Proceso-3-${containerNumber}.pdf`;
-          break;
-      }
+      // EL BACKEND GENERA UN PDF COMPLETO CON LOS 3 PROCESOS
+      const { data: pdfBase64 } = await generateWfOnePdfReportbyId(containerOneQuery.data.id);
 
       if (!pdfBase64) {
         throw new Error("No se recibió el PDF del servidor");
       }
 
-      const cleanBase64 = pdfBase64
-        .replace(/^data:application\/pdf;base64,/, "")
-        .trim();
+      const cleanBase64 = pdfBase64.replace(/^data:application\/pdf;base64,/, "").trim();
 
+      const fileName = `Reporte-Completo-${containerNumber}-${Date.now()}.pdf`;
       const cacheDir = new Directory(Paths.cache);
       const pdfFile = new File(cacheDir, fileName);
 
@@ -585,28 +323,25 @@ export const ShowContainerCompleteModal = ({
 
       Alert.alert(
         "¡Éxito!",
-        "PDF generado. Usa el menú de compartir para guardarlo donde desees.",
+        "PDF completo generado con los 3 procesos. Usa el menú de compartir para guardarlo donde desees.",
         [{ text: "OK" }],
       );
     } catch (error) {
-      console.error("Error al generar PDF:", error);
+      console.error("❌ Error:", error);
       Alert.alert(
         "Error",
-        `No se pudo generar el PDF: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`,
+        error instanceof Error ? error.message : "No se pudo generar el PDF",
         [{ text: "OK" }],
       );
     } finally {
       setIsGeneratingPdf(false);
-      setPdfType(null);
     }
   };
 
   const filteredPhotos =
-    activeTab === "all"
+    activeProcessTab === "all"
       ? photos
-      : photos.filter((photo) => photo.processType === activeTab);
+      : photos.filter((photo) => photo.processType === activeProcessTab);
 
   const renderPhotoItem = ({ item }: { item: PhotoItem }) => (
     <TouchableOpacity
@@ -614,14 +349,8 @@ export const ShowContainerCompleteModal = ({
       onPress={() => setSelectedImage(item)}
       activeOpacity={0.8}
     >
-      <Image
-        source={{ uri: item.uri }}
-        style={styles.photo}
-        resizeMode="cover"
-      />
-      <View
-        style={[styles.photoOverlay, { backgroundColor: "rgba(0,0,0,0.6)" }]}
-      >
+      <Image source={{ uri: item.uri }} style={styles.photo} resizeMode="cover" />
+      <View style={styles.photoOverlay}>
         <Text style={styles.photoTitle} numberOfLines={2}>
           {item.title}
         </Text>
@@ -632,21 +361,15 @@ export const ShowContainerCompleteModal = ({
         )}
       </View>
 
-      <View
-        style={[styles.processBadge, getProcessBadgeColor(item.processType)]}
-      >
+      <View style={[styles.processBadge, getProcessBadgeColor(item.processType)]}>
         <Text style={styles.processBadgeText}>
-          {item.processType === "process1"
-            ? "P1"
-            : item.processType === "process2"
-              ? "P2"
-              : "P3"}
+          {item.processType === "process1" ? "P1" : item.processType === "process2" ? "P2" : "P3"}
         </Text>
       </View>
     </TouchableOpacity>
   );
 
-  const getProcessBadgeColor = (processType?: string) => {
+  const getProcessBadgeColor = (processType: string) => {
     switch (processType) {
       case "process1":
         return { backgroundColor: "#007AFF" };
@@ -720,243 +443,257 @@ export const ShowContainerCompleteModal = ({
         presentationStyle="pageSheet"
         onRequestClose={onClose}
       >
-        <ThemedView style={[styles.container, { backgroundColor }]}>
-          {/* Header */}
+        <View style={[styles.container, { backgroundColor }]}>
+          {/* HEADER */}
           <View style={[styles.header, { borderBottomColor: borderColor }]}>
             <View style={styles.headerContent}>
-              <ThemedText style={styles.headerTitle}>
-                Contenedor N°{" "}
-                <Text style={{ color: dark ? secondaryColor : primaryColor }}>
-                  {containerNumber}
-                </Text>
-              </ThemedText>
-              <ThemedText style={styles.headerSubtitle}>
-                Inspección Completa (3 Procesos)
-              </ThemedText>
+              <Text style={[styles.headerTitle, { color: textColor }]}>
+                Contenedor N° <Text style={{ color: primaryColor }}>{containerNumber}</Text>
+              </Text>
+              <Text style={[styles.headerSubtitle, { color: textColor, opacity: 0.6 }]}>
+                Vista Completa - 3 Procesos
+              </Text>
             </View>
 
             <View style={styles.headerActions}>
-              <View style={styles.pdfMenu}>
-                <TouchableOpacity
-                  onPress={() => handleGeneratePdf("complete")}
-                  disabled={isGeneratingPdf}
-                  style={[
-                    styles.pdfButton,
-                    styles.pdfButtonMain,
-                    {
-                      backgroundColor:
-                        isGeneratingPdf && pdfType === "complete"
-                          ? "#ccc"
-                          : "#FF3B30",
-                    },
-                  ]}
-                >
-                  {isGeneratingPdf && pdfType === "complete" ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Ionicons name="documents" size={22} color="#FFFFFF" />
-                  )}
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleGeneratePdf("process1")}
-                  disabled={isGeneratingPdf}
-                  style={[
-                    styles.pdfButtonSmall,
-                    {
-                      backgroundColor:
-                        isGeneratingPdf && pdfType === "process1"
-                          ? "#ccc"
-                          : "#007AFF",
-                    },
-                  ]}
-                >
-                  {isGeneratingPdf && pdfType === "process1" ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Text style={styles.pdfButtonSmallText}>P1</Text>
-                  )}
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleGeneratePdf("process2")}
-                  disabled={isGeneratingPdf}
-                  style={[
-                    styles.pdfButtonSmall,
-                    {
-                      backgroundColor:
-                        isGeneratingPdf && pdfType === "process2"
-                          ? "#ccc"
-                          : "#34C759",
-                    },
-                  ]}
-                >
-                  {isGeneratingPdf && pdfType === "process2" ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Text style={styles.pdfButtonSmallText}>P2</Text>
-                  )}
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleGeneratePdf("process3")}
-                  disabled={isGeneratingPdf}
-                  style={[
-                    styles.pdfButtonSmall,
-                    {
-                      backgroundColor:
-                        isGeneratingPdf && pdfType === "process3"
-                          ? "#ccc"
-                          : "#FF9500",
-                    },
-                  ]}
-                >
-                  {isGeneratingPdf && pdfType === "process3" ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Text style={styles.pdfButtonSmallText}>P3</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
+              {/* BOTÓN PDF ÚNICO */}
+              <TouchableOpacity
+                onPress={handleGeneratePdf}
+                disabled={isGeneratingPdf}
+                style={[
+                  styles.pdfButton,
+                  {
+                    backgroundColor: isGeneratingPdf ? borderColor : primaryColor,
+                  },
+                ]}
+              >
+                {isGeneratingPdf ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Ionicons name="document-text" size={22} color="#FFFFFF" />
+                )}
+              </TouchableOpacity>
 
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Ionicons name="close" size={28} color="red" />
+                <Ionicons name="close" size={28} color="#ff4d4f" />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Tabs de filtro */}
-          <View
-            style={[styles.tabContainer, { borderBottomColor: borderColor }]}
-          >
+          {/* TABS PRINCIPALES: FORMULARIO / FOTOS */}
+          <View style={[styles.mainTabContainer, { borderBottomColor: borderColor }]}>
             <TouchableOpacity
               style={[
-                styles.tab,
-                activeTab === "all" && {
+                styles.mainTab,
+                activeMainTab === "form" && {
                   borderBottomColor: primaryColor,
                   borderBottomWidth: 3,
                 },
               ]}
-              onPress={() => setActiveTab("all")}
+              onPress={() => setActiveMainTab("form")}
             >
-              <ThemedText
+              <Ionicons
+                name="document-text-outline"
+                size={20}
+                color={activeMainTab === "form" ? primaryColor : textColor}
+                style={{ opacity: activeMainTab === "form" ? 1 : 0.5 }}
+              />
+              <Text
                 style={[
-                  styles.tabText,
-                  activeTab === "all" && {
-                    color: dark ? secondaryColor : primaryColor,
+                  styles.mainTabText,
+                  { color: textColor },
+                  activeMainTab === "form" && {
+                    color: primaryColor,
                     fontWeight: "700",
                   },
                 ]}
               >
-                Todas ({photos.length})
-              </ThemedText>
+                Formularios
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
-                styles.tab,
-                activeTab === "process1" && {
-                  borderBottomColor: "#007AFF",
+                styles.mainTab,
+                activeMainTab === "photos" && {
+                  borderBottomColor: primaryColor,
                   borderBottomWidth: 3,
                 },
               ]}
-              onPress={() => setActiveTab("process1")}
+              onPress={() => setActiveMainTab("photos")}
             >
-              <ThemedText
+              <Ionicons
+                name="images-outline"
+                size={20}
+                color={activeMainTab === "photos" ? primaryColor : textColor}
+                style={{ opacity: activeMainTab === "photos" ? 1 : 0.5 }}
+              />
+              <Text
                 style={[
-                  styles.tabText,
-                  activeTab === "process1" && {
-                    color: "#007AFF",
+                  styles.mainTabText,
+                  { color: textColor },
+                  activeMainTab === "photos" && {
+                    color: primaryColor,
                     fontWeight: "700",
                   },
                 ]}
               >
-                P1 ({photos.filter((p) => p.processType === "process1").length})
-              </ThemedText>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === "process2" && {
-                  borderBottomColor: "#34C759",
-                  borderBottomWidth: 3,
-                },
-              ]}
-              onPress={() => setActiveTab("process2")}
-            >
-              <ThemedText
-                style={[
-                  styles.tabText,
-                  activeTab === "process2" && {
-                    color: "#34C759",
-                    fontWeight: "700",
-                  },
-                ]}
-              >
-                P2 ({photos.filter((p) => p.processType === "process2").length})
-              </ThemedText>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === "process3" && {
-                  borderBottomColor: "#FF9500",
-                  borderBottomWidth: 3,
-                },
-              ]}
-              onPress={() => setActiveTab("process3")}
-            >
-              <ThemedText
-                style={[
-                  styles.tabText,
-                  activeTab === "process3" && {
-                    color: "#FF9500",
-                    fontWeight: "700",
-                  },
-                ]}
-              >
-                P3 ({photos.filter((p) => p.processType === "process3").length})
-              </ThemedText>
+                Fotos ({photos.length})
+              </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Content */}
-          {containerOneQuery.isLoading ? (
+          {/* TABS SECUNDARIOS (Solo en vista de fotos) */}
+          {activeMainTab === "photos" && (
+            <View style={[styles.processTabContainer, { borderBottomColor: borderColor }]}>
+              <TouchableOpacity
+                style={[
+                  styles.processTab,
+                  activeProcessTab === "all" && {
+                    borderBottomColor: primaryColor,
+                    borderBottomWidth: 2,
+                  },
+                ]}
+                onPress={() => setActiveProcessTab("all")}
+              >
+                <Text
+                  style={[
+                    styles.processTabText,
+                    { color: textColor },
+                    activeProcessTab === "all" && {
+                      color: primaryColor,
+                      fontWeight: "700",
+                    },
+                  ]}
+                >
+                  Todas ({photos.length})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.processTab,
+                  activeProcessTab === "process1" && {
+                    borderBottomColor: "#007AFF",
+                    borderBottomWidth: 2,
+                  },
+                ]}
+                onPress={() => setActiveProcessTab("process1")}
+              >
+                <Text
+                  style={[
+                    styles.processTabText,
+                    { color: textColor },
+                    activeProcessTab === "process1" && {
+                      color: "#007AFF",
+                      fontWeight: "700",
+                    },
+                  ]}
+                >
+                  P1 ({photos.filter((p) => p.processType === "process1").length})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.processTab,
+                  activeProcessTab === "process2" && {
+                    borderBottomColor: "#34C759",
+                    borderBottomWidth: 2,
+                  },
+                ]}
+                onPress={() => setActiveProcessTab("process2")}
+              >
+                <Text
+                  style={[
+                    styles.processTabText,
+                    { color: textColor },
+                    activeProcessTab === "process2" && {
+                      color: "#34C759",
+                      fontWeight: "700",
+                    },
+                  ]}
+                >
+                  P2 ({photos.filter((p) => p.processType === "process2").length})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.processTab,
+                  activeProcessTab === "process3" && {
+                    borderBottomColor: "#FF9500",
+                    borderBottomWidth: 2,
+                  },
+                ]}
+                onPress={() => setActiveProcessTab("process3")}
+              >
+                <Text
+                  style={[
+                    styles.processTabText,
+                    { color: textColor },
+                    activeProcessTab === "process3" && {
+                      color: "#FF9500",
+                      fontWeight: "700",
+                    },
+                  ]}
+                >
+                  P3 ({photos.filter((p) => p.processType === "process3").length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* CONTENT */}
+          {containerOneQuery.isLoading || !dataOne ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={primaryColor} />
-              <ThemedText style={styles.loadingText}>Cargando...</ThemedText>
+              <Text style={[styles.loadingText, { color: textColor }]}>Cargando...</Text>
             </View>
           ) : containerOneQuery.isError ? (
             <View style={styles.loadingContainer}>
-              <Ionicons name="alert-circle" size={48} color="red" />
-              <ThemedText style={styles.loadingText}>
-                Error al cargar datos
-              </ThemedText>
+              <Ionicons name="alert-circle" size={48} color="#ff4d4f" />
+              <Text style={[styles.loadingText, { color: textColor }]}>Error al cargar datos</Text>
             </View>
           ) : (
-            <FlatList
-              data={filteredPhotos}
-              renderItem={renderPhotoItem}
-              keyExtractor={(item, index) => `photo-${index}`}
-              numColumns={2}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Ionicons name="images" size={64} color={borderColor} />
-                  <ThemedText style={styles.emptyText}>
-                    No hay fotos disponibles
-                  </ThemedText>
-                </View>
-              }
-            />
+            <>
+              {activeMainTab === "form" && (
+                <CompleteFormTab
+                  dataOne={dataOne}
+                  dataTwo={dataTwo}
+                  dataThree={dataThree}
+                  dark={dark}
+                  textColor={textColor}
+                  sectionBg={sectionBg}
+                  fieldBg={fieldBg}
+                  borderColor={borderColor}
+                  primaryColor={primaryColor}
+                />
+              )}
+              {activeMainTab === "photos" && (
+                <FlatList
+                  data={filteredPhotos}
+                  renderItem={renderPhotoItem}
+                  keyExtractor={(item, index) => `photo-${index}`}
+                  numColumns={2}
+                  contentContainerStyle={styles.listContent}
+                  showsVerticalScrollIndicator={false}
+                  ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                      <Ionicons name="images" size={64} color={borderColor} />
+                      <Text style={[styles.emptyText, { color: textColor }]}>
+                        No hay fotos disponibles
+                      </Text>
+                    </View>
+                  }
+                />
+              )}
+            </>
           )}
-        </ThemedView>
+        </View>
       </Modal>
 
-      {/* Modal fullscreen */}
+      {/* MODAL FULLSCREEN IMAGEN */}
       {selectedImage && (
         <Modal
           visible={!!selectedImage}
@@ -986,15 +723,8 @@ export const ShowContainerCompleteModal = ({
               </GestureDetector>
 
               <View style={styles.imageViewerHeader}>
-                <Text style={styles.imageViewerTitle}>
-                  {selectedImage.title}
-                </Text>
-                <View
-                  style={[
-                    styles.fullscreenProcessBadge,
-                    getProcessBadgeColor(selectedImage.processType),
-                  ]}
-                >
+                <Text style={styles.imageViewerTitle}>{selectedImage.title}</Text>
+                <View style={[styles.fullscreenProcessBadge, getProcessBadgeColor(selectedImage.processType)]}>
                   <Text style={styles.fullscreenProcessText}>
                     {selectedImage.processType === "process1"
                       ? "Proceso 1"
@@ -1009,13 +739,9 @@ export const ShowContainerCompleteModal = ({
                 <View style={styles.imageViewerCommentContainer}>
                   <View style={styles.imageViewerCommentHeader}>
                     <Ionicons name="chatbox" size={16} color="#FFFFFF" />
-                    <Text style={styles.imageViewerCommentLabel}>
-                      Comentario:
-                    </Text>
+                    <Text style={styles.imageViewerCommentLabel}>Comentario:</Text>
                   </View>
-                  <Text style={styles.imageViewerCommentText}>
-                    {selectedImage.comment}
-                  </Text>
+                  <Text style={styles.imageViewerCommentText}>{selectedImage.comment}</Text>
                 </View>
               )}
 
@@ -1036,6 +762,153 @@ export const ShowContainerCompleteModal = ({
   );
 };
 
+// ============================================
+// COMPONENTE DEL TAB DE FORMULARIOS COMPLETOS
+// ============================================
+interface CompleteFormTabProps {
+  dataOne: any;
+  dataTwo: any;
+  dataThree: any;
+  dark: boolean;
+  textColor: string;
+  sectionBg: string;
+  fieldBg: string;
+  borderColor: string;
+  primaryColor: string;
+}
+
+const CompleteFormTab = ({
+  dataOne,
+  dataTwo,
+  dataThree,
+  dark,
+  textColor,
+  sectionBg,
+  fieldBg,
+  borderColor,
+  primaryColor,
+}: CompleteFormTabProps) => {
+  return (
+    <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
+      {/* PROCESO 1 */}
+      {dataOne && (
+        <>
+          <View style={[styles.processSeparator, { backgroundColor: "#007AFF" }]}>
+            <Text style={styles.processSeparatorText}>📦 PROCESO 1 - INSPECCIÓN VACÍO</Text>
+          </View>
+
+          <View style={[styles.section, { backgroundColor: sectionBg, borderColor }]}>
+            <Text style={[styles.sectionTitle, { color: primaryColor }]}>INFORMACIÓN GENERAL</Text>
+          </View>
+          <FormField label="Contenedor" value={dataOne.container} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Cliente" value={dataOne.client} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="RUC" value={dataOne.clientIdentification} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Tipo de Servicio" value={dataOne.typeService} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Fecha" value={dataOne.date} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+
+          <View style={[styles.section, { backgroundColor: sectionBg, borderColor }]}>
+            <Text style={[styles.sectionTitle, { color: primaryColor }]}>UBICACIÓN</Text>
+          </View>
+          <FormField label="Ciudad" value={dataOne.city} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Dirección" value={dataOne.address} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Patio/Acopio" value={dataOne.storageName} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+
+          {dataOne.observation && (
+            <>
+              <View style={[styles.section, { backgroundColor: sectionBg, borderColor }]}>
+                <Text style={[styles.sectionTitle, { color: primaryColor }]}>OBSERVACIONES</Text>
+              </View>
+              <View style={[styles.observationContainer, { backgroundColor: fieldBg, borderBottomColor: borderColor }]}>
+                <Text style={[styles.observationText, { color: textColor }]}>{dataOne.observation}</Text>
+              </View>
+            </>
+          )}
+        </>
+      )}
+
+      {/* PROCESO 2 */}
+      {dataTwo && (
+        <>
+          <View style={[styles.processSeparator, { backgroundColor: "#34C759" }]}>
+            <Text style={styles.processSeparatorText}>🍌 PROCESO 2 - LLENADO</Text>
+          </View>
+
+          <View style={[styles.section, { backgroundColor: sectionBg, borderColor }]}>
+            <Text style={[styles.sectionTitle, { color: primaryColor }]}>PRODUCTO</Text>
+          </View>
+          <FormField label="Producto" value={dataTwo.product} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Presentación" value={dataTwo.presentation} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+
+          <View style={[styles.section, { backgroundColor: sectionBg, borderColor }]}>
+            <Text style={[styles.sectionTitle, { color: primaryColor }]}>MUESTREO</Text>
+          </View>
+          <FormField label="Número de Pallets" value={dataTwo.numberPallet} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Número de Presentaciones" value={dataTwo.numberPresentation} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Número de Muestreo" value={dataTwo.numberSampling} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+
+          {dataTwo.observation && (
+            <>
+              <View style={[styles.section, { backgroundColor: sectionBg, borderColor }]}>
+                <Text style={[styles.sectionTitle, { color: primaryColor }]}>OBSERVACIONES</Text>
+              </View>
+              <View style={[styles.observationContainer, { backgroundColor: fieldBg, borderBottomColor: borderColor }]}>
+                <Text style={[styles.observationText, { color: textColor }]}>{dataTwo.observation}</Text>
+              </View>
+            </>
+          )}
+        </>
+      )}
+
+      {/* PROCESO 3 */}
+      {dataThree && (
+        <>
+          <View style={[styles.processSeparator, { backgroundColor: "#FF9500" }]}>
+            <Text style={styles.processSeparatorText}>🚢 PROCESO 3 - SALIDA</Text>
+          </View>
+
+          <View style={[styles.section, { backgroundColor: sectionBg, borderColor }]}>
+            <Text style={[styles.sectionTitle, { color: primaryColor }]}>INFORMACIÓN</Text>
+          </View>
+          <FormField label="Puerto de Ingreso" value={dataThree.entryPort} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+          <FormField label="Coordenadas" value={dataThree.coordinates} textColor={textColor} fieldBg={fieldBg} borderColor={borderColor} />
+
+          {dataThree.observation && (
+            <>
+              <View style={[styles.section, { backgroundColor: sectionBg, borderColor }]}>
+                <Text style={[styles.sectionTitle, { color: primaryColor }]}>OBSERVACIONES</Text>
+              </View>
+              <View style={[styles.observationContainer, { backgroundColor: fieldBg, borderBottomColor: borderColor }]}>
+                <Text style={[styles.observationText, { color: textColor }]}>{dataThree.observation}</Text>
+              </View>
+            </>
+          )}
+        </>
+      )}
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
+  );
+};
+
+interface FormFieldProps {
+  label: string;
+  value: any;
+  textColor: string;
+  fieldBg: string;
+  borderColor: string;
+}
+
+const FormField = ({ label, value, textColor, fieldBg, borderColor }: FormFieldProps) => {
+  if (!value) return null;
+
+  return (
+    <View style={[styles.formField, { backgroundColor: fieldBg, borderBottomColor: borderColor }]}>
+      <Text style={[styles.fieldLabel, { color: textColor, opacity: 0.6 }]}>{label}</Text>
+      <Text style={[styles.fieldValue, { color: textColor }]}>{value}</Text>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1046,30 +919,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 15,
+    paddingBottom: 16,
     borderBottomWidth: 1,
   },
   headerContent: {
     flex: 1,
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 20,
+    fontWeight: "700",
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 13,
-    opacity: 0.6,
   },
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-  },
-  pdfMenu: {
-    flexDirection: "row",
-    gap: 6,
-    alignItems: "center",
   },
   pdfButton: {
     width: 44,
@@ -1083,47 +950,42 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 4,
   },
-  pdfButtonMain: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  pdfButtonSmall: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 4,
-  },
-  pdfButtonSmallText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "bold",
-  },
   closeButton: {
     padding: 8,
   },
-  tabContainer: {
+  mainTabContainer: {
     flexDirection: "row",
-    paddingHorizontal: 10,
     borderBottomWidth: 1,
   },
-  tab: {
+  mainTab: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 14,
-    gap: 8,
+    gap: 6,
+    borderBottomWidth: 3,
+    borderBottomColor: "transparent",
   },
-  tabText: {
-    fontSize: 13,
-    fontWeight: "600",
+  mainTabText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  processTabContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+  },
+  processTab: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+  },
+  processTabText: {
+    fontSize: 12,
+    fontWeight: "500",
   },
   loadingContainer: {
     flex: 1,
@@ -1132,8 +994,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   loadingText: {
-    fontSize: 16,
-    opacity: 0.6,
+    fontSize: 14,
   },
   emptyContainer: {
     flex: 1,
@@ -1143,9 +1004,59 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   emptyText: {
-    fontSize: 16,
-    opacity: 0.6,
+    fontSize: 14,
   },
+
+  // FORMULARIO
+  formContainer: {
+    flex: 1,
+  },
+  processSeparator: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 8,
+  },
+  processSeparatorText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  section: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  formField: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  fieldValue: {
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  observationContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  observationText: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
+
+  // FOTOS
   listContent: {
     padding: 16,
   },
@@ -1172,6 +1083,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 8,
+    backgroundColor: "rgba(0,0,0,0.7)",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -1183,7 +1095,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   commentBadge: {
-    backgroundColor: "rgba(52, 199, 89, 0.9)",
+    backgroundColor: "#52c41a",
     borderRadius: 10,
     padding: 4,
     marginLeft: 4,
@@ -1201,6 +1113,8 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
+
+  // IMAGE VIEWER
   imageViewerContainer: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.95)",
@@ -1241,7 +1155,7 @@ const styles = StyleSheet.create({
     bottom: 40,
     left: 20,
     right: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
     borderRadius: 12,
     padding: 16,
     zIndex: 10,

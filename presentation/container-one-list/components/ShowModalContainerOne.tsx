@@ -1,23 +1,16 @@
-import VideoReproductorComponent from "@/components/shared/VideoReproductor";
-import { generateWfOnePdfReportbyId } from "@/core/container-one/actions";
-import { ThemedText } from "@/presentation/theme/components/ThemedText";
-import { ThemedView } from "@/presentation/theme/components/ThemedView";
-import { useThemeColor } from "@/presentation/theme/hooks/useThemeColor";
 import { Ionicons } from "@expo/vector-icons";
-import { Directory, File, Paths } from "expo-file-system";
-import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   FlatList,
   Image,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import {
   Gesture,
@@ -30,7 +23,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { useContainerOne } from "../hooks";
+import { useContainerOne } from "../hooks/useContainerOne";
 
 interface PhotoItem {
   uri: string;
@@ -39,17 +32,12 @@ interface PhotoItem {
   comment?: string | null;
 }
 
-interface VideoItem {
-  uri: string;
-  title: string;
-}
-
-interface ShowContainerEmptyModalProps {
+interface ShowContainerOneModalProps {
   visible: boolean;
   onClose: () => void;
   containerId: number;
   containerNumber: string;
-  dark: boolean;
+  dark: boolean; // ✨ DARK MODE
 }
 
 const { width, height } = Dimensions.get("window");
@@ -60,15 +48,15 @@ const fieldTitles: Record<string, string> = {
   emptyPanoramicPhoto: "Panorámica Vacío",
   emptyStampNavieraPhoto: "Sello Naviera Vacío",
   emptyOtherStampPhoto: "Otro Sello Vacío",
-  emptySatelliteLockStampPhoto: "Sello Candado Satelital Vacío",
-  emptySatelliteLockPhoto: "Candado Satelital Vacío",
-  emptyAditionalStampPhoto: "Sello Adicional Vacío",
-  emptySideRightPhoto: "Lado Derecho Vacío",
-  emptySideLeftPhoto: "Lado Izquierdo Vacío",
-  emptySideUpPhoto: "Lado Superior Vacío",
-  emptySideDownPhoto: "Lado Inferior Vacío",
-  emptyFrontPhoto: "Frente Vacío",
-  emptyRearPhoto: "Posterior Vacío",
+  emptySatelliteLockStampPhoto: "Sello Candado Satelital",
+  emptySatelliteLockPhoto: "Candado Satelital",
+  emptyAditionalStampPhoto: "Sello Adicional",
+  emptySideRightPhoto: "Lado Derecho",
+  emptySideLeftPhoto: "Lado Izquierdo",
+  emptySideUpPhoto: "Lado Superior",
+  emptySideDownPhoto: "Lado Inferior",
+  emptyFrontPhoto: "Frente",
+  emptyRearPhoto: "Posterior",
   emptyEirPhoto: "EIR",
   emptyPreviousInspectionDocumentPhoto: "Doc. Inspección Previa",
   emptyPlatePhoto: "Placa Vehículo",
@@ -85,13 +73,18 @@ const fieldTitles: Record<string, string> = {
   emptyInternalPhoto5: "Foto Interna 5",
   emptyInternalPhoto6: "Foto Interna 6",
 
-  // FOTOS FULL/EXIT
+  // MAQUINARIA
+  engineryPhoto1: "Maquinaria 1",
+  engineryPhoto2: "Maquinaria 2",
+
+  // EXIT
   exitOtherStampPhoto: "Otro Sello Salida",
   exitPanoramicPhoto: "Panorámica Salida",
   exitStampNavieraPhoto: "Sello Naviera Salida",
-  exitSatelliteLockStampPhoto: "Sello Candado Satelital Salida",
-  exitEngineryPhoto1: "Maquinaria 1",
-  exitEngineryPhoto2: "Maquinaria 2",
+  exitSatelliteLockStampPhoto: "Candado Satelital Salida",
+  exitEngineryPhoto1: "Maquinaria Salida 1",
+  exitEngineryPhoto2: "Maquinaria Salida 2",
+  exitTemporarySealingPhoto: "Sellado Temporal",
 };
 
 const commentFields: Record<string, string> = {
@@ -110,12 +103,15 @@ const commentFields: Record<string, string> = {
   emptyInternalPhoto4: "emptyInternalComment4",
   emptyInternalPhoto5: "emptyInternalComment5",
   emptyInternalPhoto6: "emptyInternalComment6",
+  engineryPhoto1: "engineryComment1",
+  engineryPhoto2: "engineryComment2",
   exitOtherStampPhoto: "exitOtherStampComment",
   exitSatelliteLockStampPhoto: "exitSatelliteLockStampComment",
   exitPanoramicPhoto: "exitPanoramicComment",
   exitStampNavieraPhoto: "exitStampNavieraComment",
   exitEngineryPhoto1: "exitEngineryComment1",
   exitEngineryPhoto2: "exitEngineryComment2",
+  exitTemporarySealingPhoto: "exitTemporarySealingComment",
 };
 
 export const ShowContainerOneModal = ({
@@ -123,40 +119,29 @@ export const ShowContainerOneModal = ({
   onClose,
   containerId,
   containerNumber,
-  dark,
-}: ShowContainerEmptyModalProps) => {
+  dark, // ✨ DARK MODE PROP
+}: ShowContainerOneModalProps) => {
   const { containerOneQuery } = useContainerOne(containerId);
 
-  const [activeTab, setActiveTab] = useState<"photos" | "videos">("photos");
+  const [activeTab, setActiveTab] = useState<"form" | "photos">("form");
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
-  const [videos, setVideos] = useState<VideoItem[]>([]);
   const [selectedImage, setSelectedImage] = useState<PhotoItem | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  const backgroundColor = useThemeColor(
-    { light: "#FFFFFF", dark: "#000000" },
-    "background",
-  );
-  const primaryColor = useThemeColor({}, "primary");
-  const secondaryColor = useThemeColor({}, "secondary");
-  const textColor = useThemeColor(
-    { light: "#000000", dark: "#FFFFFF" },
-    "text",
-  );
-  const cardBg = useThemeColor(
-    { light: "#F9F9F9", dark: "#1C1C1E" },
-    "background",
-  );
-  const borderColor = useThemeColor(
-    { light: "#E5E5EA", dark: "#38383A" },
-    "border",
-  );
+  // ✨ COLORES SEGÚN MODO
+  const backgroundColor = dark ? "#000000" : "#FFFFFF";
+  const textColor = dark ? "#FFFFFF" : "#000000";
+  const primaryColor = dark ? "#91caff" : "#000080";
+  const secondaryColor = "#52c41a";
+  const cardBg = dark ? "#1C1C1E" : "#F9F9F9";
+  const borderColor = dark ? "#38383A" : "#E5E5EA";
+  const sectionBg = dark ? "#1C1C1E" : "#fafafa";
+  const fieldBg = dark ? "#2C2C2E" : "#FFFFFF";
 
   useEffect(() => {
     if (containerOneQuery.data) {
       const data = containerOneQuery.data;
       const photoArray: PhotoItem[] = [];
-      const videoArray: VideoItem[] = [];
 
       // Procesar todas las fotos
       Object.entries(data).forEach(([key, value]) => {
@@ -173,80 +158,22 @@ export const ShowContainerOneModal = ({
         }
       });
 
-      // Procesar videos
-      if (data.emptyInternalVideo) {
-        videoArray.push({
-          uri: data.emptyInternalVideo,
-          title: "Video Interno Vacío",
-        });
-      }
-      if (data.exitDoorVideo) {
-        videoArray.push({
-          uri: data.exitDoorVideo,
-          title: "Video Puerta Salida",
-        });
-      }
-      if (data.exitEngineryVideo) {
-        videoArray.push({
-          uri: data.exitEngineryVideo,
-          title: "Video Maquinaria Salida",
+      // Agregar imágenes dinámicas
+      if (data.images && Array.isArray(data.images)) {
+        data.images.forEach((img: any, index: number) => {
+          if (img.src) {
+            photoArray.push({
+              uri: img.src,
+              title: `Foto Adicional ${index + 1}`,
+              comment: img.comment || null,
+            });
+          }
         });
       }
 
       setPhotos(photoArray);
-      setVideos(videoArray);
     }
   }, [containerOneQuery.data]);
-
-  const handleGeneratePdf = async () => {
-    setIsGeneratingPdf(true);
-
-    try {
-      const { data: pdfBase64 } = await generateWfOnePdfReportbyId(containerId);
-
-      if (!pdfBase64) {
-        throw new Error("No se recibió el PDF del servidor");
-      }
-
-      const cleanBase64 = pdfBase64
-        .replace(/^data:application\/pdf;base64,/, "")
-        .trim();
-
-      // 3. Crear archivo temporal
-      const fileName = `Reporte-Proceso-1-${containerNumber}-${Date.now()}.pdf`;
-      const cacheDir = new Directory(Paths.cache);
-      const pdfFile = new File(cacheDir, fileName);
-
-      await pdfFile.write(cleanBase64, { encoding: "base64" });
-
-      const canShare = await Sharing.isAvailableAsync();
-
-      if (!canShare) {
-        throw new Error("La función de compartir no está disponible");
-      }
-
-      await Sharing.shareAsync(pdfFile.uri, {
-        mimeType: "application/pdf",
-        dialogTitle: "Guardar o Compartir PDF",
-        UTI: "com.adobe.pdf",
-      });
-
-      Alert.alert(
-        "¡Éxito!",
-        "PDF generado. Usa el menú de compartir para guardarlo donde desees.",
-        [{ text: "OK" }],
-      );
-    } catch (error) {
-      console.error("❌ Error:", error);
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "No se pudo generar el PDF",
-        [{ text: "OK" }],
-      );
-    } finally {
-      setIsGeneratingPdf(false);
-    }
-  };
 
   const renderPhotoItem = ({ item }: { item: PhotoItem }) => (
     <TouchableOpacity
@@ -259,9 +186,7 @@ export const ShowContainerOneModal = ({
         style={styles.photo}
         resizeMode="cover"
       />
-      <View
-        style={[styles.photoOverlay, { backgroundColor: "rgba(0,0,0,0.6)" }]}
-      >
+      <View style={styles.photoOverlay}>
         <Text style={styles.photoTitle} numberOfLines={2}>
           {item.title}
         </Text>
@@ -272,19 +197,6 @@ export const ShowContainerOneModal = ({
         )}
       </View>
     </TouchableOpacity>
-  );
-
-  const renderVideoItem = ({ item }: { item: VideoItem }) => (
-    <View style={[styles.videoCard, { backgroundColor: cardBg, borderColor }]}>
-      <VideoReproductorComponent videoSource={item.uri} />
-      <View
-        style={[styles.videoTitleContainer, { borderTopColor: borderColor }]}
-      >
-        <Text style={[styles.videoTitle, { color: textColor }]}>
-          {item.title}
-        </Text>
-      </View>
-    </View>
   );
 
   const scale = useSharedValue(1);
@@ -348,54 +260,65 @@ export const ShowContainerOneModal = ({
         presentationStyle="pageSheet"
         onRequestClose={onClose}
       >
-        <ThemedView style={[styles.container, { backgroundColor }]}>
-          {/* Header */}
+        <View style={[styles.container, { backgroundColor }]}>
+          {/* HEADER */}
           <View style={[styles.header, { borderBottomColor: borderColor }]}>
             <View style={styles.headerContent}>
-              <ThemedText style={styles.headerTitle}>
+              <Text style={[styles.headerTitle, { color: textColor }]}>
                 Contenedor N°{" "}
-                <Text style={{ color: dark ? secondaryColor : primaryColor }}>
-                  {containerNumber}
-                </Text>
-              </ThemedText>
-              <ThemedText style={styles.headerSubtitle}>
-                Inspección Proceso 1
-              </ThemedText>
-            </View>
-
-            {/* Botones de acción */}
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                onPress={handleGeneratePdf}
-                disabled={isGeneratingPdf}
+                <Text style={{ color: primaryColor }}>{containerNumber}</Text>
+              </Text>
+              <Text
                 style={[
-                  styles.pdfButton,
-                  {
-                    backgroundColor: isGeneratingPdf
-                      ? "#ccc"
-                      : dark
-                        ? secondaryColor
-                        : primaryColor,
-                  },
+                  styles.headerSubtitle,
+                  { color: textColor, opacity: 0.6 },
                 ]}
               >
-                {isGeneratingPdf ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <Ionicons name="document-text" size={22} color="#FFFFFF" />
-                )}
-              </TouchableOpacity>
+                Inspección Proceso 1
+              </Text>
+            </View>
 
+            <View style={styles.headerActions}>
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Ionicons name="close" size={28} color="red" />
+                <Ionicons name="close" size={28} color="#ff4d4f" />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Tabs */}
+          {/* TABS */}
           <View
             style={[styles.tabContainer, { borderBottomColor: borderColor }]}
           >
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === "form" && {
+                  borderBottomColor: primaryColor,
+                  borderBottomWidth: 3,
+                },
+              ]}
+              onPress={() => setActiveTab("form")}
+            >
+              <Ionicons
+                name="document-text-outline"
+                size={20}
+                color={activeTab === "form" ? primaryColor : textColor}
+                style={{ opacity: activeTab === "form" ? 1 : 0.5 }}
+              />
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: textColor },
+                  activeTab === "form" && {
+                    color: primaryColor,
+                    fontWeight: "700",
+                  },
+                ]}
+              >
+                Formulario
+              </Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={[
                 styles.tab,
@@ -407,72 +330,78 @@ export const ShowContainerOneModal = ({
               onPress={() => setActiveTab("photos")}
             >
               <Ionicons
-                name="images"
+                name="images-outline"
                 size={20}
-                color={
-                  activeTab === "photos"
-                    ? dark
-                      ? secondaryColor
-                      : primaryColor
-                    : textColor
-                }
+                color={activeTab === "photos" ? primaryColor : textColor}
+                style={{ opacity: activeTab === "photos" ? 1 : 0.5 }}
               />
-              <ThemedText
+              <Text
                 style={[
                   styles.tabText,
+                  { color: textColor },
                   activeTab === "photos" && {
-                    color: dark ? secondaryColor : primaryColor,
+                    color: primaryColor,
                     fontWeight: "700",
                   },
                 ]}
               >
                 Fotos ({photos.length})
-              </ThemedText>
+              </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Content */}
+          {/* CONTENT */}
           {containerOneQuery.isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={primaryColor} />
-              <ThemedText style={styles.loadingText}>Cargando...</ThemedText>
+              <Text style={[styles.loadingText, { color: textColor }]}>
+                Cargando...
+              </Text>
             </View>
           ) : containerOneQuery.isError ? (
             <View style={styles.loadingContainer}>
-              <Ionicons name="alert-circle" size={48} color="red" />
-              <ThemedText style={styles.loadingText}>
+              <Ionicons name="alert-circle" size={48} color="#ff4d4f" />
+              <Text style={[styles.loadingText, { color: textColor }]}>
                 Error al cargar datos
-              </ThemedText>
+              </Text>
             </View>
           ) : (
-            <FlatList
-              data={activeTab === "photos" ? photos : videos}
-              renderItem={
-                activeTab === "photos" ? renderPhotoItem : renderVideoItem
-              }
-              keyExtractor={(item, index) => `${activeTab}-${index}`}
-              numColumns={activeTab === "photos" ? 2 : 1}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Ionicons
-                    name={activeTab === "photos" ? "images" : "videocam"}
-                    size={64}
-                    color={borderColor}
-                  />
-                  <ThemedText style={styles.emptyText}>
-                    No hay {activeTab === "photos" ? "fotos" : "videos"}{" "}
-                    disponibles
-                  </ThemedText>
-                </View>
-              }
-            />
+            <>
+              {activeTab === "form" && (
+                <FormTab
+                  data={containerOneQuery.data}
+                  dark={dark}
+                  textColor={textColor}
+                  sectionBg={sectionBg}
+                  fieldBg={fieldBg}
+                  borderColor={borderColor}
+                  primaryColor={primaryColor}
+                />
+              )}
+              {activeTab === "photos" && (
+                <FlatList
+                  data={photos}
+                  renderItem={renderPhotoItem}
+                  keyExtractor={(item, index) => `photo-${index}`}
+                  numColumns={2}
+                  contentContainerStyle={styles.listContent}
+                  showsVerticalScrollIndicator={false}
+                  ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                      <Ionicons name="images" size={64} color={borderColor} />
+                      <Text style={[styles.emptyText, { color: textColor }]}>
+                        No hay fotos disponibles
+                      </Text>
+                    </View>
+                  }
+                />
+              )}
+            </>
           )}
-        </ThemedView>
+        </View>
       </Modal>
 
-      {/* Modal para ver imagen en fullscreen con comentario */}
+      {/* MODAL FULLSCREEN IMAGEN */}
       {selectedImage && (
         <Modal
           visible={!!selectedImage}
@@ -501,14 +430,12 @@ export const ShowContainerOneModal = ({
                 </Animated.View>
               </GestureDetector>
 
-              {/* Header con título */}
               <View style={styles.imageViewerHeader}>
                 <Text style={styles.imageViewerTitle}>
                   {selectedImage.title}
                 </Text>
               </View>
 
-              {/* Comentario si existe */}
               {selectedImage.comment && (
                 <View style={styles.imageViewerCommentContainer}>
                   <View style={styles.imageViewerCommentHeader}>
@@ -523,7 +450,6 @@ export const ShowContainerOneModal = ({
                 </View>
               )}
 
-              {/* Botón cerrar */}
               <TouchableOpacity
                 style={styles.imageViewerClose}
                 onPress={() => {
@@ -541,6 +467,392 @@ export const ShowContainerOneModal = ({
   );
 };
 
+// ============================================
+// COMPONENTE DEL TAB DE FORMULARIO
+// ============================================
+interface FormTabProps {
+  data: any;
+  dark: boolean;
+  textColor: string;
+  sectionBg: string;
+  fieldBg: string;
+  borderColor: string;
+  primaryColor: string;
+}
+
+const FormTab = ({
+  data,
+  dark,
+  textColor,
+  sectionBg,
+  fieldBg,
+  borderColor,
+  primaryColor,
+}: FormTabProps) => {
+  if (!data) return null;
+
+  return (
+    <ScrollView
+      style={styles.formContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* INFORMACIÓN GENERAL */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          📦 INFORMACIÓN GENERAL
+        </Text>
+      </View>
+      <FormField
+        label="Contenedor"
+        value={data.container}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Cliente"
+        value={data.client}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="RUC/Identificación"
+        value={data.clientIdentification}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Tipo de Servicio"
+        value={data.typeService}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Fecha"
+        value={data.date}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* DETALLES DEL CONTENEDOR */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          🚢 DETALLES DEL CONTENEDOR
+        </Text>
+      </View>
+      <FormField
+        label="Tipo de Contenedor"
+        value={data.typeContainer}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Naviera"
+        value={data.naviera}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Tamaño"
+        value={data.size}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Puerto de Ingreso"
+        value={data.entryPort}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Compañía de Transporte"
+        value={data.companyTransport}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* UBICACIÓN */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          📍 UBICACIÓN
+        </Text>
+      </View>
+      <FormField
+        label="Ciudad"
+        value={data.city}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Dirección"
+        value={data.address}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Patio/Acopio"
+        value={data.storageName}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Lugar de Trabajo"
+        value={data.workplace}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Coordenadas"
+        value={data.coordinates}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* SUPERVISIÓN */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          👥 SUPERVISIÓN
+        </Text>
+      </View>
+      <FormField
+        label="CAN"
+        value={data.can?.join(", ")}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Guía/Leader"
+        value={data.leader?.join(", ")}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Supervisor Exportador"
+        value={data.exporterSupervisor}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="ID Supervisor"
+        value={data.exporterSupervisorIdentification}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Asociado"
+        value={data.associated}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="ID Asociado"
+        value={data.associatedIdentification}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Otros"
+        value={data.others}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="ID Otros"
+        value={data.othersIdentification}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* INSPECCIÓN */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          🔍 INSPECCIÓN
+        </Text>
+      </View>
+      <FormField
+        label="¿Fue inspeccionado?"
+        value={data.inspectedWas}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Inspeccionado por"
+        value={data.inspectedBy}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Tipo de Revisión"
+        value={data.typeReview}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* CONDUCTOR */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          🚗 CONDUCTOR
+        </Text>
+      </View>
+      <FormField
+        label="Nombre"
+        value={data.driverName}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Identificación"
+        value={data.driverIdentification}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Placa"
+        value={data.plateVehicle}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* HORARIOS */}
+      <View
+        style={[styles.section, { backgroundColor: sectionBg, borderColor }]}
+      >
+        <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+          ⏰ HORARIOS
+        </Text>
+      </View>
+      <FormField
+        label="Inicio de Proceso"
+        value={data.startProcess}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Fin de Proceso"
+        value={data.endProcess}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Hora Inicio"
+        value={data.hourInit}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+      <FormField
+        label="Hora Fin"
+        value={data.hourEnd}
+        textColor={textColor}
+        fieldBg={fieldBg}
+        borderColor={borderColor}
+      />
+
+      {/* OBSERVACIONES */}
+      {data.observation && (
+        <>
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: sectionBg, borderColor },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: primaryColor }]}>
+              📝 OBSERVACIONES
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.observationContainer,
+              { backgroundColor: fieldBg, borderBottomColor: borderColor },
+            ]}
+          >
+            <Text style={[styles.observationText, { color: textColor }]}>
+              {data.observation}
+            </Text>
+          </View>
+        </>
+      )}
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
+  );
+};
+
+interface FormFieldProps {
+  label: string;
+  value: any;
+  textColor: string;
+  fieldBg: string;
+  borderColor: string;
+}
+
+const FormField = ({
+  label,
+  value,
+  textColor,
+  fieldBg,
+  borderColor,
+}: FormFieldProps) => {
+  if (!value) return null;
+
+  return (
+    <View
+      style={[
+        styles.formField,
+        { backgroundColor: fieldBg, borderBottomColor: borderColor },
+      ]}
+    >
+      <Text style={[styles.fieldLabel, { color: textColor, opacity: 0.6 }]}>
+        {label}
+      </Text>
+      <Text style={[styles.fieldValue, { color: textColor }]}>{value}</Text>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -551,20 +863,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 16,
     borderBottomWidth: 1,
   },
   headerContent: {
     flex: 1,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: "800",
+    fontSize: 20,
+    fontWeight: "700",
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
-    opacity: 0.6,
+    fontSize: 13,
   },
   headerActions: {
     flexDirection: "row",
@@ -588,7 +899,6 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    paddingHorizontal: 20,
     borderBottomWidth: 1,
   },
   tab: {
@@ -596,12 +906,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: 14,
+    gap: 6,
+    borderBottomWidth: 3,
+    borderBottomColor: "transparent",
   },
   tabText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "500",
   },
   loadingContainer: {
     flex: 1,
@@ -610,8 +922,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   loadingText: {
-    fontSize: 16,
-    opacity: 0.6,
+    fontSize: 14,
   },
   emptyContainer: {
     flex: 1,
@@ -621,9 +932,49 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   emptyText: {
-    fontSize: 16,
-    opacity: 0.6,
+    fontSize: 14,
   },
+
+  // FORMULARIO
+  formContainer: {
+    flex: 1,
+  },
+  section: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  formField: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  fieldValue: {
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  observationContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  observationText: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
+
+  // FOTOS
   listContent: {
     padding: 16,
   },
@@ -650,6 +1001,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 8,
+    backgroundColor: "rgba(0,0,0,0.7)",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -661,33 +1013,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   commentBadge: {
-    backgroundColor: "rgba(52, 199, 89, 0.9)",
+    backgroundColor: "#52c41a",
     borderRadius: 10,
     padding: 4,
     marginLeft: 4,
   },
-  videoCard: {
-    width: width - 32,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  videoTitleContainer: {
-    padding: 12,
-    borderTopWidth: 1,
-  },
-  videoTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
+
+  // IMAGE VIEWER
   imageViewerContainer: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.95)",
@@ -714,7 +1046,7 @@ const styles = StyleSheet.create({
     bottom: 40,
     left: 20,
     right: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
     borderRadius: 12,
     padding: 16,
     zIndex: 10,
@@ -744,15 +1076,5 @@ const styles = StyleSheet.create({
   fullscreenImage: {
     width: width,
     height: height,
-  },
-  fullscreenStatusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  fullscreenStatusText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "bold",
   },
 });

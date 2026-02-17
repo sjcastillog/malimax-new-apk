@@ -1,4 +1,4 @@
-import { WorkflowTwoI } from "@/core/container-two/interfaces/";
+import { WorkflowContainerTwoI } from "@/core/container-two/interfaces/";
 import { ThemedText } from "@/presentation/theme/components/ThemedText";
 import { ThemedView } from "@/presentation/theme/components/ThemedView";
 import { useThemeColor } from "@/presentation/theme/hooks/useThemeColor";
@@ -7,7 +7,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ShowContainerTwoModal } from "./ShowModalContainerTwo";
 
 interface Props {
-  container: WorkflowTwoI;
+  container: WorkflowContainerTwoI;
   dark: boolean;
 }
 
@@ -93,7 +93,7 @@ export const ContainerTwoListCard = ({ container, dark }: Props) => {
                 lightColor="#8E8E93"
                 darkColor="#98989D"
               >
-                Ciudad
+                Cliente
               </ThemedText>
               <ThemedText
                 style={styles.infoValue}
@@ -101,25 +101,25 @@ export const ContainerTwoListCard = ({ container, dark }: Props) => {
                 lightColor="#1C1C1E"
                 darkColor="#F2F2F7"
               >
-                {container.city || "N/A"}
+                {container.client || "N/A"}
               </ThemedText>
             </View>
             {/* Finca */}
-            {container.companyTransport && (
+            {container.product && (
               <View style={styles.infoItem}>
                 <ThemedText
                   style={styles.infoLabel}
                   lightColor="#8E8E93"
                   darkColor="#98989D"
                 >
-                  Compania Transporte
+                  Producto
                 </ThemedText>
                 <ThemedText
                   style={styles.farmLabel}
                   lightColor="#8E8E93"
                   darkColor="#98989D"
                 >
-                  🏡 {container.companyTransport}
+                  {container.product}
                 </ThemedText>
               </View>
             )}

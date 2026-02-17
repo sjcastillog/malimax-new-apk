@@ -1,5 +1,3 @@
-// core/container-one/interfaces/workflow-container-one.interface.ts
-
 export interface WorkflowImageI {
   id: number | null;
   src: string;
@@ -22,29 +20,21 @@ export interface WorkflowContainerOneI {
   clientId: number | null;
   observation: string | null;
   clientIdentification: string | null;
+  typeService: string | null;
+  date: string | null;
+  can: string[] | null;
+  leader: string[] | null;
+  exporterSupervisor: string | null;
+  exporterSupervisorIdentification: string | null;
+  associated: string | null;
+  associatedIdentification: string | null;
+  others: string | null;
+  othersIdentification: string | null;
+  workplace: string | null;
 
-  // ============================================
-  // NUEVOS CAMPOS DE LA WEB
-  // ============================================
-  typeService: string | null; // Select de catálogo
-  date: string | null; // Fecha del reporte
-  can: string[] | null; // Multiple select - CAN(es)
-  leader: string[] | null; // Multiple select - Guía(s)
-  exporterSupervisor: string | null; // Supervisor de Exportador
-  exporterSupervisorIdentification: string | null; // Identificación
-  associated: string | null; // Asociado Neg.
-  associatedIdentification: string | null; // Identificación
-  others: string | null; // Otro
-  othersIdentification: string | null; // Identificación
-  workplace: string | null; // Lugar de Trabajo
+  inspectedBy: string;
+  inspectedWas: string;
 
-  // RENOMBRADO: openedWas/openedBy → inspectedWas/inspectedBy
-  inspectedBy: string; // ¿Por quién fue inspeccionado?
-  inspectedWas: string; // ¿Fue inspeccionado? (Si/No)
-
-  // ============================================
-  // CAMPOS EXISTENTES
-  // ============================================
   labelSerial: string | null;
   plateVehicle: string;
   driverName: string;
@@ -115,10 +105,6 @@ export interface WorkflowContainerOneI {
   emptyInternalComment5: string | null;
   emptyInternalComment6: string | null;
   emptyInternalVideo: string;
-
-  // ============================================
-  // NUEVAS FOTOS DE MAQUINARIA (DE LA WEB)
-  // ============================================
   engineryPhoto1: string;
   engineryComment1: string | null;
   engineryPhoto2: string;
@@ -141,10 +127,6 @@ export interface WorkflowContainerOneI {
   exitEngineryComment2: string | null;
   exitDoorVideo: string;
   exitEngineryVideo: string;
-
-  // ============================================
-  // NUEVA FOTO DE SELLADO TEMPORAL (DE LA WEB)
-  // ============================================
   exitTemporarySealingPhoto: string;
   exitTemporarySealingComment: string | null;
 
@@ -175,17 +157,12 @@ export interface WorkflowContainerOneI {
     | "success"
     | "warning";
   createdAt?: any;
+  malimaxTwoId?: number | null;
+  malimaxThreeId?: number | null;
 }
 
 export interface WorkflowContainerOneActionI {
-  // ============================================
-  // MÉTODO GENÉRICO PARA TODAS LAS FOTOS
-  // ============================================
   setPhoto: (field: string, uri: string, filename?: string) => Promise<void>;
-
-  // ============================================
-  // NUEVOS SETTERS DE LA WEB
-  // ============================================
   setTypeService: (typeService: string | null) => void;
   setDate: (date: string | null) => void;
   setCan: (can: string[] | null) => void;
@@ -202,13 +179,8 @@ export interface WorkflowContainerOneActionI {
   setOthersIdentification: (othersIdentification: string | null) => void;
   setWorkplace: (workplace: string | null) => void;
 
-  // RENOMBRADO
   setInspectedBy: (inspectedBy: string) => void;
   setInspectedWas: (inspectedWas: string) => void;
-
-  // ============================================
-  // NUEVOS SETTERS DE COMENTARIOS (MAQUINARIA)
-  // ============================================
   setEngineryComment1: (engineryComment1: string | null) => void;
   setEngineryComment2: (engineryComment2: string | null) => void;
   setExitTemporarySealingComment: (
@@ -315,8 +287,6 @@ export interface WorkflowContainerOneRequiredI {
   size: string | null;
   companyTransport: string | null;
   entryPort: string | null;
-
-  // NUEVOS CAMPOS REQUERIDOS
   typeService: string | null;
   date: string | null;
   can: string[] | null;
@@ -422,7 +392,7 @@ export interface WorkflowContainerOneRequiredI {
 }
 
 export interface WorkflowOneForNextProcessI {
-  client:string;
-  clientId:number;
-  clientIdentification:string;
+  client: string;
+  clientId: number;
+  clientIdentification: string;
 }

@@ -1,4 +1,3 @@
-import { WorkflowContainerI } from "@/core/container-complete/interfaces/";
 import { ThemedText } from "@/presentation/theme/components/ThemedText";
 import { ThemedView } from "@/presentation/theme/components/ThemedView";
 import { useThemeColor } from "@/presentation/theme/hooks/useThemeColor";
