@@ -2,6 +2,7 @@ import { PHOTOS_DIR } from "@/common/constants";
 import { WorkflowImageI } from "@/core/container-one/interfaces";
 import { File } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
+import * as MediaLibrary from "expo-media-library";
 import React from "react";
 import {
   Alert,
@@ -21,8 +22,12 @@ interface DynamicPhotoCardProps {
 export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
   image,
 }) => {
-  const updateImage = useWorkflowStoreOneExtraThree((state) => state.updateImage);
-  const removeImage = useWorkflowStoreOneExtraThree((state) => state.removeImage);
+  const updateImage = useWorkflowStoreOneExtraThree(
+    (state) => state.updateImage,
+  );
+  const removeImage = useWorkflowStoreOneExtraThree(
+    (state) => state.removeImage,
+  );
 
   const handleTakePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -31,14 +36,18 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
       return;
     }
 
+    const mediaPermission = await MediaLibrary.requestPermissionsAsync();
+    const hasMediaPermission = mediaPermission.status === "granted";
+
     const result = await ImagePicker.launchCameraAsync({
-      quality: 0.8,
+      quality: 1,
       allowsEditing: false,
     });
 
     if (!result.canceled && result.assets[0]) {
       const filename = `dynamic_${image.uuid}_${Date.now()}.jpg`;
       const filepath = `${PHOTOS_DIR}${filename}`;
+      const permanentUri = `${PHOTOS_DIR}${filename}`;
 
       try {
         const file = new File(filepath);
@@ -59,6 +68,20 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
 
         await file.write(base64, { encoding: "base64" });
         await updateImage(image.uuid, "src", filename);
+        if (hasMediaPermission) {
+          try {
+            const asset = await MediaLibrary.createAssetAsync(permanentUri);
+
+            let album = await MediaLibrary.getAlbumAsync("malimax");
+            if (album === null) {
+              await MediaLibrary.createAlbumAsync("malimax", asset, true);
+            } else {
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album, true);
+            }
+          } catch (galleryError: any) {
+            console.warn("No se pudo guardar en galería:", galleryError);
+          }
+        }
       } catch (error) {
         console.error("Error guardando foto dinámica:", error);
         Alert.alert("Error", "No se pudo guardar la foto");

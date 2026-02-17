@@ -1,6 +1,7 @@
 import { PHOTOS_DIR } from "@/common/constants";
 import { File } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
+import * as MediaLibrary from "expo-media-library";
 import React from "react";
 import {
   Alert,
@@ -12,7 +13,6 @@ import {
   View,
 } from "react-native";
 import { useWorkflowStoreThreeExtraThree } from "../../../store";
-import * as MediaLibrary from "expo-media-library";
 
 interface PhotoWithCommentProps {
   photoIdKey: string;
@@ -53,7 +53,7 @@ export const PhotoWithComment: React.FC<PhotoWithCommentProps> = ({
     const hasMediaPermission = mediaPermission.status === "granted";
 
     const result = await ImagePicker.launchCameraAsync({
-      quality: 0.8,
+      quality: 1,
       allowsEditing: false,
     });
 
@@ -86,9 +86,9 @@ export const PhotoWithComment: React.FC<PhotoWithCommentProps> = ({
 
             let album = await MediaLibrary.getAlbumAsync("malimax");
             if (album === null) {
-              await MediaLibrary.createAlbumAsync("malimax", asset, false);
+              await MediaLibrary.createAlbumAsync("malimax", asset, true);
             } else {
-              await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album, true);
             }
           } catch (galleryError) {
             console.warn("No se pudo guardar en galería:", galleryError);

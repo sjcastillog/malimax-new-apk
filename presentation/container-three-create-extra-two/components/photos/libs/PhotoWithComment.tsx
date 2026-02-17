@@ -87,9 +87,9 @@ export const PhotoWithComment: React.FC<PhotoWithCommentProps> = ({
 
             let album = await MediaLibrary.getAlbumAsync("malimax");
             if (album === null) {
-              await MediaLibrary.createAlbumAsync("malimax", asset, false);
+              await MediaLibrary.createAlbumAsync("malimax", asset, true);
             } else {
-              await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album, true);
             }
           } catch (galleryError) {
             console.warn("No se pudo guardar en galería:", galleryError);
