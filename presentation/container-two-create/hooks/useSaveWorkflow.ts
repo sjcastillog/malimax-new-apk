@@ -1,8 +1,7 @@
 import { workflowDB } from "@/common/storage/database";
 import { saveContainerTwo } from "@/core/container-two/actions";
-import { WorkflowTwoI } from "@/core/container-two/interfaces";
+import { WorkflowContainerTwoI } from "@/core/container-two/interfaces";
 import { checkInternetQuality } from "@/helpers";
-import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useRef } from "react";
@@ -10,36 +9,32 @@ import { Alert } from "react-native";
 
 export const useSaveWorkflow = () => {
   const hasInternetRef = useRef(false);
-  const { user } = useAuthStore();
-
-  const clientId = user?.clientId ?? 1;
 
   const workflowMutation = useMutation({
     mutationFn: async (payload: {
-      formData: Partial<WorkflowTwoI>;
-      photosData: any;
+      formData: Partial<WorkflowContainerTwoI>;
     }) => {
       const dateHelper = new Date();
-      payload.formData.clientId = clientId;
-      payload.formData.timeStampSave =
-        // payload.formData.firstTakePhoto ?? dateHelper.toISOString();
-        payload.formData.hourSaveUser = dateHelper.toLocaleTimeString();
+
+      // Asegurar timestamps
+      payload.formData.timeStampSave = dateHelper.toISOString();
+      payload.formData.hourSaveUser = dateHelper.toLocaleTimeString();
+
+      // Verificar calidad de internet
       const hasInternet = await checkInternetQuality();
       hasInternetRef.current = hasInternet;
 
       if (hasInternet) {
         try {
-          const dataToSend = {
-            ...payload.formData,
-            ...payload.photosData,
-          };
-          const message = await saveContainerTwo(dataToSend);
+          // Enviar directamente (ya no hay photosData separado)
+          const message = await saveContainerTwo(payload.formData);
           return { message, queued: false };
         } catch (error) {
+          // Si falla, encolar
           const queueId = await workflowDB.addToQueue(
             payload.formData,
-            payload.photosData,
-            "two", //
+            {}, // No hay photosData, todo va en formData
+            "two",
           );
           return {
             message: "Encolado para envío posterior",
@@ -48,10 +43,11 @@ export const useSaveWorkflow = () => {
           };
         }
       } else {
+        // Sin internet, encolar directamente
         const queueId = await workflowDB.addToQueue(
           payload.formData,
-          payload.photosData,
-          "two", //
+          {}, // No hay photosData, todo va en formData
+          "two",
         );
         return {
           message: "Encolado para envío posterior",
@@ -65,7 +61,7 @@ export const useSaveWorkflow = () => {
       if (hasInternetRef.current) {
         Alert.alert(
           "✅ Guardado exitosamente",
-          "Los datos se guardaron correctamente",
+          "El proceso de llenado se guardó correctamente",
           [
             {
               text: "OK",
@@ -93,7 +89,10 @@ export const useSaveWorkflow = () => {
 
     onError: (error) => {
       console.error("❌ Error en mutation:", error);
-      Alert.alert("Error", "Ocurrió un error al guardar los datos");
+      Alert.alert(
+        "Error",
+        "Ocurrió un error al guardar los datos. Por favor, intenta nuevamente.",
+      );
     },
   });
 

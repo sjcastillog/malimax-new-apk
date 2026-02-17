@@ -1,17 +1,25 @@
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { ContainerDetailsSection } from "./form/libs/ContainerDetailsSection";
 import { ContainerSection } from "./form/libs/ContainerSection";
-import { DriverSection } from "./form/libs/DriverSection";
 import { ObservationSection } from "./form/libs/ObservationSection";
+import { ProductSection } from "./form/libs/ProductSection";
+import { SamplingSection } from "./form/libs/SamplingSection";
 
-export const ContainerFormScreenTwo = () => {
+export const ContainerFormScreen = () => {
   return (
     <ScrollView style={styles.container}>
+      {/* SECCIÓN 1: DATOS DEL PROCESO 1 (READONLY) */}
       <ContainerSection />
-      <ContainerDetailsSection />
-      <DriverSection />
+
+      {/* SECCIÓN 2: INFORMACIÓN DEL PRODUCTO */}
+      <ProductSection />
+
+      {/* SECCIÓN 3: DATOS DE MUESTREO */}
+      <SamplingSection />
+
+      {/* SECCIÓN 4: OBSERVACIONES */}
       <ObservationSection />
+
       <View style={{ height: 40 }} />
     </ScrollView>
   );

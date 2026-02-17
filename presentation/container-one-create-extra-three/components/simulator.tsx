@@ -2,7 +2,7 @@ import { PHOTOS_DIR } from "@/common/constants";
 import { File } from "expo-file-system";
 import React, { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useWorkflowStoreOneExtraThree } from "../store"; // Ajusta la ruta según tu estructura
+import { useWorkflowStoreOneExtraThree } from "../store";
 
 interface WorkflowSimulatorEmptyProps {
   onComplete?: () => void;
@@ -16,6 +16,7 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
   const [isSimulating, setIsSimulating] = useState(false);
 
   const {
+    // CAMPOS BÁSICOS
     setContainer,
     setClientId,
     setClient,
@@ -24,8 +25,6 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
     setSize,
     setCompanyTransport,
     setEntryPort,
-    setOpenedBy,
-    setOpenedWas,
     setObservation,
     setCoordinates,
     setClientIdentification,
@@ -42,6 +41,23 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
     setTypeReview,
     setStorageName,
     setPhoto,
+
+    // NUEVOS CAMPOS DE LA WEB ✨
+    setTypeService,
+    setDate,
+    setCan,
+    setLeader,
+    setExporterSupervisor,
+    setExporterSupervisorIdentification,
+    setAssociated,
+    setAssociatedIdentification,
+    setOthers,
+    setOthersIdentification,
+    setWorkplace,
+    setInspectedBy,
+    setInspectedWas,
+
+    // COMENTARIOS EXISTENTES
     setEmptyPanoramicComment,
     setEmptyStampNavieraComment,
     setEmptyOtherStampComment,
@@ -63,6 +79,11 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
     setExitStampNavieraComment,
     setExitEngineryComment1,
     setExitEngineryComment2,
+
+    // NUEVOS COMENTARIOS ✨
+    setEngineryComment1,
+    setEngineryComment2,
+    setExitTemporarySealingComment,
   } = useWorkflowStoreOneExtraThree();
 
   const createPlaceholderImage = async (
@@ -89,19 +110,19 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
     try {
       setIsSimulating(true);
 
+      // ============================================
       // 1. DATOS BÁSICOS
+      // ============================================
       const containerNumber = `SIMU${Date.now().toString().slice(-6)}`;
       setContainer(containerNumber);
       setClientId(1);
       setClient("Cliente Simulado S.A.");
-      setTypeContainer("20 STD");
+      setTypeContainer("DRY");
       setNaviera("MAERSK");
       setSize("20");
       setCompanyTransport("Transportes Rápidos Express");
       setEntryPort("Guayaquil");
-      setOpenedBy("Juan Supervisor");
-      setOpenedWas("Sí");
-      setObservation("Inspección simulada para testing");
+      setObservation("Inspección simulada para testing del sistema MALIMAX");
       setCoordinates("-2.1894, -79.8891");
       setClientIdentification(`RUC${Date.now().toString().slice(-10)}`);
       setLabelSerial(`LS${Date.now().toString().slice(-6)}`);
@@ -113,7 +134,39 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
       setTypeReview("Inspección Completa");
       setStorageName("Bodega Central A1");
 
-      // 2. HORARIOS
+      // ============================================
+      // 2. NUEVOS CAMPOS DE LA WEB ✨
+      // ============================================
+      setTypeService("Inspección de Contenedor Vacío");
+
+      // Fecha actual
+      const today = new Date();
+      const dateString = today.toISOString().split("T")[0]; // YYYY-MM-DD
+      setDate(dateString);
+
+      // Arrays para selects múltiples
+      setCan(["CAN 001", "CAN 002"]);
+      setLeader(["Guía Principal", "Guía Asistente"]);
+
+      // Supervisores
+      setExporterSupervisor("María Supervisora García");
+      setExporterSupervisorIdentification("0923456789");
+
+      setAssociated("Pedro Asociado López");
+      setAssociatedIdentification("0934567890");
+
+      setOthers("Ana Observadora Martínez");
+      setOthersIdentification("0945678901");
+
+      setWorkplace("Terminal Marítimo de Guayaquil");
+
+      // Inspección
+      setInspectedWas("Sí");
+      setInspectedBy("Juan Inspector Ramírez");
+
+      // ============================================
+      // 3. HORARIOS
+      // ============================================
       const now = new Date();
       const startTime = "08:00";
       const endTime = "08:45";
@@ -125,7 +178,9 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
       setStartProcess(processStart);
       setEndProcess(processEnd);
 
-      // 3. COMENTARIOS PARA FOTOS
+      // ============================================
+      // 4. COMENTARIOS PARA FOTOS EXISTENTES
+      // ============================================
       setEmptyPanoramicComment("Contenedor en buen estado general");
       setEmptyStampNavieraComment("Sello naviera verificado OK");
       setEmptyOtherStampComment("Sello adicional en puerta");
@@ -148,7 +203,16 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
       setExitEngineryComment1("Maquinaria funcionando");
       setExitEngineryComment2("Sistema refrigeración OK");
 
-      // 4. GENERAR TODAS LAS FOTOS REQUERIDAS
+      // ============================================
+      // 5. NUEVOS COMENTARIOS DE FOTOS ✨
+      // ============================================
+      setEngineryComment1("Maquinaria en óptimas condiciones");
+      setEngineryComment2("Sistema eléctrico verificado");
+      setExitTemporarySealingComment("Sellado temporal aplicado correctamente");
+
+      // ============================================
+      // 6. GENERAR TODAS LAS FOTOS REQUERIDAS
+      // ============================================
       const photosToGenerate = [
         // FOTOS VACIO EXTERNO
         "emptyPanoramicPhoto",
@@ -179,13 +243,20 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
         "emptyInternalPhoto5",
         "emptyInternalPhoto6",
 
-        // FOTOS FULL/EXIT
+        // NUEVAS FOTOS DE MAQUINARIA ✨
+        "engineryPhoto1",
+        "engineryPhoto2",
+
+        // FOTOS SALIDA
         "exitOtherStampPhoto",
         "exitPanoramicPhoto",
         "exitStampNavieraPhoto",
         "exitSatelliteLockStampPhoto",
         "exitEngineryPhoto1",
         "exitEngineryPhoto2",
+
+        // NUEVA FOTO DE SELLADO TEMPORAL ✨
+        "exitTemporarySealingPhoto",
       ];
 
       // Generar y asignar cada foto
@@ -207,7 +278,13 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
 
       Alert.alert(
         "✅ Simulación Completa",
-        `Workflow simulado exitosamente!\n\nContenedor: ${containerNumber}\nFotos: ${photosToGenerate.length}`,
+        `Workflow simulado exitosamente!\n\n` +
+          `Contenedor: ${containerNumber}\n` +
+          `Fotos: ${photosToGenerate.length}\n` +
+          `Tipo Servicio: Inspección de Contenedor Vacío\n` +
+          `CAN(es): 2 seleccionados\n` +
+          `Guía(s): 2 seleccionadas\n` +
+          `Inspector: Juan Inspector Ramírez`,
         [{ text: "OK", onPress: () => onComplete?.() }],
       );
     } catch (error) {
@@ -221,7 +298,13 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
   const handlePress = () => {
     Alert.alert(
       "Simular Workflow Completo",
-      "¿Llenar automáticamente todos los campos con datos de prueba?",
+      "¿Llenar automáticamente todos los campos con datos de prueba?\n\n" +
+        "Esto incluye:\n" +
+        "• Datos básicos del contenedor\n" +
+        "• Información del conductor\n" +
+        "• Supervisores y asociados\n" +
+        "• Todas las fotos requeridas\n" +
+        "• Comentarios de inspección",
       [
         {
           text: "Cancelar",
@@ -250,7 +333,7 @@ export const WorkflowSimulatorEmpty: React.FC<WorkflowSimulatorEmptyProps> = ({
       <View style={styles.buttonContent}>
         <Text style={styles.buttonIcon}>▶️</Text>
         <Text style={styles.btnSimularText}>
-          {isSimulating ? "Simulando" : "Simular"}
+          {isSimulating ? "Simulando..." : "Simular"}
         </Text>
       </View>
     </TouchableOpacity>

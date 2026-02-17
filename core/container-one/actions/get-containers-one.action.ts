@@ -10,7 +10,7 @@ export const getContainersOne = async (
   try {
     const { data } = await puceApi.get<
       ServiceResponseI<WorkflowContainerOneI[]>
-    >("/workflow-one/infinite", {
+    >("/malimax-one/infinite", {
       params: {
         limit,
         offset,

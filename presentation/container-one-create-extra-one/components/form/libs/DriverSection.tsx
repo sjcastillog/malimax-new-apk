@@ -4,18 +4,14 @@ import { useWorkflowStoreOneExtraOne } from "../../../store";
 
 export const DriverSection = () => {
   const driverName = useWorkflowStoreOneExtraOne((state) => state.driverName);
-  const setDriverName = useWorkflowStoreOneExtraOne(
-    (state) => state.setDriverName,
-  );
+  const setDriverName = useWorkflowStoreOneExtraOne((state) => state.setDriverName);
   const driverIdentification = useWorkflowStoreOneExtraOne(
     (state) => state.driverIdentification,
   );
   const setDriverIdentification = useWorkflowStoreOneExtraOne(
     (state) => state.setDriverIdentification,
   );
-  const plateVehicle = useWorkflowStoreOneExtraOne(
-    (state) => state.plateVehicle,
-  );
+  const plateVehicle = useWorkflowStoreOneExtraOne((state) => state.plateVehicle);
   const setPlateVehicle = useWorkflowStoreOneExtraOne(
     (state) => state.setPlateVehicle,
   );

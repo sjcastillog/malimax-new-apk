@@ -1,15 +1,13 @@
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import {
-  ChargingProcessSection,
-  ContainerFullSection,
-} from "./photos";
+import { DynamicPhotosSection } from "./photos";
 
-export const FotosScreenTwo = () => {
+export const FotosScreen = () => {
   return (
     <ScrollView style={styles.container}>
-      <ChargingProcessSection />
-      <ContainerFullSection />
+      {/* SOLO FOTOS DINÁMICAS */}
+      <DynamicPhotosSection />
+
       <View style={{ height: 40 }} />
     </ScrollView>
   );

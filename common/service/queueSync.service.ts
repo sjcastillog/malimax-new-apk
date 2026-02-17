@@ -4,7 +4,6 @@ import { saveContainerThree } from "@/core/container-three/actions";
 
 import { checkInternetQuality } from "@/helpers";
 import { workflowDB } from "../storage/database";
-import { saveTruck } from "@/core/truck/actions/save-truck.action";
 
 const MAX_RETRIES = 3;
 

@@ -10,18 +10,14 @@ export const DoorSealsSection = () => {
           🔒 PUERTA CONTENEDOR SIN APERTURAR
         </Text>
       </View>
-
       <PanoramicPhoto />
-
       <SealNavieraPhoto />
-
       <SealAdicionalPhoto />
-
       <OtherSealPhoto />
-
       <SatelliteLockPhoto />
-
       <SatelliteLockSealPhoto />
+      <EngineryPhoto1 />
+      <EngineryPhoto2 />
     </View>
   );
 };
@@ -77,6 +73,25 @@ const SatelliteLockSealPhoto = () => (
     commentKey="emptySatelliteLockStampComment"
     label="SELLO CANDADO GPS"
     commentPlaceholder="Comentario sobre el sello del GPS"
+  />
+);
+
+// ✨ NUEVAS FOTOS DE MAQUINARIA
+const EngineryPhoto1 = () => (
+  <PhotoWithComment
+    photoIdKey="engineryPhoto1"
+    commentKey="engineryComment1"
+    label="MAQUINARIA 1"
+    commentPlaceholder="Comentario sobre la maquinaria 1"
+  />
+);
+
+const EngineryPhoto2 = () => (
+  <PhotoWithComment
+    photoIdKey="engineryPhoto2"
+    commentKey="engineryComment2"
+    label="MAQUINARIA 2"
+    commentPlaceholder="Comentario sobre la maquinaria 2"
   />
 );
 

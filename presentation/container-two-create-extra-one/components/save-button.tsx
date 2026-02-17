@@ -1,8 +1,4 @@
-import {
-  photosToGenerateTwo,
-  validateFieldLengthsTwo,
-  validationSchemaTwo,
-} from "@/common/constants";
+import { validationSchemaTwo } from "@/common/constants";
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
 import * as FileSystem from "expo-file-system/legacy";
 import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
@@ -15,48 +11,34 @@ export const SaveButton = () => {
 
   const handleSave = async () => {
     try {
+      // ============================================
+      // 1. PREPARAR DATOS DEL FORMULARIO
+      // ============================================
       const formData: Record<string, any> = {};
-
       for (const key in storeState) {
         if (typeof storeState[key] !== "function") {
           formData[key] = storeState[key];
         }
       }
 
-      const lengthValidation = validateFieldLengthsTwo(formData);
-      if (!lengthValidation.isValid) {
-        Alert.alert(
-          "Límite de Caracteres Excedido",
-          `Los siguientes campos exceden el límite permitido:\n\n• ${lengthValidation.errors.join("\n• ")}`,
-          [{ text: "Entendido", style: "default" }],
-        );
-        return;
-      }
-
+      // ============================================
+      // 2. VALIDAR CAMPOS OBLIGATORIOS
+      // ============================================
       const requiredErrors: string[] = [];
       const optionalErrors: string[] = [];
 
-      try {
-        await validationSchemaTwo.validateAt("container", formData);
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
+      // CAMPOS OBLIGATORIOS
+      const requiredFields = ["container", "product", "presentation"];
+
+      for (const field of requiredFields) {
+        try {
+          await validationSchemaTwo.validateAt(field, formData);
+        } catch (err: any) {
+          requiredErrors.push(`❌ ${err.message}`);
+        }
       }
 
-      try {
-        await validationSchemaTwo.validateAt("labelSerial", formData);
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
-      }
-
-      try {
-        await validationSchemaTwo.validateAt(
-          "containerPanoramicPhoto",
-          formData,
-        );
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
-      }
-
+      // Si faltan campos obligatorios, DETENER
       if (requiredErrors.length > 0) {
         Alert.alert(
           "Campos Obligatorios Faltantes",
@@ -66,23 +48,24 @@ export const SaveButton = () => {
         return;
       }
 
+      // ============================================
+      // 3. VALIDAR CAMPOS OPCIONALES (solo si tienen contenido)
+      // ============================================
       const optionalFields = [
-        "plateVehicle",
-        "driverName",
-        "driverIdentification",
-        "typeContainer",
-        "naviera",
-        "companyTransport",
-        "size",
-        "city",
-        "address",
+        "numberPallet",
+        "numberPresentation",
+        "numberSampling",
+        "coordinates",
         "observation",
+        "hourInit",
+        "hourEnd",
       ];
 
       for (const field of optionalFields) {
         const value = formData[field];
 
-        if (value && value.trim() !== "") {
+        // Si el campo tiene contenido, validar las reglas
+        if (value && String(value).trim() !== "") {
           try {
             await validationSchemaTwo.validateAt(field, formData);
           } catch (err: any) {
@@ -91,6 +74,7 @@ export const SaveButton = () => {
         }
       }
 
+      // Si hay errores de validación en campos opcionales, DETENER
       if (optionalErrors.length > 0) {
         Alert.alert(
           "Errores de Validación",
@@ -100,45 +84,21 @@ export const SaveButton = () => {
         return;
       }
 
-      const photosBase64: Record<string, string> = {};
-      let processedPhotos = 0;
-      let missingPhotos: string[] = [];
+      // ============================================
+      // 4. PROCESAR IMÁGENES DINÁMICAS
+      // ============================================
+      const dynamicImages = formData.images || [];
 
-      for (const photo of photosToGenerateTwo) {
-        const filename = storeState[photo.key as keyof typeof storeState];
-
-        if (filename && typeof filename === "string") {
-          try {
-            const photoPath = `${PHOTOS_DIR}${filename}`;
-            const fileInfo = await FileSystem.getInfoAsync(photoPath);
-
-            if (fileInfo.exists) {
-              const base64 = await FileSystem.readAsStringAsync(photoPath, {
-                encoding: FileSystem.EncodingType.Base64,
-              });
-
-              if (base64) {
-                photosBase64[photo.key] = `data:image/jpeg;base64,${base64}`;
-                processedPhotos++;
-              } else {
-                missingPhotos.push(photo.label);
-              }
-            } else {
-              missingPhotos.push(photo.label);
-            }
-          } catch (error) {
-            console.warn(`Error procesando foto ${photo.key}:`, error);
-            missingPhotos.push(photo.label);
-          }
-        } else {
-          // Solo agregar a missingPhotos si NO es la foto panorámica (ya validada)
-          if (photo.key !== "containerPanoramicPhoto") {
-            missingPhotos.push(photo.label);
-          }
-        }
+      // Verificar si hay al menos una imagen
+      if (dynamicImages.length === 0) {
+        Alert.alert(
+          "Fotos Requeridas",
+          "Debes agregar al menos una foto del proceso de llenado.",
+          [{ text: "Entendido", style: "default" }],
+        );
+        return;
       }
 
-      const dynamicImages = formData.images || [];
       for (const image of dynamicImages) {
         if (image.src && typeof image.src === "string") {
           try {
@@ -160,40 +120,19 @@ export const SaveButton = () => {
         }
       }
 
-      if (missingPhotos.length > 0) {
-        if (missingPhotos.length > photosToGenerateTwo.length / 2) {
-          Alert.alert(
-            "Fotos Incompletas",
-            `Faltan ${missingPhotos.length} fotos opcionales. ¿Deseas continuar de todas formas?`,
-            [
-              {
-                text: "Cancelar",
-                style: "cancel",
-              },
-              {
-                text: "Continuar",
-                onPress: async () => {
-                  await sendData(formData, photosBase64);
-                },
-              },
-            ],
-          );
-          return;
-        }
-      }
-
-      await sendData(formData, photosBase64);
+      // ============================================
+      // 5. ENVIAR DATOS
+      // ============================================
+      await sendData(formData);
     } catch (error) {
       console.error("Error en handleSave:", error);
       Alert.alert("Error", "Ocurrió un error al preparar los datos");
     }
   };
 
-  const sendData = async (
-    formData: Record<string, any>,
-    photosBase64: Record<string, string>,
-  ) => {
+  const sendData = async (formData: Record<string, any>) => {
     try {
+      // Sanitizar datos (trim strings)
       const sanitizedData: Record<string, any> = {};
 
       for (const key in formData) {
@@ -204,15 +143,16 @@ export const SaveButton = () => {
         }
       }
 
+      // Agregar timestamp y hora de guardado
       const dateHelper = new Date();
-      sanitizedData.timeStampSave = dateHelper.toISOString();
+      sanitizedData.timeStampSave = dateHelper;
       sanitizedData.hourSaveUser = dateHelper.toLocaleTimeString();
 
       await workflowMutation.mutateAsync({
         formData: sanitizedData,
-        photosData: photosBase64,
       });
 
+      // Mostrar mensaje de éxito
       Alert.alert("¡Éxito!", "El workflow se ha guardado correctamente", [
         { text: "OK", style: "default" },
       ]);

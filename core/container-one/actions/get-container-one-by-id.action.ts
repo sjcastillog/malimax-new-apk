@@ -7,10 +7,10 @@ export const getContainerOneById = async (
 ): Promise<WorkflowContainerOneI> => {
   try {
     const { data } = await puceApi.get<ServiceResponseI<WorkflowContainerOneI>>(
-      `/workflow-one/${id}`,
+      `/malimax-one/${id}`,
     );
     return data.data!;
   } catch (error) {
-    throw new Error(`workflow with id ${id} not found`);
+    throw new Error(`malimax with id ${id} not found`);
   }
 };

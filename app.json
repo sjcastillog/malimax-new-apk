@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SECURECONTAINER",
-    "slug": "SECURECONTAINER",
+    "name": "MALIMAX",
+    "slug": "MALIMAX",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.SECURECONTAINER",
+      "bundleIdentifier": "com.anonymous.MALIMAX",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Esta aplicación necesita acceso a tu galería para guardar fotos.",
         "NSPhotoLibraryAddUsageDescription": "Esta aplicación necesita permiso para guardar fotos en tu galería.",
@@ -20,14 +20,14 @@
     "android": {
       "icon": "./assets/images/icon.png",
       "adaptiveIcon": {
-        "backgroundColor": "#271080",
+        "backgroundColor": "#5ae51f",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.SECURECONTAINER",
+      "package": "com.anonymous.MALIMAX",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
@@ -49,9 +49,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 300,
           "resizeMode": "contain",
-          "backgroundColor": "#271080",
+          "backgroundColor": "#5ae51f",
           "dark": {
-            "backgroundColor": "#271080"
+            "backgroundColor": "#5ae51f"
           }
         }
       ],
@@ -75,17 +75,18 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "Permitir que SECURECONTAINER acceda y guarde fotos en tu galería.",
-          "savePhotosPermission": "Permitir que SECURECONTAINER guarde fotos en tu galería.",
+          "photosPermission": "Permitir que MALIMAX acceda y guarde fotos en tu galería.",
+          "savePhotosPermission": "Permitir que MALIMAX guarde fotos en tu galería.",
           "isAccessMediaLocationEnabled": true
         }
       ],
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Permitir que SECURECONTAINER use la cámara para tomar fotos."
+          "cameraPermission": "Permitir que MALIMAX use la cámara para tomar fotos."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

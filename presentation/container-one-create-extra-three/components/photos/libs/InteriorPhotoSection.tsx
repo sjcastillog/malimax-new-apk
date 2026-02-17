@@ -1,8 +1,16 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useWorkflowStoreOneExtraThree } from "../../../store";
+import { DynamicPhotosList } from "./DynamicPhotosList";
 import { PhotoWithComment } from "./PhotoWithComment";
 
 export const InteriorPhotosSection = () => {
+  const addImage = useWorkflowStoreOneExtraThree((state) => state.addImage);
+
+  const handleAddInteriorPhoto = () => {
+    addImage("intern");
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -18,6 +26,20 @@ export const InteriorPhotosSection = () => {
       <InternalPhoto4 />
       <InternalPhoto5 />
       <InternalPhoto6 />
+
+      {/* SECCIÓN DE FOTOS ADICIONALES DINÁMICAS */}
+      <View style={styles.dynamicSection}>
+        <View style={styles.dynamicHeader}>
+          <Text style={styles.dynamicTitle}>📸 Fotos Adicionales Internas</Text>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={handleAddInteriorPhoto}
+          >
+            <Text style={styles.addButtonText}>+ Agregar</Text>
+          </TouchableOpacity>
+        </View>
+        <DynamicPhotosList type="intern" />
+      </View>
     </View>
   );
 };
@@ -27,7 +49,7 @@ const FloorPhoto = () => (
     photoIdKey="emptyFloorPhoto"
     commentKey="emptyFloorComment"
     label="PISO"
-    commentPlaceholder="Estado del piso del contenedor"
+    commentPlaceholder="Comentario sobre el piso"
   />
 );
 
@@ -36,7 +58,7 @@ const RoofPhoto = () => (
     photoIdKey="emptyRoofPhoto"
     commentKey="emptyRoofComment"
     label="TECHO"
-    commentPlaceholder="Estado del techo del contenedor"
+    commentPlaceholder="Comentario sobre el techo"
   />
 );
 
@@ -45,7 +67,7 @@ const MirrorCoverPhoto = () => (
     photoIdKey="emptyMirrorCoverPhoto"
     commentKey="emptyMirrorCoverComment"
     label="TAPA ESPEJO"
-    commentPlaceholder="Estado de la tapa del espejo"
+    commentPlaceholder="Comentario sobre la tapa del espejo"
   />
 );
 
@@ -54,7 +76,7 @@ const InternalPhoto1 = () => (
     photoIdKey="emptyInternalPhoto1"
     commentKey="emptyInternalComment1"
     label="INTERNA 1"
-    commentPlaceholder="Comentario foto interna 1"
+    commentPlaceholder="Comentario sobre foto interna 1"
   />
 );
 
@@ -63,7 +85,7 @@ const InternalPhoto2 = () => (
     photoIdKey="emptyInternalPhoto2"
     commentKey="emptyInternalComment2"
     label="INTERNA 2"
-    commentPlaceholder="Comentario foto interna 2"
+    commentPlaceholder="Comentario sobre foto interna 2"
   />
 );
 
@@ -72,7 +94,7 @@ const InternalPhoto3 = () => (
     photoIdKey="emptyInternalPhoto3"
     commentKey="emptyInternalComment3"
     label="INTERNA 3"
-    commentPlaceholder="Comentario foto interna 3"
+    commentPlaceholder="Comentario sobre foto interna 3"
   />
 );
 
@@ -81,7 +103,7 @@ const InternalPhoto4 = () => (
     photoIdKey="emptyInternalPhoto4"
     commentKey="emptyInternalComment4"
     label="INTERNA 4"
-    commentPlaceholder="Comentario foto interna 4"
+    commentPlaceholder="Comentario sobre foto interna 4"
   />
 );
 
@@ -90,7 +112,7 @@ const InternalPhoto5 = () => (
     photoIdKey="emptyInternalPhoto5"
     commentKey="emptyInternalComment5"
     label="INTERNA 5"
-    commentPlaceholder="Comentario foto interna 5"
+    commentPlaceholder="Comentario sobre foto interna 5"
   />
 );
 
@@ -99,7 +121,7 @@ const InternalPhoto6 = () => (
     photoIdKey="emptyInternalPhoto6"
     commentKey="emptyInternalComment6"
     label="INTERNA 6"
-    commentPlaceholder="Comentario foto interna 6"
+    commentPlaceholder="Comentario sobre foto interna 6"
   />
 );
 
@@ -114,6 +136,35 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   headerText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  dynamicSection: {
+    marginTop: 16,
+    paddingHorizontal: 16,
+  },
+  dynamicHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  dynamicTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  addButton: {
+    backgroundColor: "#52c41a",
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  addButtonText: {
     color: "#fff",
     fontSize: 12,
     fontWeight: "bold",

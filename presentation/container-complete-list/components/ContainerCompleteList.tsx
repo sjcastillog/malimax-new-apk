@@ -10,9 +10,10 @@ import {
 import { WorkflowContainerI } from "@/core/container-complete/interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 import { ContainerCompleteListCard } from "./ContainerCompleteListCard";
+import { WorkflowContainerOneI } from "@/core/container-one/interfaces";
 
 interface Props {
-  containers: WorkflowContainerI[];
+  containers: WorkflowContainerOneI[];
   loadNextPage: () => void;
   dark: boolean;
   loading: boolean;

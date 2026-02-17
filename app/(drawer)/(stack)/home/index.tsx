@@ -151,7 +151,7 @@ const index = () => {
             {processOne && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
-                  title="Proceso 1"
+                  title="Malimax 1"
                   icon="file-tray-outline"
                   route="/container-one"
                 />
@@ -160,7 +160,7 @@ const index = () => {
             {processTwo && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
-                  title="Proceso 2"
+                  title="Malimax 2"
                   icon="file-tray-full-outline"
                   route="/container-two"
                 />
@@ -169,7 +169,7 @@ const index = () => {
             {processThree && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
-                  title="Proceso 3"
+                  title="Malimax 3"
                   icon="subway-outline"
                   route="/container-three"
                 />

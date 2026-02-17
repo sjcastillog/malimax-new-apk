@@ -2,7 +2,6 @@ import { workflowDB } from "@/common/storage/database";
 import { saveContainerOne } from "@/core/container-one/actions";
 import { WorkflowContainerOneI } from "@/core/container-one/interfaces";
 import { checkInternetQuality } from "@/helpers";
-import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useRef } from "react";
@@ -10,9 +9,6 @@ import { Alert } from "react-native";
 
 export const useSaveWorkflow = () => {
   const hasInternetRef = useRef(false);
-  const { user } = useAuthStore();
-
-  const clientId = user?.clientId ?? 1;
 
   const workflowMutation = useMutation({
     mutationFn: async (payload: {
@@ -20,7 +16,6 @@ export const useSaveWorkflow = () => {
       photosData: any;
     }) => {
       const dateHelper = new Date();
-      payload.formData.clientId = clientId;
       payload.formData.timeStampSave =
         payload.formData.firstTakePhoto ?? dateHelper.toISOString();
       payload.formData.hourSaveUser = dateHelper.toLocaleTimeString();

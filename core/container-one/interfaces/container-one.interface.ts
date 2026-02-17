@@ -1,3 +1,5 @@
+// core/container-one/interfaces/workflow-container-one.interface.ts
+
 export interface WorkflowImageI {
   id: number | null;
   src: string;
@@ -20,12 +22,33 @@ export interface WorkflowContainerOneI {
   clientId: number | null;
   observation: string | null;
   clientIdentification: string | null;
+
+  // ============================================
+  // NUEVOS CAMPOS DE LA WEB
+  // ============================================
+  typeService: string | null; // Select de catálogo
+  date: string | null; // Fecha del reporte
+  can: string[] | null; // Multiple select - CAN(es)
+  leader: string[] | null; // Multiple select - Guía(s)
+  exporterSupervisor: string | null; // Supervisor de Exportador
+  exporterSupervisorIdentification: string | null; // Identificación
+  associated: string | null; // Asociado Neg.
+  associatedIdentification: string | null; // Identificación
+  others: string | null; // Otro
+  othersIdentification: string | null; // Identificación
+  workplace: string | null; // Lugar de Trabajo
+
+  // RENOMBRADO: openedWas/openedBy → inspectedWas/inspectedBy
+  inspectedBy: string; // ¿Por quién fue inspeccionado?
+  inspectedWas: string; // ¿Fue inspeccionado? (Si/No)
+
+  // ============================================
+  // CAMPOS EXISTENTES
+  // ============================================
   labelSerial: string | null;
   plateVehicle: string;
   driverName: string;
   driverIdentification: string;
-  openedBy: string;
-  openedWas: string;
   hourInit: string;
   hourEnd: string;
   startProcess: string;
@@ -43,7 +66,9 @@ export interface WorkflowContainerOneI {
   companyTransport: string | null;
   entryPort: string | null;
 
+  // ============================================
   // FOTOS VACIO EXTERNO
+  // ============================================
   emptyPanoramicPhoto: string;
   emptyPanoramicComment: string | null;
   emptyPanoramicCoordinates: string;
@@ -68,7 +93,9 @@ export interface WorkflowContainerOneI {
   emptyPlatePhoto: string;
   emptyDriverIdentificationPhoto: string;
 
+  // ============================================
   // FOTOS VACIO INTERNO
+  // ============================================
   emptyFloorPhoto: string;
   emptyRoofPhoto: string;
   emptyMirrorCoverPhoto: string;
@@ -89,7 +116,17 @@ export interface WorkflowContainerOneI {
   emptyInternalComment6: string | null;
   emptyInternalVideo: string;
 
-  // FOTOS FULL
+  // ============================================
+  // NUEVAS FOTOS DE MAQUINARIA (DE LA WEB)
+  // ============================================
+  engineryPhoto1: string;
+  engineryComment1: string | null;
+  engineryPhoto2: string;
+  engineryComment2: string | null;
+
+  // ============================================
+  // FOTOS SALIDA/EXIT
+  // ============================================
   exitOtherStampPhoto: string;
   exitPanoramicPhoto: string;
   exitStampNavieraPhoto: string;
@@ -104,10 +141,40 @@ export interface WorkflowContainerOneI {
   exitEngineryComment2: string | null;
   exitDoorVideo: string;
   exitEngineryVideo: string;
-  _hasHydrated: boolean;
 
-  // CONTROL DE PASOS
-  // step: string;
+  // ============================================
+  // NUEVA FOTO DE SELLADO TEMPORAL (DE LA WEB)
+  // ============================================
+  exitTemporarySealingPhoto: string;
+  exitTemporarySealingComment: string | null;
+
+  // ============================================
+  // CONTROL
+  // ============================================
+  _hasHydrated: boolean;
+  statusWorkflow?: string;
+  statusWorkflowId?: number | null;
+  statusWorkflowCode?: string;
+  statusWorkflowColor?:
+    | "default"
+    | "primary"
+    | "secondary"
+    | "error"
+    | "info"
+    | "success"
+    | "warning";
+  statusContainer?: string;
+  statusContainerId?: number | null;
+  statusContainerCode?: string;
+  statusContainerColor?:
+    | "default"
+    | "primary"
+    | "secondary"
+    | "error"
+    | "info"
+    | "success"
+    | "warning";
+  createdAt?: any;
 }
 
 export interface WorkflowContainerOneActionI {
@@ -117,12 +184,42 @@ export interface WorkflowContainerOneActionI {
   setPhoto: (field: string, uri: string, filename?: string) => Promise<void>;
 
   // ============================================
+  // NUEVOS SETTERS DE LA WEB
+  // ============================================
+  setTypeService: (typeService: string | null) => void;
+  setDate: (date: string | null) => void;
+  setCan: (can: string[] | null) => void;
+  setLeader: (leader: string[] | null) => void;
+  setExporterSupervisor: (exporterSupervisor: string | null) => void;
+  setExporterSupervisorIdentification: (
+    exporterSupervisorIdentification: string | null,
+  ) => void;
+  setAssociated: (associated: string | null) => void;
+  setAssociatedIdentification: (
+    associatedIdentification: string | null,
+  ) => void;
+  setOthers: (others: string | null) => void;
+  setOthersIdentification: (othersIdentification: string | null) => void;
+  setWorkplace: (workplace: string | null) => void;
+
+  // RENOMBRADO
+  setInspectedBy: (inspectedBy: string) => void;
+  setInspectedWas: (inspectedWas: string) => void;
+
+  // ============================================
+  // NUEVOS SETTERS DE COMENTARIOS (MAQUINARIA)
+  // ============================================
+  setEngineryComment1: (engineryComment1: string | null) => void;
+  setEngineryComment2: (engineryComment2: string | null) => void;
+  setExitTemporarySealingComment: (
+    exitTemporarySealingComment: string | null,
+  ) => void;
+
+  // ============================================
   // MÉTODOS GENERALES
   // ============================================
   getImages: () => WorkflowImageI[];
   setCoordinates: (coordinates: string) => void;
-  setOpenedBy: (openedBy: string) => void;
-  setOpenedWas: (openedWas: string) => void;
   setObservation: (observation: string | null) => void;
   setEmptyPanoramicCoordinates: (emptyPanoramicCoordinates: string) => void;
   setTypeContainer: (typeContainer: string | null) => void;
@@ -206,11 +303,6 @@ export interface WorkflowContainerOneActionI {
   getValues: () => any;
   setValues: (ladata: any) => void;
   onClear: () => Promise<void>;
-
-  // CONTROL DE PASOS
-  // step: string;
-  // setStep: (step: string) => void;
-  // resetSteps: () => void;
 }
 
 export interface WorkflowContainerOneRequiredI {
@@ -223,8 +315,22 @@ export interface WorkflowContainerOneRequiredI {
   size: string | null;
   companyTransport: string | null;
   entryPort: string | null;
-  openedBy: string;
-  openedWas: string;
+
+  // NUEVOS CAMPOS REQUERIDOS
+  typeService: string | null;
+  date: string | null;
+  can: string[] | null;
+  leader: string[] | null;
+  exporterSupervisor: string | null;
+  exporterSupervisorIdentification: string | null;
+  associated: string | null;
+  associatedIdentification: string | null;
+  others: string | null;
+  othersIdentification: string | null;
+  workplace: string | null;
+  inspectedBy: string;
+  inspectedWas: string;
+
   clientId: number | null;
   client: string | null;
   labelSerial: string | null;
@@ -288,7 +394,13 @@ export interface WorkflowContainerOneRequiredI {
   emptyInternalComment6: string | null;
   emptyInternalVideo: string;
 
-  // FOTOS FULL
+  // NUEVAS FOTOS DE MAQUINARIA
+  engineryPhoto1: string;
+  engineryComment1: string | null;
+  engineryPhoto2: string;
+  engineryComment2: string | null;
+
+  // FOTOS SALIDA
   exitOtherStampPhoto: string;
   exitPanoramicPhoto: string;
   exitStampNavieraPhoto: string;
@@ -303,27 +415,14 @@ export interface WorkflowContainerOneRequiredI {
   exitEngineryComment2: string | null;
   exitDoorVideo: string;
   exitEngineryVideo: string;
+
+  // NUEVA FOTO DE SELLADO TEMPORAL
+  exitTemporarySealingPhoto: string;
+  exitTemporarySealingComment: string | null;
 }
 
 export interface WorkflowOneForNextProcessI {
-  emptyPanoramicCheckPhoto: string | null;
-  emptyStampNavieraCheckPhoto: string | null;
-  emptyOtherStampCheckPhoto: string | null;
-  emptySatelliteLockCheckPhoto: string | null;
-  exitEngineryCheckPhoto1: string | null;
-  exitEngineryCheckPhoto2: string | null;
-  exitDoorCheckVideo: string | null;
-  exitEngineryCheckVideo: string | null;
-  city: string;
-  address: string;
-  typeReview: string;
-  storageName: string;
-  driverName: string;
-  driverIdentification: string;
-  plateVehicle: string;
-  companyTransport: string;
-  naviera: string;
-  typeContainer: string;
-  size: string;
-  entryPort: string;
+  client:string;
+  clientId:number;
+  clientIdentification:string;
 }

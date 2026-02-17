@@ -9,41 +9,54 @@ const DrawerLayout = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const backgroundColor = useThemeColor({}, "background");
+  const primaryColor = useThemeColor({}, "primary");
 
-  const activeColor = isDark ? "#CAD226" : "#0E3B5F";
-  const inactiveColor = isDark ? "#9CA3AF" : "#6B7280";
+  // Colores más vibrantes y modernos
+  const activeColor = isDark ? "#10B981" : "#3B82F6";
+  const inactiveColor = isDark ? "#64748B" : "#94A3B8";
+  const activeBackgroundColor = isDark
+    ? "rgba(16, 185, 129, 0.12)"
+    : "rgba(59, 130, 246, 0.08)";
 
   return (
     <Drawer
       drawerContent={CustomDrawer}
       screenOptions={{
-        overlayColor: "rgba(0,0,0,0.5)",
+        overlayColor: "rgba(0,0,0,0.6)",
         drawerActiveTintColor: activeColor,
         drawerInactiveTintColor: inactiveColor,
-        drawerActiveBackgroundColor: isDark
-          ? "rgba(202, 210, 38, 0.15)"
-          : "rgba(14, 59, 95, 0.1)",
+        drawerActiveBackgroundColor: activeBackgroundColor,
         sceneStyle: {
           backgroundColor,
         },
         drawerStyle: {
           backgroundColor,
+          width: 320,
         },
         headerStyle: {
           backgroundColor,
+          elevation: 0,
+          shadowOpacity: 0,
         },
+        headerTintColor: isDark ? "#F1F5F9" : "#1E293B",
         headerShadowVisible: false,
+        headerTitleStyle: {
+          fontSize: 18,
+          fontWeight: "700",
+          letterSpacing: 0.3,
+        },
         drawerLabelStyle: {
-          fontSize: 15,
+          fontSize: 16,
           fontWeight: "600",
-          marginLeft: -16,
+          marginLeft: 0,
+          letterSpacing: 0.2,
         },
         drawerItemStyle: {
-          borderRadius: 12,
-          paddingHorizontal: 10,
-          paddingVertical: 4,
-          marginHorizontal: 12,
-          marginVertical: 4,
+          borderRadius: 16,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          marginHorizontal: 16,
+          marginVertical: 3,
         },
       }}
     >
@@ -51,14 +64,29 @@ const DrawerLayout = () => {
         name="(stack)"
         options={{
           headerShown: false,
-          drawerLabel: "Dashboard",
-          title: "Dashboard 📱",
-          drawerIcon: ({ color, size }) => (
+          drawerLabel: "Inicio",
+          title: "Inicio",
+          drawerIcon: ({ color, size, focused }) => (
             <Ionicons
-              name="grid-outline"
-              size={size}
+              name={focused ? "home" : "home-outline"}
+              size={size + 2}
               color={color}
-              className="mr-4"
+            />
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="diagnostics/index"
+        options={{
+          drawerLabel: "Diagnóstico",
+          title: "Diagnóstico",
+          headerTitle: "🩺 Diagnóstico",
+          drawerIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "fitness" : "fitness-outline"}
+              size={size + 2}
+              color={color}
             />
           ),
         }}
@@ -68,44 +96,30 @@ const DrawerLayout = () => {
         name="configuration/index"
         options={{
           drawerLabel: "Configuración",
-          title: "Configuración ⚙️",
-          drawerIcon: ({ color, size }) => (
+          title: "Configuración",
+          headerTitle: "⚙️ Configuración",
+          drawerIcon: ({ color, size, focused }) => (
             <Ionicons
-              name="person-circle-outline"
-              size={size}
+              name={focused ? "settings" : "settings-outline"}
+              size={size + 2}
               color={color}
-              className="mr-4"
             />
           ),
         }}
       />
-       <Drawer.Screen
+
+      <Drawer.Screen
         name="reset-screen/index"
         options={{
-          drawerLabel: "Configuración",
+          drawerLabel: "Reiniciar",
           drawerItemStyle: { display: "none" },
-          title: "Configuración ⚙️",
-          drawerIcon: ({ color, size }) => (
+          title: "Reiniciar",
+          headerTitle: "🔄 Reiniciar",
+          drawerIcon: ({ color, size, focused }) => (
             <Ionicons
-              name="person-circle-outline"
-              size={size}
+              name={focused ? "refresh-circle" : "refresh-circle-outline"}
+              size={size + 2}
               color={color}
-              className="mr-4"
-            />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="diagnostics/index"
-        options={{
-          drawerLabel: "Diagnóstico",
-          title: "Diagnóstico 🩺",
-          drawerIcon: ({ color, size }) => (
-            <Ionicons
-              name="fitness-outline"
-              size={size}
-              color={color}
-              className="mr-4"
             />
           ),
         }}
@@ -115,17 +129,18 @@ const DrawerLayout = () => {
         name="logout/index"
         options={{
           drawerLabel: "Cerrar Sesión",
-          title: "Cerrar Sesión ⚠️",
-          drawerIcon: ({ color, size }) => (
+          title: "Cerrar Sesión",
+          headerTitle: "👋 Salir",
+          drawerIcon: ({ color, size, focused }) => (
             <Ionicons
-              name="log-out-outline"
-              size={size}
+              name={focused ? "exit" : "exit-outline"}
+              size={size + 2}
               color={color}
-              className="mr-4"
             />
           ),
         }}
       />
+
       <Drawer.Screen
         name="index"
         options={{

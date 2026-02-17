@@ -1,7 +1,7 @@
 import { getWorkflowTwoByContainerForNextProcess } from "@/core/container-two/actions";
-import moment from "moment";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   StyleSheet,
   Text,
@@ -12,257 +12,269 @@ import {
 import { useWorkflowStoreThreeExtraOne } from "../../../store";
 
 export const ContainerSection = () => {
-  const [loading, setLoading] = useState(false);
-
-  const startProcess = useWorkflowStoreThreeExtraOne(
-    (state) => state.startProcess,
+  return (
+    <>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>📦 DATOS DEL PROCESO 2</Text>
+        <Text style={styles.sectionSubtitle}>
+          Busca el contenedor del proceso anterior
+        </Text>
+      </View>
+      <ContainerSearchField />
+      <ClientInfo />
+    </>
   );
-  const setStartProcess = useWorkflowStoreThreeExtraOne(
-    (state) => state.setStartProcess,
-  );
+};
 
+const ContainerSearchField = () => {
   const container = useWorkflowStoreThreeExtraOne((state) => state.container);
   const setContainer = useWorkflowStoreThreeExtraOne(
     (state) => state.setContainer,
   );
-
-  const client = useWorkflowStoreThreeExtraOne((state) => state.client);
   const setClient = useWorkflowStoreThreeExtraOne((state) => state.setClient);
-
-  // Método simplificado de carga
-  const setWorkflowTwoData = useWorkflowStoreThreeExtraOne(
-    (state) => state.setWorkflowTwoData,
+  const setClientId = useWorkflowStoreThreeExtraOne(
+    (state) => state.setClientId,
+  );
+  const setClientIdentification = useWorkflowStoreThreeExtraOne(
+    (state) => state.setClientIdentification,
   );
 
-  const handleStartProcess = () => {
-    const currentTime = moment().format("HH:mm:ss");
-    setStartProcess(currentTime);
-    if (!client) {
-      setClient("CLIENTE DEMO"); // TODO: Obtener de global state
-    }
-  };
+  const [isSearching, setIsSearching] = useState(false);
 
-  const handleSearchWorkflowTwo = async () => {
-    if (!container) {
-      Alert.alert("Error", "Debe ingresar un número de contenedor");
+  const handleSearch = async () => {
+    if (!container || container.trim() === "") {
+      Alert.alert(
+        "Campo Requerido",
+        "Por favor ingresa un número de contenedor",
+      );
       return;
     }
 
-    setLoading(true);
     try {
-      const datawf = await getWorkflowTwoByContainerForNextProcess(container);
+      setIsSearching(true);
 
-      if (!datawf) {
-        Alert.alert("Info", "No se encontraron datos para este contenedor");
+      // Buscar datos del proceso 2
+      const data = await getWorkflowTwoByContainerForNextProcess(container);
+
+      if (!data) {
+        Alert.alert(
+          "No Encontrado",
+          `No se encontró el contenedor "${container}" en el proceso 2.\n\n¿Deseas continuar de todas formas?`,
+          [
+            { text: "Cancelar", style: "cancel" },
+            {
+              text: "Continuar",
+              onPress: () => {
+                // Mantener solo el contenedor
+                setClient(null);
+                setClientId(null);
+                setClientIdentification(null);
+              },
+            },
+          ],
+        );
         return;
       }
 
-      setWorkflowTwoData(datawf);
+      // Cargar datos del proceso 2
+      setClient(data.client);
+      setClientId(data.clientId);
+      setClientIdentification(data.clientIdentification);
 
-      Alert.alert("Éxito", "Datos del proceso TWO cargados correctamente", [
-        { text: "OK" },
-      ]);
+      Alert.alert(
+        "✅ Datos Cargados",
+        `Se cargaron los datos del contenedor:\n\n${data.client}\nRUC: ${data.clientIdentification}`,
+      );
     } catch (error: any) {
-      Alert.alert("Error", error.message || "No se pudo cargar los datos");
+      console.error("Error buscando contenedor:", error);
+      Alert.alert("Error", error?.message || "No se pudo buscar el contenedor");
     } finally {
-      setLoading(false);
+      setIsSearching(false);
     }
   };
 
   const handleBlur = () => {
     if (!container) return;
 
+    // Limpiar y formatear el contenedor
     let value = container;
-    // Eliminar espacios
+
+    // Eliminar espacios en blanco
     value = value.replace(/\s+/g, "");
-    // Eliminar tildes
+
+    // Eliminar tildes/acentos
     value = value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    // Solo letras y números
+
+    // Eliminar caracteres que no sean letras o números
     value = value.replace(/[^a-zA-Z0-9]/g, "");
-    // Mayúsculas
+
+    // Convertir a mayúsculas
     value = value.toUpperCase();
 
     setContainer(value);
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>
-          📋 REGISTRO DE VALIDACIÓN DE SELLO
-        </Text>
-      </View>
-
-      {/* Inicio de Proceso */}
-      <View style={styles.row}>
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={handleStartProcess}
-        >
-          <Text style={styles.startButtonText}>Inicio de Proceso</Text>
-        </TouchableOpacity>
+    <View style={styles.formGroup}>
+      <Text style={styles.label}>
+        Número de Contenedor <Text style={styles.required}>*</Text>
+      </Text>
+      <View style={styles.searchContainer}>
         <TextInput
-          style={styles.timeInput}
-          value={startProcess || ""}
-          editable={false}
-          placeholder="--:--:--"
+          style={[styles.input, styles.inputSearch]}
+          value={container || ""}
+          onChangeText={(text) => setContainer(text.toUpperCase())}
+          onBlur={handleBlur}
+          placeholder="Ingresa el número de contenedor"
           placeholderTextColor="#999"
+          maxLength={100}
+          editable={!isSearching}
         />
-      </View>
-
-      {/* Búsqueda de Contenedor */}
-      <View style={styles.row}>
-        <View style={styles.inputContainer}>
-          <View
-            style={[
-              styles.label,
-              { backgroundColor: startProcess ? "#000080" : "#ff4d4f" },
-            ]}
-          >
-            <Text
-              style={[
-                styles.labelText,
-                { color: startProcess ? "#fff" : "#fff" },
-              ]}
-            >
-              N° Contenedor
-            </Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            value={container || ""}
-            onChangeText={(text) => setContainer(text.toUpperCase().trim())}
-            onBlur={handleBlur}
-            placeholder="Ingrese número de contenedor"
-            placeholderTextColor="#999"
-            editable={!!startProcess}
-            autoCapitalize="characters"
-          />
-        </View>
         <TouchableOpacity
           style={[
             styles.searchButton,
-            (!startProcess || loading) && styles.searchButtonDisabled,
+            isSearching && styles.searchButtonDisabled,
           ]}
-          onPress={handleSearchWorkflowTwo}
-          disabled={!startProcess || loading}
+          onPress={handleSearch}
+          disabled={isSearching}
         >
-          <Text style={styles.searchIcon}>{loading ? "⏳" : "🔍"}</Text>
+          {isSearching ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.searchButtonText}>🔍 Buscar</Text>
+          )}
         </TouchableOpacity>
       </View>
+    </View>
+  );
+};
 
-      {/* Información del Cliente */}
-      {client && (
-        <View style={styles.clientInfo}>
-          <Text style={styles.clientText}>👤 Cliente: {client}</Text>
-          <Text style={styles.clientSubtext}>RUC: 0123456789001</Text>
-        </View>
-      )}
+const ClientInfo = () => {
+  const client = useWorkflowStoreThreeExtraOne((state) => state.client);
+  const clientIdentification = useWorkflowStoreThreeExtraOne(
+    (state) => state.clientIdentification,
+  );
+
+  if (!client) return null;
+
+  return (
+    <View style={styles.infoBox}>
+      <View style={styles.infoHeader}>
+        <Text style={styles.infoIcon}>ℹ️</Text>
+        <Text style={styles.infoTitle}>Información del Cliente</Text>
+      </View>
+      <View style={styles.infoContent}>
+        <Text style={styles.infoLabel}>Cliente:</Text>
+        <Text style={styles.infoValue}>{client}</Text>
+        <Text style={styles.infoLabel}>RUC/Identificación:</Text>
+        <Text style={styles.infoValue}>{clientIdentification || "N/A"}</Text>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 8,
+  section: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#e6f7ff",
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#91d5ff",
+    marginTop: 8,
   },
-  header: {
-    backgroundColor: "#A9A9A9",
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#0050b3",
+  },
+  sectionSubtitle: {
+    fontSize: 11,
+    color: "#096dd9",
+    marginTop: 4,
+  },
+  formGroup: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    marginBottom: 12,
-    borderRadius: 4,
-  },
-  headerText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  row: {
-    flexDirection: "row",
-    marginBottom: 12,
-    gap: 8,
-  },
-  startButton: {
-    backgroundColor: "#000080",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 4,
-    justifyContent: "center",
-    minWidth: 140,
-  },
-  startButtonText: {
-    color: "#fff",
-    fontSize: 11,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  timeInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#d9d9d9",
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "darkgreen",
-    backgroundColor: "#f5f5f5",
-  },
-  inputContainer: {
-    flex: 1,
-    flexDirection: "row",
-    borderWidth: 1,
-    borderColor: "#d9d9d9",
-    borderRadius: 4,
-    overflow: "hidden",
   },
   label: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    justifyContent: "center",
-    minWidth: 110,
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 6,
   },
-  labelText: {
-    fontSize: 11,
-    fontWeight: "bold",
-    textAlign: "center",
+  required: {
+    color: "#ff4d4f",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    gap: 8,
   },
   input: {
+    borderWidth: 1,
+    borderColor: "#d9d9d9",
+    borderRadius: 6,
+    padding: 10,
+    fontSize: 14,
+    backgroundColor: "#fff",
+    color: "#000",
+  },
+  inputSearch: {
     flex: 1,
-    paddingHorizontal: 12,
-    fontSize: 12,
   },
   searchButton: {
     backgroundColor: "#1890ff",
-    width: 50,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 4,
+    minWidth: 80,
   },
   searchButtonDisabled: {
-    backgroundColor: "#d9d9d9",
+    backgroundColor: "#91caff",
+    opacity: 0.7,
   },
-  searchIcon: {
-    fontSize: 20,
+  searchButtonText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "bold",
   },
-  clientInfo: {
+  infoBox: {
+    marginHorizontal: 16,
+    marginVertical: 12,
     backgroundColor: "#e6f7ff",
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: "#91d5ff",
-    borderRadius: 4,
     padding: 12,
-    marginTop: 8,
   },
-  clientText: {
+  infoHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  infoIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  infoTitle: {
     fontSize: 13,
     fontWeight: "bold",
     color: "#0050b3",
-    marginBottom: 4,
   },
-  clientSubtext: {
-    fontSize: 12,
-    color: "#0050b3",
+  infoContent: {
+    gap: 4,
+  },
+  infoLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#666",
+    marginTop: 4,
+  },
+  infoValue: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#000",
   },
 });

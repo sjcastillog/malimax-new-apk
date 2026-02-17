@@ -1,7 +1,7 @@
 import { WorkflowActionI, WorkflowI } from "@/common/interface";
 import {
-  WorkflowTwoActionI,
-  WorkflowTwoI,
+  WorkflowContainerTwoActionI,
+  WorkflowContainerTwoI,
 } from "@/core/container-two/interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
@@ -10,7 +10,10 @@ import { createWorkflowContainerTwoSlice } from "./workflow-container-two.store"
 import { createWorkflowSlice } from "./workflow.store";
 
 export const useWorkflowStoreTwoExtraTwo = create<
-  WorkflowTwoI & WorkflowTwoActionI & WorkflowI & WorkflowActionI
+  WorkflowContainerTwoI &
+    WorkflowContainerTwoActionI &
+    WorkflowI &
+    WorkflowActionI
 >()(
   persist(
     (...a) => ({
@@ -19,7 +22,7 @@ export const useWorkflowStoreTwoExtraTwo = create<
       _hasHydrated: false,
     }),
     {
-      name: "workflow-two-extra-two-storage",
+      name: "workflow-two-zero-storage",
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => {
         return (state, error) => {

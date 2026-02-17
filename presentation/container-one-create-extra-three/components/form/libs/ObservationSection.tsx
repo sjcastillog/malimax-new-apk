@@ -4,9 +4,7 @@ import { StyleSheet, View } from "react-native";
 import { useWorkflowStoreOneExtraThree } from "../../../store";
 
 export const ObservationSection = () => {
-  const observation = useWorkflowStoreOneExtraThree(
-    (state) => state.observation,
-  );
+  const observation = useWorkflowStoreOneExtraThree((state) => state.observation);
   const setObservation = useWorkflowStoreOneExtraThree(
     (state) => state.setObservation,
   );

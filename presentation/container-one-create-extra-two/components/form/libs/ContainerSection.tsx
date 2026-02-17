@@ -1,5 +1,9 @@
-import React from "react";
+import { getLocationFromCoordinates } from "@/common/service/geocoding.service";
+import * as Location from "expo-location";
+import React, { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -10,29 +14,110 @@ import { useWorkflowStoreOneExtraTwo } from "../../../store";
 
 export const ContainerSection = () => {
   const container = useWorkflowStoreOneExtraTwo((state) => state.container);
-  const setContainer = useWorkflowStoreOneExtraTwo(
-    (state) => state.setContainer,
-  );
-  const startProcess = useWorkflowStoreOneExtraTwo(
-    (state) => state.startProcess,
-  );
+  const setContainer = useWorkflowStoreOneExtraTwo((state) => state.setContainer);
+  const startProcess = useWorkflowStoreOneExtraTwo((state) => state.startProcess);
   const setStartProcess = useWorkflowStoreOneExtraTwo(
     (state) => state.setStartProcess,
   );
-  const client = useWorkflowStoreOneExtraTwo((state) => state.client);
-  const setClient = useWorkflowStoreOneExtraTwo((state) => state.setClient);
+  const setCoordinates = useWorkflowStoreOneExtraTwo(
+    (state) => state.setCoordinates,
+  );
+  const setCity = useWorkflowStoreOneExtraTwo((state) => state.setCity);
 
-  const handleStartProcess = () => {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString("es-EC", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-    setStartProcess(timeString);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
-    // Aquí podrías setear el cliente si tienes lógica para obtenerlo
-    // if (!client) setClient(elClient);
+  const handleStartProcess = async () => {
+    try {
+      setIsLoadingLocation(true);
+
+      // 1. Obtener hora actual
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("es-EC", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      setStartProcess(timeString);
+
+      // 2. Solicitar permisos de ubicación
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        Alert.alert(
+          "Permiso Denegado",
+          "Se necesita acceso a la ubicación para obtener la ciudad automáticamente.",
+        );
+        setIsLoadingLocation(false);
+        return;
+      }
+
+      // 3. Obtener coordenadas GPS
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const { latitude, longitude } = location.coords;
+      const coordsString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+
+      // Guardar coordenadas
+      setCoordinates(coordsString);
+
+      // 4. Hacer geocoding reverso para obtener la ciudad
+      try {
+        const geocodeResult = await getLocationFromCoordinates(
+          latitude,
+          longitude,
+        );
+
+        if (geocodeResult) {
+          // Guardar ciudad automáticamente
+          setCity(geocodeResult.city.toUpperCase());
+
+          Alert.alert(
+            "✅ Ubicación Detectada",
+            `Ciudad: ${geocodeResult.city}\n` +
+              `País: ${geocodeResult.country}\n` +
+              `Coordenadas: ${coordsString}`,
+            [{ text: "OK" }],
+          );
+        } else {
+          // Si no se pudo obtener la ciudad, solo guardar coordenadas
+          Alert.alert(
+            "⚠️ Ciudad No Detectada",
+            `No se pudo determinar la ciudad automáticamente.\n\n` +
+              `Coordenadas: ${coordsString}\n\n` +
+              `Por favor ingresa la ciudad manualmente.`,
+            [{ text: "OK" }],
+          );
+        }
+      } catch (geocodeError) {
+        console.error("Error en geocoding:", geocodeError);
+        Alert.alert(
+          "⚠️ Error al Obtener Ciudad",
+          `Se obtuvieron las coordenadas pero no se pudo determinar la ciudad.\n\n` +
+            `Coordenadas: ${coordsString}\n\n` +
+            `Por favor ingresa la ciudad manualmente.`,
+          [{ text: "OK" }],
+        );
+      }
+    } catch (error: any) {
+      console.error("Error obteniendo ubicación:", error);
+      Alert.alert(
+        "Error",
+        "No se pudo obtener la ubicación. Asegúrate de tener el GPS activado.",
+      );
+
+      // Aún así setear la hora de inicio
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("es-EC", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      setStartProcess(timeString);
+    } finally {
+      setIsLoadingLocation(false);
+    }
   };
 
   const handleBlurContainer = () => {
@@ -53,12 +138,26 @@ export const ContainerSection = () => {
       {/* Botón Inicio de Proceso */}
       <View style={styles.row}>
         <TouchableOpacity
-          style={styles.startButton}
+          style={[
+            styles.startButton,
+            isLoadingLocation && styles.startButtonDisabled,
+          ]}
           onPress={handleStartProcess}
+          disabled={isLoadingLocation || !!startProcess}
         >
-          <Text style={styles.startButtonText}>Inicio de Proceso</Text>
+          {isLoadingLocation ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color="#fff" />
+              <Text style={styles.startButtonText}>
+                Obteniendo ubicación...
+              </Text>
+            </View>
+          ) : (
+            <Text style={styles.startButtonText}>
+              {startProcess ? "✓ Proceso Iniciado" : "Inicio de Proceso"}
+            </Text>
+          )}
         </TouchableOpacity>
-
         <TextInput
           style={[styles.timeInput, !startProcess && styles.timeInputEmpty]}
           value={startProcess}
@@ -105,10 +204,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  startButtonDisabled: {
+    backgroundColor: "#91caff",
+    opacity: 0.7,
+  },
   startButtonText: {
     color: "#fff",
     fontSize: 12,
     fontWeight: "bold",
+  },
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   timeInput: {
     flex: 1,

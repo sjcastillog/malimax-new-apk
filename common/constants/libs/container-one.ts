@@ -15,6 +15,10 @@ export const photosToGenerateOne = [
   { key: "emptySatelliteLockPhoto", label: "Candado Satelital" },
   { key: "emptySatelliteLockStampPhoto", label: "Sello Candado GPS" },
 
+  // NUEVAS FOTOS DE MAQUINARIA ✨
+  { key: "engineryPhoto1", label: "Maquinaria 1" },
+  { key: "engineryPhoto2", label: "Maquinaria 2" },
+
   // FOTOS EXTERNAS
   { key: "emptySideRightPhoto", label: "Lado Derecho" },
   { key: "emptySideLeftPhoto", label: "Lado Izquierdo" },
@@ -41,8 +45,12 @@ export const photosToGenerateOne = [
   { key: "exitSatelliteLockStampPhoto", label: "Sello Candado GPS (Salida)" },
   { key: "exitEngineryPhoto1", label: "Ingeniería 1" },
   { key: "exitEngineryPhoto2", label: "Ingeniería 2" },
+
+  // NUEVA FOTO DE SELLADO TEMPORAL ✨
+  { key: "exitTemporarySealingPhoto", label: "Sellado Temporal (Salida)" },
 ];
 
+// common/constants/validations/workflow-one-validation.ts
 const optionalString = (min: number, max: number, label: string) =>
   Yup.string()
     .transform((value) => (value?.trim() === "" ? undefined : value))
@@ -51,6 +59,9 @@ const optionalString = (min: number, max: number, label: string) =>
     .label(label);
 
 export const validationSchemaOne = Yup.object({
+  // ============================================
+  // CAMPOS OBLIGATORIOS
+  // ============================================
   container: Yup.string()
     .required("El Número de Contenedor es requerido")
     .min(5, "El Número de Contenedor debe tener al menos 5 caracteres")
@@ -69,22 +80,73 @@ export const validationSchemaOne = Yup.object({
     .label("Foto panorámica"),
 
   // ============================================
+  // NUEVOS CAMPOS OPCIONALES - DATOS DE LA WEB ✨
+  // ============================================
+  typeService: optionalString(3, 100, "Tipo de Servicio"),
+
+  date: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "Fecha debe estar en formato YYYY-MM-DD")
+    .label("Fecha"),
+
+  workplace: optionalString(3, 200, "Lugar de Trabajo"),
+
+  exporterSupervisor: optionalString(3, 255, "Supervisor de Exportador"),
+
+  exporterSupervisorIdentification: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .min(10, "Identificación debe tener al menos 10 caracteres")
+    .max(25, "Identificación no puede tener más de 25 caracteres")
+    .label("Identificación Supervisor Exportador"),
+
+  associated: optionalString(3, 255, "Asociado"),
+
+  associatedIdentification: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .min(10, "Identificación debe tener al menos 10 caracteres")
+    .max(25, "Identificación no puede tener más de 25 caracteres")
+    .label("Identificación Asociado"),
+
+  others: optionalString(3, 255, "Otro"),
+
+  othersIdentification: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .min(10, "Identificación debe tener al menos 10 caracteres")
+    .max(25, "Identificación no puede tener más de 25 caracteres")
+    .label("Identificación Otro"),
+
+  inspectedWas: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .oneOf(["Si", "No"], "Debe ser Si o No")
+    .label("Fue Inspeccionado"),
+
+  inspectedBy: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .when("inspectedWas", {
+      is: "Si",
+      then: (schema) =>
+        schema
+          .required("Si fue inspeccionado, debe indicar quién lo hizo")
+          .min(3, "Nombre debe tener al menos 3 caracteres")
+          .max(255, "Nombre no puede tener más de 255 caracteres"),
+      otherwise: (schema) => schema.max(255, "Nombre muy largo"),
+    })
+    .label("Inspeccionado Por"),
+
+  // ============================================
   // CAMPOS OPCIONALES - DATOS BÁSICOS
   // ============================================
-
   coordinates: optionalString(1, 100, "Coordenadas"),
-  duration: optionalString(1, 100, "Duración"),
-  dateCorrection: optionalString(1, 100, "Fecha de Corrección"),
 
   // ============================================
   // CAMPOS OPCIONALES - CONTENEDOR
   // ============================================
-
   companyTransport: optionalString(3, 200, "Compañía de Transporte"),
-  openedBy: optionalString(2, 200, "Abierto Por"),
-  openedWas: optionalString(2, 5, "Fue Abierto"),
+
   typeContainer: optionalString(3, 200, "Tipo de Contenedor"),
+
   naviera: optionalString(3, 200, "Naviera"),
+
   entryPort: optionalString(2, 200, "Puerto de Ingreso"),
 
   size: Yup.string()
@@ -95,24 +157,26 @@ export const validationSchemaOne = Yup.object({
   // ============================================
   // CAMPOS OPCIONALES - CONDUCTOR
   // ============================================
-
   plateVehicle: optionalString(5, 20, "Placa Vehicular"),
+
   driverName: optionalString(5, 255, "Nombre del Conductor"),
+
   driverIdentification: optionalString(10, 25, "Cédula del Conductor"),
 
   // ============================================
   // CAMPOS OPCIONALES - UBICACIÓN
   // ============================================
-
   address: optionalString(5, 500, "Dirección"),
+
   city: optionalString(2, 200, "Ciudad"),
+
   typeReview: optionalString(2, 200, "Tipo de Revisión"),
+
   storageName: optionalString(2, 250, "Nombre de Patio/Acopio"),
 
   // ============================================
   // CAMPOS OPCIONALES - HORAS
   // ============================================
-
   startProcess: Yup.string()
     .transform((value) => (value?.trim() === "" ? undefined : value))
     .max(100, "Hora de inicio muy larga")
@@ -136,7 +200,6 @@ export const validationSchemaOne = Yup.object({
   // ============================================
   // CAMPOS OPCIONALES - OBSERVACIONES
   // ============================================
-
   observation: Yup.string()
     .transform((value) => (value?.trim() === "" ? undefined : value))
     .max(500, "Observación no puede tener más de 500 caracteres")
@@ -145,7 +208,6 @@ export const validationSchemaOne = Yup.object({
   // ============================================
   // COMENTARIOS - max 500 caracteres
   // ============================================
-
   emptyPanoramicComment: Yup.string()
     .transform((value) => (value?.trim() === "" ? undefined : value))
     .max(500, "Comentario muy largo")
@@ -257,9 +319,26 @@ export const validationSchemaOne = Yup.object({
     .label("Comentario Ingeniería 2"),
 
   // ============================================
+  // NUEVOS COMENTARIOS DE MAQUINARIA Y SELLADO TEMPORAL ✨
+  // ============================================
+  engineryComment1: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .max(500, "Comentario muy largo")
+    .label("Comentario Maquinaria 1"),
+
+  engineryComment2: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .max(500, "Comentario muy largo")
+    .label("Comentario Maquinaria 2"),
+
+  exitTemporarySealingComment: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .max(500, "Comentario muy largo")
+    .label("Comentario Sellado Temporal"),
+
+  // ============================================
   // FOTOS - max 500 caracteres (excepto photo6)
   // ============================================
-
   emptyAditionalStampPhoto: Yup.string()
     .transform((value) => (value?.trim() === "" ? undefined : value))
     .max(500, "Ruta de foto muy larga")
@@ -412,9 +491,26 @@ export const validationSchemaOne = Yup.object({
     .label("Foto Ingeniería 2"),
 
   // ============================================
+  // NUEVAS FOTOS DE MAQUINARIA Y SELLADO TEMPORAL ✨
+  // ============================================
+  engineryPhoto1: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .max(500, "Ruta de foto muy larga")
+    .label("Foto Maquinaria 1"),
+
+  engineryPhoto2: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .max(500, "Ruta de foto muy larga")
+    .label("Foto Maquinaria 2"),
+
+  exitTemporarySealingPhoto: Yup.string()
+    .transform((value) => (value?.trim() === "" ? undefined : value))
+    .max(500, "Ruta de foto muy larga")
+    .label("Foto Sellado Temporal"),
+
+  // ============================================
   // VIDEOS - max 500 caracteres
   // ============================================
-
   emptyInternalVideo: Yup.string()
     .transform((value) => (value?.trim() === "" ? undefined : value))
     .max(500, "Ruta de video muy larga")
@@ -432,58 +528,99 @@ export const validationSchemaOne = Yup.object({
 });
 
 export const initialWorkflowStateOne = {
+  // ============================================
   // CONTROL
+  // ============================================
   id: null,
   step: "Formulario",
   createdByAdmin: null,
+  _hasHydrated: false,
+  timeStampSave: "",
+  firstTakePhoto: "",
+  hourSaveUser: "",
 
+  // ============================================
   // CLIENTE
+  // ============================================
   client: null,
   clientId: null,
   clientIdentification: null,
 
+  // ============================================
   // DATOS BÁSICOS
+  // ============================================
   container: null,
   labelSerial: null,
   coordinates: "",
 
-  // APERTURA
-  openedBy: "",
-  openedWas: "No",
+  // ============================================
+  // NUEVOS CAMPOS DE LA WEB
+  // ============================================
+  typeService: null, // Tipo de servicio (catálogo)
+  date: null, // Fecha del reporte
+  can: null, // Array de CANs (múltiple select)
+  leader: null, // Array de Guías (múltiple select)
+  exporterSupervisor: null, // Supervisor de Exportador
+  exporterSupervisorIdentification: null, // Identificación
+  associated: null, // Asociado Neg.
+  associatedIdentification: null, // Identificación
+  others: null, // Otro
+  othersIdentification: null, // Identificación
+  workplace: null, // Lugar de Trabajo
 
+  // ============================================
+  // RENOMBRADO: openedWas/openedBy → inspectedWas/inspectedBy
+  // ============================================
+  inspectedBy: "", // ¿Por quién fue inspeccionado?
+  inspectedWas: "No", // ¿Fue inspeccionado? (Si/No) - Por defecto "No"
+
+  // ============================================
   // HORAS
+  // ============================================
   hourInit: "",
   hourEnd: "",
   startProcess: "",
   endProcess: "",
 
+  // ============================================
   // UBICACIÓN
+  // ============================================
   address: "",
   city: "",
   typeReview: "",
   storageName: "",
   entryPort: null,
 
+  // ============================================
   // CONTENEDOR
+  // ============================================
   typeContainer: null,
   naviera: null,
   size: null,
 
+  // ============================================
   // CONDUCTOR
+  // ============================================
   driverName: "",
   driverIdentification: "",
   plateVehicle: "",
   companyTransport: null,
 
+  // ============================================
   // OBSERVACIONES
+  // ============================================
   observation: null,
 
+  // ============================================
   // IMÁGENES
+  // ============================================
   quantityImages: 8,
   images: [],
   imagesDelete: [],
 
+  // ============================================
   // FOTOS VACIO EXTERNO
+  // ============================================
   emptyPanoramicPhoto: "",
   emptyPanoramicComment: null,
   emptyPanoramicCoordinates: "",
@@ -508,7 +645,9 @@ export const initialWorkflowStateOne = {
   emptyPlatePhoto: "",
   emptyDriverIdentificationPhoto: "",
 
+  // ============================================
   // FOTOS VACIO INTERNO
+  // ============================================
   emptyFloorPhoto: "",
   emptyRoofPhoto: "",
   emptyMirrorCoverPhoto: "",
@@ -529,7 +668,17 @@ export const initialWorkflowStateOne = {
   emptyInternalComment6: null,
   emptyInternalVideo: "",
 
+  // ============================================
+  // NUEVAS FOTOS DE MAQUINARIA (DE LA WEB)
+  // ============================================
+  engineryPhoto1: "",
+  engineryComment1: null,
+  engineryPhoto2: "",
+  engineryComment2: null,
+
+  // ============================================
   // FOTOS FULL/SALIDA
+  // ============================================
   exitOtherStampPhoto: "",
   exitPanoramicPhoto: "",
   exitStampNavieraPhoto: "",
@@ -545,13 +694,11 @@ export const initialWorkflowStateOne = {
   exitDoorVideo: "",
   exitEngineryVideo: "",
 
-  // CONTROL
-  _hasHydrated: false,
-
-  // OTHERS
-  timeStampSave: "",
-  firstTakePhoto: "",
-  hourSaveUser: "",
+  // ============================================
+  // NUEVA FOTO DE SELLADO TEMPORAL (DE LA WEB)
+  // ============================================
+  exitTemporarySealingPhoto: "",
+  exitTemporarySealingComment: null,
 };
 
 export const photoKeysOne = [
@@ -595,6 +742,10 @@ export const photoKeysOne = [
   "exitSatelliteLockStampPhoto",
   "exitEngineryPhoto1",
   "exitEngineryPhoto2",
+
+  "engineryPhoto1",
+  "engineryPhoto2",
+  "exitTemporarySealingPhoto",
 ] as const;
 
 export const videoKeysOne = [
@@ -625,6 +776,9 @@ export const commentKeysOne = [
   "exitStampNavieraComment",
   "exitEngineryComment1",
   "exitEngineryComment2",
+  "engineryComment1",
+  "engineryComment2",
+  "exitTemporarySealingComment",
 ] as const;
 
 export class PhotosHelper {

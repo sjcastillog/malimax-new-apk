@@ -1,7 +1,7 @@
 import { WorkflowActionI, WorkflowI } from "@/common/interface";
 import {
-  WorkflowTwoActionI,
-  WorkflowTwoI,
+  WorkflowContainerTwoActionI,
+  WorkflowContainerTwoI,
 } from "@/core/container-two/interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
@@ -10,8 +10,8 @@ import { createWorkflowContainerTwoSlice } from "./workflow-container-two.store"
 import { createWorkflowSlice } from "./workflow.store";
 
 export const useWorkflowStoreTwoZero = create<
-  WorkflowTwoI &
-    WorkflowTwoActionI &
+  WorkflowContainerTwoI &
+    WorkflowContainerTwoActionI &
     WorkflowI &
     WorkflowActionI
 >()(

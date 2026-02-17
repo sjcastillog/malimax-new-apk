@@ -16,7 +16,7 @@ async function createContainer(
 ) {
   try {
     const { data } = await puceApi.post<ServiceResponseI<ObjPostI>>(
-      `/workflow-one`,
+      `/malimax-one`,
       { container },
     );
 

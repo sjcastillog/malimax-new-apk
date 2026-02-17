@@ -16,65 +16,55 @@ export const WorkflowSimulatorThree: React.FC<WorkflowSimulatorThreeProps> = ({
   const [isSimulating, setIsSimulating] = useState(false);
 
   const {
+    // Datos del proceso 2 (readonly)
     setContainer,
     setClientId,
     setClient,
-    setTypeContainer,
-    setNaviera,
-    setSize,
-    setCompanyTransport,
-    setEntryPort,
-    setOpenedBy,
-    setOpenedWas,
-    setObservation,
-    setCoordinates,
     setClientIdentification,
-    setLabelSerial,
-    setPlateVehicle,
-    setDriverName,
-    setDriverIdentification,
+
+    // Datos del proceso 3
+    setEntryPort,
+
+    // Generales
+    setCoordinates,
+    setObservation,
     setHourInit,
     setHourEnd,
-    setStartProcess,
-    setEndProcess,
-    setAddress,
-    setCity,
-    setTypeReview,
-    setStorageName,
-    setPhoto,
-    // Comentarios de fotos
+
+    // Setters de fotos estáticas
+    setContainerPanoramicPhoto,
     setContainerPanoramicComment,
+    setContainerPanoramicCoordinates,
+
+    setNavieraBottlePhoto,
     setNavieraBottleComment,
+    setNavieraWirePhoto,
     setNavieraWireComment,
+    setNavieraLabelPhoto,
     setNavieraLabelComment,
+
+    setExporterBottlePhoto,
     setExporterBottleComment,
+    setExporterWirePhoto,
     setExporterWireComment,
+    setExporterLabelPhoto,
     setExporterLabelComment,
+
+    setOtherBottlePhoto,
     setOtherBottleComment,
+    setOtherWirePhoto,
     setOtherWireComment,
+    setOtherLabelPhoto,
     setOtherLabelComment,
+
+    setGpsPhoto,
     setGpsComment,
+    setGpsStampPhoto,
     setGpsStampComment,
-    setEngineryComment1,
-    setEngineryComment2,
-    // Status de fotos
-    setContainerPanoramicStatus,
-    setNavieraBottleStatus,
-    setNavieraWireStatus,
-    setNavieraLabelStatus,
-    setExporterBottleStatus,
-    setExporterWireStatus,
-    setExporterLabelStatus,
-    setOtherBottleStatus,
-    setOtherWireStatus,
-    setOtherLabelStatus,
-    setGpsStatus,
-    setGpsStampStatus,
-    setEngineryStatus1,
-    setEngineryStatus2,
-    // Status de videos
-    setEngineryVideoStatus,
-    setDoorVideoStatus,
+
+    // Imágenes dinámicas
+    addImage,
+    updateImage,
   } = useWorkflowStoreThreeExtraTwo();
 
   const createPlaceholderImage = async (
@@ -101,143 +91,154 @@ export const WorkflowSimulatorThree: React.FC<WorkflowSimulatorThreeProps> = ({
     try {
       setIsSimulating(true);
 
-      // 1. DATOS BÁSICOS
-      const containerNumber = `VALID${Date.now().toString().slice(-6)}`;
+      // ============================================
+      // 1. DATOS DEL PROCESO 2 (READONLY - vienen del proceso anterior)
+      // ============================================
+      const containerNumber = `EXIT${Date.now().toString().slice(-6)}`;
       setContainer(containerNumber);
       setClientId(1);
-      setClient("Cliente Validación Final S.A.");
-      setTypeContainer("40 HC");
-      setNaviera("MSC");
-      setSize("40");
-      setCompanyTransport("Transportes Validación Express");
-      setEntryPort("Guayaquil");
-      setOpenedBy("María Supervisora");
-      setOpenedWas("No");
-      setObservation("Validación final simulada - Contenedor aprobado");
-      setCoordinates("-2.1894, -79.8891");
+      setClient("Cliente Exportador S.A.");
       setClientIdentification(`RUC${Date.now().toString().slice(-10)}`);
-      setLabelSerial(`LBL${Date.now().toString().slice(-6)}`);
-      setPlateVehicle(`GYE-${Date.now().toString().slice(-4)}`);
-      setDriverName("Roberto Conductor Gómez");
-      setDriverIdentification("0987654321");
-      setAddress("Av. Validación 456, Sector B");
-      setCity("Guayaquil");
-      setTypeReview("Validación Final Completa");
-      setStorageName("Puerto Central B2");
 
-      // 2. HORARIOS
-      const startTime = "09:00";
-      const endTime = "09:45";
-      const processStart = "09:05";
-      const processEnd = "09:40";
+      // ============================================
+      // 2. DATOS DEL PROCESO 3
+      // ============================================
+      setEntryPort("PUERTO DE GUAYAQUIL");
+
+      // ============================================
+      // 3. DATOS GENERALES
+      // ============================================
+      setCoordinates("-2.1894, -79.8891");
+      setObservation(
+        "Inspección de salida completada. Contenedor sellado correctamente. " +
+          "Todos los precintos verificados y en buen estado. " +
+          "Dispositivo GPS activo y funcionando.",
+      );
+
+      // ============================================
+      // 4. HORARIOS
+      // ============================================
+      const now = new Date();
+      const startTime = "14:00";
+      const endTime = "15:00";
 
       setHourInit(startTime);
       setHourEnd(endTime);
-      setStartProcess(processStart);
-      setEndProcess(processEnd);
 
-      // 3. COMENTARIOS PARA FOTOS
-      setContainerPanoramicComment("Vista panorámica validada OK");
-      setNavieraBottleComment("Botella naviera verificada");
-      setNavieraWireComment("Cable naviera sin daños");
-      setNavieraLabelComment("Etiqueta naviera legible");
-      setExporterBottleComment("Botella exportador OK");
-      setExporterWireComment("Cable exportador correcto");
-      setExporterLabelComment("Etiqueta exportador validada");
-      setOtherBottleComment("Botella adicional verificada");
-      setOtherWireComment("Cable adicional en buen estado");
-      setOtherLabelComment("Etiqueta adicional legible");
-      setGpsComment("GPS funcionando correctamente");
-      setGpsStampComment("Sello GPS validado");
-      setEngineryComment1("Ingeniería 1 aprobada");
-      setEngineryComment2("Ingeniería 2 correcta");
+      // ============================================
+      // 5. COMENTARIOS DE FOTOS ESTÁTICAS
+      // ============================================
+      setContainerPanoramicComment(
+        "Vista panorámica del contenedor sellado y listo para salida",
+      );
+      setContainerPanoramicCoordinates("-2.1894, -79.8891");
 
-      // 4. STATUS - TODAS LAS FOTOS APROBADAS (TRUE)
-      setContainerPanoramicStatus(true);
-      setNavieraBottleStatus(true);
-      setNavieraWireStatus(true);
-      setNavieraLabelStatus(true);
-      setExporterBottleStatus(true);
-      setExporterWireStatus(true);
-      setExporterLabelStatus(true);
-      setOtherBottleStatus(true);
-      setOtherWireStatus(true);
-      setOtherLabelStatus(true);
-      setGpsStatus(true);
-      setGpsStampStatus(true);
-      setEngineryStatus1(true);
-      setEngineryStatus2(true);
-      setEngineryVideoStatus(true);
-      setDoorVideoStatus(true);
+      setNavieraBottleComment(
+        "Botella de precinto naviera instalada correctamente",
+      );
+      setNavieraWireComment("Cable de precinto naviera tensado y asegurado");
+      setNavieraLabelComment(
+        "Etiqueta de precinto naviera legible y verificada",
+      );
 
-      // 5. GENERAR TODAS LAS FOTOS REQUERIDAS (28 FOTOS)
-      const photosToGenerate = [
-        // CONTENEDOR (2)
-        "containerPanoramicPhoto",
-        "containerPanoramicCheck",
+      setExporterBottleComment("Botella de precinto exportador verificada");
+      setExporterWireComment("Cable de precinto exportador en perfecto estado");
+      setExporterLabelComment(
+        "Etiqueta de precinto exportador correctamente adherida",
+      );
 
-        // NAVIERA (6)
-        "navieraBottlePhoto",
-        "navieraBottleCheck",
-        "navieraWirePhoto",
-        "navieraWireCheck",
-        "navieraLabelPhoto",
-        "navieraLabelCheck",
+      setOtherBottleComment("Botella de precinto adicional instalada");
+      setOtherWireComment("Cable de precinto adicional asegurado");
+      setOtherLabelComment("Etiqueta de precinto adicional visible");
 
-        // EXPORTADOR (6)
-        "exporterBottlePhoto",
-        "exporterBottleCheck",
-        "exporterWirePhoto",
-        "exporterWireCheck",
-        "exporterLabelPhoto",
-        "exporterLabelCheck",
+      setGpsComment("Dispositivo GPS activo - señal estable");
+      setGpsStampComment("Sello del dispositivo GPS verificado e intacto");
 
-        // OTRO (6)
-        "otherBottlePhoto",
-        "otherBottleCheck",
-        "otherWirePhoto",
-        "otherWireCheck",
-        "otherLabelPhoto",
-        "otherLabelCheck",
-
-        // GPS (4)
-        "gpsPhoto",
-        "gpsCheck",
-        "gpsStampPhoto",
-        "gpsStampCheck",
-
-        // INGENIERÍA (4)
-        "engineryPhoto1",
-        "engineryCheck1",
-        "engineryPhoto2",
-        "engineryCheck2",
+      // ============================================
+      // 6. GENERAR 12 FOTOS ESTÁTICAS
+      // ============================================
+      const staticPhotos = [
+        { key: "containerPanoramicPhoto", setter: setContainerPanoramicPhoto },
+        { key: "navieraBottlePhoto", setter: setNavieraBottlePhoto },
+        { key: "navieraWirePhoto", setter: setNavieraWirePhoto },
+        { key: "navieraLabelPhoto", setter: setNavieraLabelPhoto },
+        { key: "exporterBottlePhoto", setter: setExporterBottlePhoto },
+        { key: "exporterWirePhoto", setter: setExporterWirePhoto },
+        { key: "exporterLabelPhoto", setter: setExporterLabelPhoto },
+        { key: "otherBottlePhoto", setter: setOtherBottlePhoto },
+        { key: "otherWirePhoto", setter: setOtherWirePhoto },
+        { key: "otherLabelPhoto", setter: setOtherLabelPhoto },
+        { key: "gpsPhoto", setter: setGpsPhoto },
+        { key: "gpsStampPhoto", setter: setGpsStampPhoto },
       ];
 
-      // Generar y asignar cada foto
-      for (let i = 0; i < photosToGenerate.length; i++) {
-        const photoKey = photosToGenerate[i];
+      for (const photo of staticPhotos) {
+        const { filename } = await createPlaceholderImage(photo.key);
+        photo.setter(filename);
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
 
-        try {
-          const { uri, filename } = await createPlaceholderImage(photoKey);
-          await setPhoto(photoKey, uri, filename);
-        } catch (error) {
-          console.error(`❌ Error en foto ${photoKey}:`, error);
+      // ============================================
+      // 7. CREAR 2 FOTOS DINÁMICAS
+      // ============================================
+      const dynamicPhotos = [
+        {
+          type: "exit",
+          comment:
+            "Inspección final del contenedor sellado antes de salida del patio",
+        },
+        {
+          type: "exit",
+          comment:
+            "Verificación de documentación y precintos completos para despacho",
+        },
+      ];
+
+      for (let i = 0; i < dynamicPhotos.length; i++) {
+        // Agregar imagen vacía
+        addImage(dynamicPhotos[i].type);
+
+        // Esperar un momento para que se cree el uuid
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        // Obtener el último uuid agregado
+        const state = useWorkflowStoreThreeExtraTwo.getState();
+        const lastImage = state.images[state.images.length - 1];
+
+        if (lastImage) {
+          // Crear foto simulada
+          const { filename } = await createPlaceholderImage(
+            `dynamic_exit_${i + 1}`,
+          );
+
+          // Actualizar la imagen con la foto y el comentario
+          await updateImage(lastImage.uuid, "src", filename);
+          await updateImage(
+            lastImage.uuid,
+            "comment",
+            dynamicPhotos[i].comment,
+          );
         }
 
-        // Delay cada 10 fotos para no saturar
-        if (i % 10 === 0 && i > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
       Alert.alert(
-        "✅ Simulación Completa",
-        `Validación Final simulada exitosamente!\n\nContenedor: ${containerNumber}\nFotos: ${photosToGenerate.length}\nStatus: Todos aprobados ✓`,
+        "✅ Simulación Completa - PROCESO 3",
+        `Proceso de salida simulado exitosamente!\n\n` +
+          `Contenedor: ${containerNumber}\n` +
+          `Puerto: GUAYAQUIL\n` +
+          `Fotos Estáticas: 12\n` +
+          `Fotos Dinámicas: 2\n` +
+          `Todos los precintos verificados ✓`,
         [{ text: "OK", onPress: () => onComplete?.() }],
       );
     } catch (error) {
-      console.error("❌ Error en simulación:", error);
-      Alert.alert("❌ Error", "Error durante la simulación");
+      console.error("❌ Error en simulación PROCESO 3:", error);
+      Alert.alert(
+        "❌ Error",
+        "Error durante la simulación del proceso de salida",
+      );
     } finally {
       setIsSimulating(false);
     }
@@ -245,8 +246,13 @@ export const WorkflowSimulatorThree: React.FC<WorkflowSimulatorThreeProps> = ({
 
   const handlePress = () => {
     Alert.alert(
-      "Simular Validación Final",
-      "¿Llenar automáticamente todos los campos con datos de validación?",
+      "Simular Proceso 3 - Salida",
+      "¿Llenar automáticamente el formulario de salida con datos de prueba?\n\n" +
+        "Esto incluye:\n" +
+        "• Puerto de ingreso\n" +
+        "• 12 fotos de precintos\n" +
+        "• 2 fotos de inspección final\n" +
+        "• Verificación de GPS",
       [
         {
           text: "Cancelar",
@@ -275,7 +281,7 @@ export const WorkflowSimulatorThree: React.FC<WorkflowSimulatorThreeProps> = ({
       <View style={styles.buttonContent}>
         <Text style={styles.buttonIcon}>▶️</Text>
         <Text style={styles.btnSimularText}>
-          {isSimulating ? "Simulando" : "Simular"}
+          {isSimulating ? "Simulando..." : "Simular"}
         </Text>
       </View>
     </TouchableOpacity>

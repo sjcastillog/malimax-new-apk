@@ -3,21 +3,23 @@ import {
   ServiceResponseI,
 } from "@/common/interface/libs/response.interface";
 import { puceApi } from "@/core/api/puceApi";
-import { WorkflowThreeI } from "../interfaces";
+import { WorkflowContainerThreeI } from "../interfaces";
 
-export const createContainerThree = (container: Partial<WorkflowThreeI>) => {
+export const createContainerThree = (
+  container: Partial<WorkflowContainerThreeI>,
+) => {
   return createContainer(container);
 };
 
-async function createContainer(container: Partial<WorkflowThreeI>) {
+async function createContainer(container: Partial<WorkflowContainerThreeI>) {
   try {
     const { data } = await puceApi.post<ServiceResponseI<ObjPostI>>(
-      `/workflow-three`,
+      `/malimax-three`,
       { container },
     );
 
     return data;
   } catch (error) {
-    throw new Error("Error al guardar el Contenedor Vacio");
+    throw new Error("Error al guardar el Malimax 3");
   }
 }

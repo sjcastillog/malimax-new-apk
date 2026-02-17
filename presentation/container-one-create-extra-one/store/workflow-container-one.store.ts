@@ -16,6 +16,9 @@ export const createWorkflowContainerOneSlice: StateCreator<
 > = (set, get) => ({
   ...initialWorkflowStateOne,
 
+  // ============================================
+  // MÉTODO GENÉRICO PARA TODAS LAS FOTOS
+  // ============================================
   setPhoto: async (field: string, uri: string, filename?: string) => {
     try {
       const oldPhotoFilename = (get() as any)[field];
@@ -54,18 +57,13 @@ export const createWorkflowContainerOneSlice: StateCreator<
     }
   },
 
+  // ============================================
+  // MÉTODOS GENERALES
+  // ============================================
   getImages: () => get().images,
 
   setCoordinates: (coordinates) => {
     set(() => ({ coordinates }));
-  },
-
-  setOpenedBy: (openedBy) => {
-    set(() => ({ openedBy }));
-  },
-
-  setOpenedWas: (openedWas) => {
-    set(() => ({ openedWas }));
   },
 
   setObservation: (observation) => {
@@ -100,6 +98,65 @@ export const createWorkflowContainerOneSlice: StateCreator<
     set(() => ({ entryPort }));
   },
 
+  // ============================================
+  // NUEVOS SETTERS DE LA WEB
+  // ============================================
+  setTypeService: (typeService) => {
+    set(() => ({ typeService }));
+  },
+
+  setDate: (date) => {
+    set(() => ({ date }));
+  },
+
+  setCan: (can) => {
+    set(() => ({ can }));
+  },
+
+  setLeader: (leader) => {
+    set(() => ({ leader }));
+  },
+
+  setExporterSupervisor: (exporterSupervisor) => {
+    set(() => ({ exporterSupervisor }));
+  },
+
+  setExporterSupervisorIdentification: (exporterSupervisorIdentification) => {
+    set(() => ({ exporterSupervisorIdentification }));
+  },
+
+  setAssociated: (associated) => {
+    set(() => ({ associated }));
+  },
+
+  setAssociatedIdentification: (associatedIdentification) => {
+    set(() => ({ associatedIdentification }));
+  },
+
+  setOthers: (others) => {
+    set(() => ({ others }));
+  },
+
+  setOthersIdentification: (othersIdentification) => {
+    set(() => ({ othersIdentification }));
+  },
+
+  setWorkplace: (workplace) => {
+    set(() => ({ workplace }));
+  },
+
+  // RENOMBRADO: openedWas/openedBy → inspectedWas/inspectedBy
+  setInspectedBy: (inspectedBy) => {
+    set(() => ({ inspectedBy }));
+  },
+
+  setInspectedWas: (inspectedWas) => {
+    set(() => ({ inspectedWas }));
+  },
+
+  // ============================================
+  // SETTERS DE COMENTARIOS (FOTOS EXISTENTES)
+  // ============================================
   setEmptyPanoramicComment: (emptyPanoramicComment) => {
     set(() => ({ emptyPanoramicComment }));
   },
@@ -164,6 +221,16 @@ export const createWorkflowContainerOneSlice: StateCreator<
     set(() => ({ exitEngineryComment2 })),
 
   // ============================================
+  // NUEVOS SETTERS DE COMENTARIOS (MAQUINARIA Y SELLADO TEMPORAL)
+  // ============================================
+  setEngineryComment1: (engineryComment1) => set(() => ({ engineryComment1 })),
+
+  setEngineryComment2: (engineryComment2) => set(() => ({ engineryComment2 })),
+
+  setExitTemporarySealingComment: (exitTemporarySealingComment) =>
+    set(() => ({ exitTemporarySealingComment })),
+
+  // ============================================
   // SETTERS DE VIDEOS
   // ============================================
   setEmptyInternalVideo: async (file) => {
@@ -190,6 +257,9 @@ export const createWorkflowContainerOneSlice: StateCreator<
     set(() => ({ exitEngineryVideo: file as string }));
   },
 
+  // ============================================
+  // SETTERS BÁSICOS
+  // ============================================
   setId: (id) => set(() => ({ id })),
 
   setHourInit: (hourInit) => set(() => ({ hourInit })),
@@ -235,6 +305,9 @@ export const createWorkflowContainerOneSlice: StateCreator<
   setDriverIdentification: (driverIdentification) =>
     set(() => ({ driverIdentification })),
 
+  // ============================================
+  // MANEJO DE IMÁGENES DINÁMICAS
+  // ============================================
   setImages: (images) => set(() => ({ images })),
 
   getOneImage: (uuid) => {
@@ -320,7 +393,11 @@ export const createWorkflowContainerOneSlice: StateCreator<
     });
   },
 
+  // ============================================
+  // MÉTODO HELPER: getOnlyPhotos
+  // ============================================
   getOnlyPhotos: () => ({
+    // FOTOS EXTERNAS
     emptyAditionalStampPhoto: get().emptyAditionalStampPhoto,
     emptyPanoramicPhoto: get().emptyPanoramicPhoto,
     emptyStampNavieraPhoto: get().emptyStampNavieraPhoto,
@@ -338,6 +415,8 @@ export const createWorkflowContainerOneSlice: StateCreator<
       get().emptyPreviousInspectionDocumentPhoto,
     emptyPlatePhoto: get().emptyPlatePhoto,
     emptyDriverIdentificationPhoto: get().emptyDriverIdentificationPhoto,
+
+    // FOTOS INTERNAS
     emptyFloorPhoto: get().emptyFloorPhoto,
     emptyRoofPhoto: get().emptyRoofPhoto,
     emptyMirrorCoverPhoto: get().emptyMirrorCoverPhoto,
@@ -347,14 +426,26 @@ export const createWorkflowContainerOneSlice: StateCreator<
     emptyInternalPhoto4: get().emptyInternalPhoto4,
     emptyInternalPhoto5: get().emptyInternalPhoto5,
     emptyInternalPhoto6: get().emptyInternalPhoto6,
+
+    // NUEVAS FOTOS DE MAQUINARIA ✨
+    engineryPhoto1: get().engineryPhoto1,
+    engineryPhoto2: get().engineryPhoto2,
+
+    // FOTOS SALIDA
     exitOtherStampPhoto: get().exitOtherStampPhoto,
     exitPanoramicPhoto: get().exitPanoramicPhoto,
     exitStampNavieraPhoto: get().exitStampNavieraPhoto,
     exitSatelliteLockStampPhoto: get().exitSatelliteLockStampPhoto,
     exitEngineryPhoto1: get().exitEngineryPhoto1,
     exitEngineryPhoto2: get().exitEngineryPhoto2,
+
+    // NUEVA FOTO DE SELLADO TEMPORAL ✨
+    exitTemporarySealingPhoto: get().exitTemporarySealingPhoto,
   }),
 
+  // ============================================
+  // MÉTODO HELPER: getValues
+  // ============================================
   getValues: () => ({
     coordinates: get().coordinates,
     observation: get().observation,
@@ -365,8 +456,24 @@ export const createWorkflowContainerOneSlice: StateCreator<
     size: get().size,
     companyTransport: get().companyTransport,
     entryPort: get().entryPort,
-    openedBy: get().openedBy,
-    openedWas: get().openedWas,
+
+    // NUEVOS CAMPOS ✨
+    typeService: get().typeService,
+    date: get().date,
+    can: get().can,
+    leader: get().leader,
+    exporterSupervisor: get().exporterSupervisor,
+    exporterSupervisorIdentification: get().exporterSupervisorIdentification,
+    associated: get().associated,
+    associatedIdentification: get().associatedIdentification,
+    others: get().others,
+    othersIdentification: get().othersIdentification,
+    workplace: get().workplace,
+
+    // RENOMBRADO ✨
+    inspectedBy: get().inspectedBy,
+    inspectedWas: get().inspectedWas,
+
     clientId: get().clientId,
     client: get().client,
     labelSerial: get().labelSerial,
@@ -383,6 +490,8 @@ export const createWorkflowContainerOneSlice: StateCreator<
     city: get().city,
     typeReview: get().typeReview,
     storageName: get().storageName,
+
+    // FOTOS Y COMENTARIOS (EXISTENTES)
     emptyAditionalStampPhoto: get().emptyAditionalStampPhoto,
     emptyAditionalStampComment: get().emptyAditionalStampComment,
     emptyPanoramicPhoto: get().emptyPanoramicPhoto,
@@ -426,6 +535,13 @@ export const createWorkflowContainerOneSlice: StateCreator<
     emptyInternalComment5: get().emptyInternalComment5,
     emptyInternalComment6: get().emptyInternalComment6,
     emptyInternalVideo: get().emptyInternalVideo,
+
+    // NUEVAS FOTOS Y COMENTARIOS DE MAQUINARIA ✨
+    engineryPhoto1: get().engineryPhoto1,
+    engineryComment1: get().engineryComment1,
+    engineryPhoto2: get().engineryPhoto2,
+    engineryComment2: get().engineryComment2,
+
     exitOtherStampPhoto: get().exitOtherStampPhoto,
     exitPanoramicPhoto: get().exitPanoramicPhoto,
     exitStampNavieraPhoto: get().exitStampNavieraPhoto,
@@ -440,6 +556,10 @@ export const createWorkflowContainerOneSlice: StateCreator<
     exitEngineryComment2: get().exitEngineryComment2,
     exitDoorVideo: get().exitDoorVideo,
     exitEngineryVideo: get().exitEngineryVideo,
+
+    // NUEVA FOTO Y COMENTARIO DE SELLADO TEMPORAL ✨
+    exitTemporarySealingPhoto: get().exitTemporarySealingPhoto,
+    exitTemporarySealingComment: get().exitTemporarySealingComment,
   }),
 
   setValues: (ladata) => {
@@ -453,7 +573,7 @@ export const createWorkflowContainerOneSlice: StateCreator<
   onClear: async () => {
     const state = get();
 
-    // Lista de todos los campos de fotos
+    // Lista de todos los campos de fotos (ACTUALIZADA CON NUEVAS FOTOS ✨)
     const photoKeys = [
       state.emptyAditionalStampPhoto,
       state.emptyPanoramicPhoto,
@@ -480,12 +600,15 @@ export const createWorkflowContainerOneSlice: StateCreator<
       state.emptyInternalPhoto4,
       state.emptyInternalPhoto5,
       state.emptyInternalPhoto6,
+      state.engineryPhoto1, // ✨ NUEVO
+      state.engineryPhoto2, // ✨ NUEVO
       state.exitOtherStampPhoto,
       state.exitPanoramicPhoto,
       state.exitStampNavieraPhoto,
       state.exitSatelliteLockStampPhoto,
       state.exitEngineryPhoto1,
       state.exitEngineryPhoto2,
+      state.exitTemporarySealingPhoto, // ✨ NUEVO
     ];
 
     // Eliminar fotos fijas

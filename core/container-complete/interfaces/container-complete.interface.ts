@@ -6,7 +6,7 @@ export interface WorkflowContainerI {
   id?: number;
   container: string;
   statusWorkflow?: string;
-  statusWorkflowId: number | null;
+  statusWorkflowId?: number | null;
   statusWorkflowCode?: string;
   statusWorkflowColor?:
     | "default"
@@ -17,7 +17,7 @@ export interface WorkflowContainerI {
     | "success"
     | "warning";
   statusContainer?: string;
-  statusContainerId: number | null;
+  statusContainerId?: number | null;
   statusContainerCode?: string;
   statusContainerColor?:
     | "default"

@@ -36,7 +36,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { useContainerComplete } from "../hooks";
+import { useContainerOne } from "../../container-one-list/hooks";
 
 interface PhotoItem {
   uri: string;
@@ -301,7 +301,7 @@ export const ShowContainerCompleteModal = ({
   containerNumber,
   dark,
 }: ShowContainerCompleteModalProps) => {
-  const { containerCompleteQuery } = useContainerComplete(containerId);
+  const { containerOneQuery } = useContainerOne(containerId);
 
   const [activeTab, setActiveTab] = useState<
     "all" | "process1" | "process2" | "process3"
@@ -335,14 +335,14 @@ export const ShowContainerCompleteModal = ({
   );
 
   useEffect(() => {
-    if (containerCompleteQuery.data) {
+    if (containerOneQuery.data) {
       handleData();
     }
-  }, [containerCompleteQuery.data]);
+  }, [containerOneQuery.data]);
 
   const handleData = async () => {
     const allData = await getContainerCompleteById(
-      containerCompleteQuery.data!.id!,
+      containerOneQuery.data!.id!,
     );
     setDataWf(allData);
     const photoArray: PhotoItem[] = [];
@@ -923,12 +923,12 @@ export const ShowContainerCompleteModal = ({
           </View>
 
           {/* Content */}
-          {containerCompleteQuery.isLoading ? (
+          {containerOneQuery.isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={primaryColor} />
               <ThemedText style={styles.loadingText}>Cargando...</ThemedText>
             </View>
-          ) : containerCompleteQuery.isError ? (
+          ) : containerOneQuery.isError ? (
             <View style={styles.loadingContainer}>
               <Ionicons name="alert-circle" size={48} color="red" />
               <ThemedText style={styles.loadingText}>

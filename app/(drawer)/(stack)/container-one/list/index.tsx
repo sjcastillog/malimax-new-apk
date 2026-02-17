@@ -37,7 +37,7 @@ const ContainerOne = () => {
         setSearch(text);
       }, 1000);
     },
-    [search]
+    [search],
   );
 
   React.useEffect(() => {
@@ -96,17 +96,17 @@ const ContainerOne = () => {
           />
         </TouchableOpacity>
       </View>
-        <ContainerOneList
-          containers={
-            containersOneQuery.data?.pages.flatMap((page) => page) ?? []
-          }
-          loadNextPage={loadNextPage}
-          dark={isDark}
-          loading={containersOneQuery.isLoading}
-        />
+      <ContainerOneList
+        containers={
+          containersOneQuery.data?.pages.flatMap((page) => page) ?? []
+        }
+        loadNextPage={loadNextPage}
+        dark={isDark}
+        loading={containersOneQuery.isLoading}
+      />
     </View>
   );
-}; 
+};
 
 const styles = StyleSheet.create({
   container: {

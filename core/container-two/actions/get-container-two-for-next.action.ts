@@ -8,10 +8,10 @@ export const getWorkflowTwoByContainerForNextProcess = async (
   try {
     const { data } = await puceApi.get<
       ServiceResponseI<WorkflowTwoForNextProcessI>
-    >(`/workflow-two/by-container-for-next-process/${container}`);
+    >(`/malimax-two/by-container-for-next-process/${container}`);
 
     return data.data!;
   } catch (err) {
-    throw new Error(`workflow with container ${container} not found`);
+    throw new Error(`malimax with container ${container} not found`);
   }
 };

@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import {
   DocumentsSection,
   DoorSealsSection,
-  DynamicPhotosSection,
   ExitPhotosSection,
   ExteriorPhotosSection,
   InteriorPhotosSection,
@@ -12,17 +11,20 @@ import {
 export const FotosScreen = () => {
   return (
     <ScrollView style={styles.container}>
+      {/* 1. DOCUMENTOS */}
       <DocumentsSection />
 
+      {/* 2. PUERTA SIN APERTURAR + MAQUINARIA */}
       <DoorSealsSection />
 
+      {/* 3. FOTOS EXTERNAS + ADICIONALES DINÁMICAS */}
       <ExteriorPhotosSection />
 
+      {/* 4. FOTOS INTERNAS + ADICIONALES DINÁMICAS */}
       <InteriorPhotosSection />
 
+      {/* 5. SALIDA + SELLADO TEMPORAL */}
       <ExitPhotosSection />
-
-      <DynamicPhotosSection />
 
       <View style={{ height: 40 }} />
     </ScrollView>

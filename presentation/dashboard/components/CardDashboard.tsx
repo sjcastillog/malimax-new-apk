@@ -23,7 +23,7 @@ const CardDashboard = ({
   icon,
   route,
   iconSize = 32,
-  accentColor = "#ed4712",
+  accentColor = "#5ae51f",
   badge,
 }: __CardDashboardProps__) => {
   const [scaleAnim] = useState(new Animated.Value(1));

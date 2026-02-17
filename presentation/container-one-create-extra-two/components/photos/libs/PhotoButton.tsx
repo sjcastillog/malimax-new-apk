@@ -27,11 +27,6 @@ interface PhotoButtonProps {
   onPhotoTaken?: (photo: string) => void;
 }
 
-/**
- * PhotoButton - Componente para tomar fotos
- * Compatible con el store workflow-container-empty
- * Usa el método genérico setPhoto()
- */
 export const PhotoButton: React.FC<PhotoButtonProps> = ({
   photoIdKey,
   label,
@@ -42,15 +37,12 @@ export const PhotoButton: React.FC<PhotoButtonProps> = ({
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Obtener el filename de la foto desde el store
   const photoId = useWorkflowStoreOneExtraTwo(
     (state) => (state as any)[photoIdKey],
   );
 
-  // Obtener el método genérico setPhoto
   const setPhoto = useWorkflowStoreOneExtraTwo((state) => state.setPhoto);
 
-  // Convertir filename a URI para mostrar
   const uri = usePhotoUri(photoId);
 
   const handleTakePhoto = async () => {

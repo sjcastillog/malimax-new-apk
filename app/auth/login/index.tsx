@@ -21,6 +21,7 @@ const LoginScreen = () => {
   const { height } = useWindowDimensions();
   const backgroundColor = useThemeColor({}, "background");
   const primaryColor = useThemeColor({}, "primary");
+  const secondaryColor = useThemeColor({}, "secondary");
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
@@ -36,7 +37,7 @@ const LoginScreen = () => {
     if (user.trim().length === 0 || password.trim().length === 0) {
       Alert.alert(
         "Campos incompletos",
-        "Por favor ingrese usuario y contraseña"
+        "Por favor ingrese usuario y contraseña",
       );
       return;
     }
@@ -51,13 +52,13 @@ const LoginScreen = () => {
       } else {
         Alert.alert(
           "Error de autenticación",
-          "Usuario o contraseña incorrectos. Por favor intente nuevamente."
+          "Usuario o contraseña incorrectos. Por favor intente nuevamente.",
         );
       }
     } catch (error) {
       Alert.alert(
         "Error",
-        "Ocurrió un error al iniciar sesión. Por favor intente más tarde."
+        "Ocurrió un error al iniciar sesión. Por favor intente más tarde.",
       );
     } finally {
       setIsPosting(false);
@@ -75,81 +76,105 @@ const LoginScreen = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-1 px-8" style={{ backgroundColor }}>
-          {/* Header con Logo */}
-          <View
-            className="items-center justify-center"
-            style={{ paddingTop: height * 0.12 }}
-          >
-            <View className="items-center mb-8">
-              <Image
-                source={require("@/assets/images/logo-puce.png")}
-                className="w-36 h-36 mb-6 rounded-lg"
-                resizeMode="contain"
-              />
+        <View className="flex-1" style={{ backgroundColor }}>
+          {/* Header con gradiente y logo flotante */}
+          <View className="relative" style={{ height: height * 0.4 }}>
+            <View
+              className="absolute inset-0 rounded-b-[40px] overflow-hidden"
+              style={{ backgroundColor: secondaryColor }}
+            >
+              <View className="absolute inset-0 opacity-20">
+                <View className="absolute top-10 right-10 w-32 h-32 bg-white rounded-full" />
+                <View className="absolute bottom-20 left-5 w-24 h-24 bg-white rounded-full" />
+              </View>
+            </View>
+
+            <View className="flex-1 items-center justify-center pt-12">
+              <View className="bg-white rounded-3xl p-6 shadow-lg">
+                <Image
+                  source={require("@/assets/images/logo-puce.png")}
+                  className="w-28 h-28"
+                  resizeMode="contain"
+                />
+              </View>
 
               <ThemedText
-                type="subtitle"
-                className="text-center mb-2"
-                style={{ letterSpacing: 0.5 }}
+                type="title"
+                className="text-white text-center mt-6 font-bold"
               >
-                SECURE CONTAINER 
-              </ThemedText>
-
-              <View
-                className="w-16 h-1 rounded-full mb-4"
-                style={{ backgroundColor: primaryColor }}
-              />
-
-              <ThemedText className="text-center opacity-50 text-sm">
-                Ingrese sus credenciales para continuar
+                Bienvenido
               </ThemedText>
             </View>
           </View>
 
-          {/* Formulario */}
-          <View className="mt-8">
-            <View className="mb-4">
-              <ThemedText className="mb-2 ml-1 font-semibold opacity-70">
-                Usuario
-              </ThemedText>
-              <ThemedTextInput
-                placeholder="Ingrese su usuario"
-                keyboardType="default"
-                autoCapitalize="none"
-                icon="person-outline"
-                value={form.user}
-                onChangeText={(value) => setForm({ ...form, user: value })}
-                editable={!isPosting}
-              />
-            </View>
-
-            <View className="mb-6">
-              <ThemedText className="mb-2 ml-1 font-semibold opacity-70">
-                Contraseña
-              </ThemedText>
-              <ThemedTextInput
-                placeholder="Ingrese su contraseña"
-                secureTextEntry
-                autoCapitalize="none"
-                icon="lock-closed-outline"
-                value={form.password}
-                onChangeText={(value) => setForm({ ...form, password: value })}
-                editable={!isPosting}
-                onSubmitEditing={onLogin}
-                returnKeyType="done"
-              />
-            </View>
-
-            <ThemedButton
-              icon="arrow-forward-outline"
-              onPress={onLogin}
-              loading={isPosting}
-              variant="solid"
-              isDark={isDark}
+          {/* Card de formulario */}
+          <View className="flex-1 px-6 -mt-8">
+            <View
+              className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 12,
+                elevation: 8,
+              }}
             >
-              Ingresar
-            </ThemedButton>
+              <ThemedText
+                type="subtitle"
+                className="text-center mb-6 font-semibold"
+              >
+                Iniciar Sesión
+              </ThemedText>
+
+              <View className="mb-5">
+                <ThemedText className="mb-2 ml-1 text-sm font-medium opacity-60">
+                  Usuario
+                </ThemedText>
+                <ThemedTextInput
+                  placeholder="Tu usuario"
+                  keyboardType="default"
+                  autoCapitalize="none"
+                  icon="person-outline"
+                  value={form.user}
+                  onChangeText={(value) => setForm({ ...form, user: value })}
+                  editable={!isPosting}
+                />
+              </View>
+
+              <View className="mb-6">
+                <ThemedText className="mb-2 ml-1 text-sm font-medium opacity-60">
+                  Contraseña
+                </ThemedText>
+                <ThemedTextInput
+                  placeholder="Tu contraseña"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  icon="lock-closed-outline"
+                  value={form.password}
+                  onChangeText={(value) =>
+                    setForm({ ...form, password: value })
+                  }
+                  editable={!isPosting}
+                  onSubmitEditing={onLogin}
+                  returnKeyType="done"
+                />
+              </View>
+
+              <ThemedButton
+                icon="log-in-outline"
+                onPress={onLogin}
+                loading={isPosting}
+                variant="solid"
+                isDark={isDark}
+              >
+                Iniciar Sesión
+              </ThemedButton>
+            </View>
+
+            {/* Footer */}
+            <View className="items-center mt-8 mb-6">
+              <ThemedText className="text-xs opacity-40">MALIMAX ©</ThemedText>
+            </View>
           </View>
         </View>
       </ScrollView>

@@ -1,8 +1,8 @@
 import { ButtonClean } from "@/presentation/container-three-create/components/clear-button";
-import { ContainerFormScreenThree } from "@/presentation/container-three-create/components/form-page";
+import { ContainerFormScreen } from "@/presentation/container-three-create/components/form-page";
+import { FotosScreen } from "@/presentation/container-three-create/components/photos-page";
 import { SaveButton } from "@/presentation/container-three-create/components/save-button";
 import WorkflowSimulator from "@/presentation/container-three-create/components/simulator";
-import { FotosScreenThree } from "@/presentation/container-three-create/components/validation";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
@@ -23,7 +23,7 @@ const ContainerTwo = () => {
           </View>
         </View>
         <SegmentedControl
-          values={["Formulario", "Validación"]}
+          values={["Formulario", "Fotos"]}
           selectedIndex={option}
           onChange={(event) => {
             setOption(event.nativeEvent.selectedSegmentIndex);
@@ -44,8 +44,8 @@ const ContainerTwo = () => {
             paddingHorizontal: 5,
           }}
         >
-          {option === 0 && <ContainerFormScreenThree />}
-          {option === 1 && <FotosScreenThree />}
+          {option === 0 && <ContainerFormScreen />}
+          {option === 1 && <FotosScreen />}
         </View>
       </KeyboardAvoidingView>
     </View>

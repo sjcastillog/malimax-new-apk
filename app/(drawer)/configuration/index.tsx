@@ -1,4 +1,5 @@
 import { workflowDB } from "@/common/storage/database";
+import { QueryCacheHelper } from "@/helpers";
 
 import { useWorkflowStoreOneExtraOne } from "@/presentation/container-one-create-extra-one/store";
 import { useWorkflowStoreOneExtraThree } from "@/presentation/container-one-create-extra-three/store";
@@ -23,32 +24,42 @@ const ConfigurationScreen = () => {
   const queryClient = useQueryClient();
   const isDark = colorScheme === "dark";
   const [loading, setLoading] = useState(false);
-  
+
   // PROCESO 1
   const onClearOneZero = useWorkflowStoreOneZero((state) => state.onClear);
-  const onClearOneExtraOne = useWorkflowStoreOneExtraOne((state) => state.onClear);
-  const onClearOneExtraTwo = useWorkflowStoreOneExtraTwo((state) => state.onClear);
+  const onClearOneExtraOne = useWorkflowStoreOneExtraOne(
+    (state) => state.onClear,
+  );
+  const onClearOneExtraTwo = useWorkflowStoreOneExtraTwo(
+    (state) => state.onClear,
+  );
   const onClearOneExtraThree = useWorkflowStoreOneExtraThree(
     (state) => state.onClear,
   );
 
   // PROCESO 2
   const onClearTwoZero = useWorkflowStoreTwoZero((state) => state.onClear);
-  const onClearTwoExtraOne = useWorkflowStoreTwoExtraOne((state) => state.onClear);
-  const onClearTwoExtraTwo = useWorkflowStoreTwoExtraTwo((state) => state.onClear);
+  const onClearTwoExtraOne = useWorkflowStoreTwoExtraOne(
+    (state) => state.onClear,
+  );
+  const onClearTwoExtraTwo = useWorkflowStoreTwoExtraTwo(
+    (state) => state.onClear,
+  );
   const onClearTwoExtraThree = useWorkflowStoreTwoExtraThree(
     (state) => state.onClear,
   );
 
   // PROCESO 3
   const onClearThreeZero = useWorkflowStoreThreeZero((state) => state.onClear);
-  const onClearThreeExtraOne = useWorkflowStoreThreeExtraOne((state) => state.onClear);
-  const onClearThreeExtraTwo = useWorkflowStoreThreeExtraTwo((state) => state.onClear);
+  const onClearThreeExtraOne = useWorkflowStoreThreeExtraOne(
+    (state) => state.onClear,
+  );
+  const onClearThreeExtraTwo = useWorkflowStoreThreeExtraTwo(
+    (state) => state.onClear,
+  );
   const onClearThreeExtraThree = useWorkflowStoreThreeExtraThree(
     (state) => state.onClear,
-  );  
-
-
+  );
 
   const handleReset = async () => {
     try {
@@ -69,7 +80,7 @@ const ConfigurationScreen = () => {
       // 3. Limpiar stores (PROCESO 3)
       await onClearThreeZero();
       await onClearThreeExtraOne();
-      await onClearThreeExtraTwo();      
+      await onClearThreeExtraTwo();
       await onClearThreeExtraThree();
 
       // 2. Navegar a pantalla de reset (sin componentes que consulten BD)
@@ -136,6 +147,76 @@ const ConfigurationScreen = () => {
       },
     ]);
   };
+
+  const handleReloadFromServer = async () => {
+    Alert.alert(
+      "🔄 Recargar desde servidor",
+      "Esto eliminará el cache local y volverá a descargar los datos del servidor",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Sí, recargar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setLoading(true);
+
+              // 1. Remover queries de React Query
+              queryClient.removeQueries({ queryKey: ["clientProducer"] });
+              queryClient.removeQueries({ queryKey: ["clientProducerFarm"] });
+              queryClient.removeQueries({ queryKey: ["clientBox"] });
+              queryClient.removeQueries({ queryKey: ["clientBrand"] });
+
+              // 2. Limpiar cache persistente (SecureStorage)
+              await QueryCacheHelper.clearAllCache();
+
+              // 3. Resetear productores en stores
+              // resetProducerAllZero();
+              // resetProducerAllOne();
+              // resetProducerAllTwo();
+              // resetProducerAllThree();
+              // resetFullProducerAllZero();
+              // resetFullProducerAllOne();
+              // resetFullProducerAllTwo();
+              // resetFullProducerAllThree();
+              // resetTruckProducerAllZero();
+
+              // 4. Forzar recarga desde servidor
+              await queryClient.refetchQueries({
+                queryKey: ["clientProducer"],
+              });
+              await queryClient.refetchQueries({
+                queryKey: ["clientProducerFarm"],
+              });
+              await queryClient.refetchQueries({
+                queryKey: ["clientBox"],
+              });
+              await queryClient.refetchQueries({
+                queryKey: ["clientBrand"],
+              });
+
+              Alert.alert(
+                "✅ Completado",
+                "Datos recargados desde el servidor exitosamente",
+              );
+            } catch (error) {
+              console.error("Error al recargar:", error);
+              Alert.alert(
+                "⚠️ Error",
+                "No se pudo conectar al servidor. Verifica tu conexión e intenta nuevamente.",
+              );
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <View style={{ flex: 1, padding: 16, gap: 20 }}>
       <ThemedButton
@@ -155,6 +236,15 @@ const ConfigurationScreen = () => {
         disabled={loading}
       >
         Invalidar Queries
+      </ThemedButton>
+      <ThemedButton
+        icon="cloud-download-outline"
+        onPress={handleReloadFromServer}
+        isDark={isDark}
+        loading={loading}
+        disabled={loading}
+      >
+        Recargar desde Servidor
       </ThemedButton>
     </View>
   );

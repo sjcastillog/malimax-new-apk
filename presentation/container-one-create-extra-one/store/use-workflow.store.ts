@@ -19,9 +19,10 @@ export const useWorkflowStoreOneExtraOne = create<
     (...a) => ({
       ...createWorkflowSlice(...a),
       ...createWorkflowContainerOneSlice(...a),
+      _hasHydrated: false,
     }),
     {
-      name: "workflow-one-extra-one-storage",
+      name: "workflow-one-one-storage",
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => {
         return (state, error) => {

@@ -5,7 +5,6 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 const CustomDrawer = (props: DrawerContentComponentProps) => {
@@ -37,7 +36,7 @@ const CustomDrawer = (props: DrawerContentComponentProps) => {
             <View style={styles.avatarRing}>
               <View style={styles.avatar}>
                 <Text style={styles.initialsText}>
-                  {getInitials(user?.firstName ?? "SECURE")}
+                  {getInitials(user?.firstName ?? "MALIMAX")}
                 </Text>
               </View>
             </View>
@@ -71,7 +70,7 @@ const CustomDrawer = (props: DrawerContentComponentProps) => {
               size={12}
               color="rgba(255,255,255,0.7)"
             />
-            <Text style={styles.versionText}>v1.0.1</Text>
+            <Text style={styles.versionText}>v1.0.0</Text>
           </View>
 
           <View style={styles.decorativeLine} />
@@ -88,7 +87,7 @@ const CustomDrawer = (props: DrawerContentComponentProps) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: "#ed4712",
+    backgroundColor: "#5ae51f",
     marginHorizontal: 12,
     marginBottom: 20,
     borderRadius: 20,
@@ -96,7 +95,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 16,
     position: "relative",
-    shadowColor: "#ed4712",
+    shadowColor: "#5ae51f",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -161,7 +160,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   initialsText: {
-    color: "#ed4712",
+    color: "#5ae51f",
     fontSize: 32,
     fontWeight: "900",
     letterSpacing: -1,
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 3,
-    borderColor: "#ed4712",
+    borderColor: "#5ae51f",
   },
   activeDot: {
     width: 8,

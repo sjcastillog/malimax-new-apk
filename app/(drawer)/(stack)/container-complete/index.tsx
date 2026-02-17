@@ -1,5 +1,5 @@
 import ContainerCompleteList from "@/presentation/container-complete-list/components/ContainerCompleteList";
-import { useContainersComplete } from "@/presentation/container-complete-list/hooks/useContainersComplete";
+import { useContainersOne } from "@/presentation/container-one-list/hooks";
 import { useThemeColor } from "@/presentation/theme/hooks/useThemeColor";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback } from "react";
@@ -22,7 +22,7 @@ const ContainerComplete = () => {
   const secondaryColor = useThemeColor({}, "secondary");
   const inputBg = isDark ? "#1F2937" : "#F3F4F6";
 
-  const { containersCompleteQuery, loadNextPage } = useContainersComplete({ search });
+  const { containersOneQuery, loadNextPage } = useContainersOne({ search });
   const debounceTimeout = React.useRef<number | null>(null);
 
   const handleSearchChange = useCallback(
@@ -37,7 +37,7 @@ const ContainerComplete = () => {
         setSearch(text);
       }, 1000);
     },
-    [search]
+    [search],
   );
 
   React.useEffect(() => {
@@ -54,7 +54,7 @@ const ContainerComplete = () => {
   }, [search]);
 
   const handleRefresh = () => {
-    containersCompleteQuery.refetch();
+    containersOneQuery.refetch();
   };
 
   return (
@@ -96,15 +96,14 @@ const ContainerComplete = () => {
           />
         </TouchableOpacity>
       </View>
-        <ContainerCompleteList
-          containers={
-            containersCompleteQuery.data?.pages.flatMap((page) => page) ?? []
-          }
-          loadNextPage={loadNextPage}
-          dark={isDark}
-          loading={containersCompleteQuery.isLoading}
-        />
-
+      <ContainerCompleteList
+        containers={
+          containersOneQuery.data?.pages.flatMap((page) => page) ?? []
+        }
+        loadNextPage={loadNextPage}
+        dark={isDark}
+        loading={containersOneQuery.isLoading}
+      />
     </View>
   );
 };

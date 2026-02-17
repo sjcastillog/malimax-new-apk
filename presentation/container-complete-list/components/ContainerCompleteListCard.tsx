@@ -5,9 +5,10 @@ import { useThemeColor } from "@/presentation/theme/hooks/useThemeColor";
 import { useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ShowContainerCompleteModal } from "./ShowModalContainerComplete";
+import { WorkflowContainerOneI } from "@/core/container-one/interfaces";
 
 interface Props {
-  container: WorkflowContainerI;
+  container: WorkflowContainerOneI;
   dark: boolean;
 }
 

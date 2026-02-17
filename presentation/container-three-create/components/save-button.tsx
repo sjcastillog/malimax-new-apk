@@ -1,7 +1,6 @@
 import {
   photosToGenerateThree,
   validationSchemaThree,
-  validateFieldLengthsThree,
 } from "@/common/constants";
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
 import * as FileSystem from "expo-file-system/legacy";
@@ -15,6 +14,9 @@ export const SaveButton = () => {
 
   const handleSave = async () => {
     try {
+      // ============================================
+      // 1. PREPARAR DATOS DEL FORMULARIO
+      // ============================================
       const formData: Record<string, any> = {};
       for (const key in storeState) {
         if (typeof storeState[key] !== "function") {
@@ -22,63 +24,50 @@ export const SaveButton = () => {
         }
       }
 
-      const lengthValidation = validateFieldLengthsThree(formData);
-      if (!lengthValidation.isValid) {
-        Alert.alert(
-          "Límite de Caracteres Excedido",
-          `Los siguientes campos exceden el límite permitido:\n\n• ${lengthValidation.errors.join("\n• ")}`,
-          [{ text: "Entendido", style: "default" }]
-        );
-        return;
-      }
-
+      // ============================================
+      // 2. VALIDAR CAMPOS OBLIGATORIOS
+      // ============================================
       const requiredErrors: string[] = [];
       const optionalErrors: string[] = [];
 
-      try {
-        await validationSchemaThree.validateAt("container", formData);
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
+      // CAMPOS OBLIGATORIOS
+      const requiredFields = ["container", "containerPanoramicPhoto"];
+
+      for (const field of requiredFields) {
+        try {
+          await validationSchemaThree.validateAt(field, formData);
+        } catch (err: any) {
+          requiredErrors.push(`❌ ${err.message}`);
+        }
       }
 
-      try {
-        await validationSchemaThree.validateAt("labelSerial", formData);
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
-      }
-
-      try {
-        await validationSchemaThree.validateAt("containerPanoramicPhoto", formData);
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
-      }
-
+      // Si faltan campos obligatorios, DETENER
       if (requiredErrors.length > 0) {
         Alert.alert(
           "Campos Obligatorios Faltantes",
           `Por favor completa los siguientes campos:\n\n${requiredErrors.join("\n")}`,
-          [{ text: "Entendido", style: "default" }]
+          [{ text: "Entendido", style: "default" }],
         );
         return;
       }
 
+      // ============================================
+      // 3. VALIDAR CAMPOS OPCIONALES (solo si tienen contenido)
+      // ============================================
       const optionalFields = [
-        "plateVehicle",
-        "driverName",
-        "driverIdentification",
-        "typeContainer",
-        "naviera",
-        "companyTransport",
-        "size",
-        "city",
-        "address",
+        "entryPort",
+        "coordinates",
+        "containerPanoramicCoordinates",
         "observation",
+        "hourInit",
+        "hourEnd",
       ];
 
       for (const field of optionalFields) {
         const value = formData[field];
 
-        if (value && value.trim() !== "") {
+        // Si el campo tiene contenido, validar las reglas
+        if (value && String(value).trim() !== "") {
           try {
             await validationSchemaThree.validateAt(field, formData);
           } catch (err: any) {
@@ -87,15 +76,19 @@ export const SaveButton = () => {
         }
       }
 
+      // Si hay errores de validación en campos opcionales, DETENER
       if (optionalErrors.length > 0) {
         Alert.alert(
           "Errores de Validación",
           `Los siguientes campos tienen errores:\n\n${optionalErrors.join("\n")}`,
-          [{ text: "Corregir", style: "default" }]
+          [{ text: "Corregir", style: "default" }],
         );
         return;
       }
 
+      // ============================================
+      // 4. PROCESAR FOTOS ESTÁTICAS (12 fotos)
+      // ============================================
       const photosBase64: Record<string, string> = {};
       let processedPhotos = 0;
       let missingPhotos: string[] = [];
@@ -134,7 +127,11 @@ export const SaveButton = () => {
         }
       }
 
+      // ============================================
+      // 5. PROCESAR IMÁGENES DINÁMICAS
+      // ============================================
       const dynamicImages = formData.images || [];
+
       for (const image of dynamicImages) {
         if (image.src && typeof image.src === "string") {
           try {
@@ -156,6 +153,9 @@ export const SaveButton = () => {
         }
       }
 
+      // ============================================
+      // 6. ADVERTENCIA DE FOTOS FALTANTES (OPCIONAL)
+      // ============================================
       if (missingPhotos.length > 0) {
         if (missingPhotos.length > photosToGenerateThree.length / 2) {
           Alert.alert(
@@ -172,12 +172,15 @@ export const SaveButton = () => {
                   await sendData(formData, photosBase64);
                 },
               },
-            ]
+            ],
           );
           return;
         }
       }
 
+      // ============================================
+      // 7. ENVIAR DATOS
+      // ============================================
       await sendData(formData, photosBase64);
     } catch (error) {
       console.error("Error en handleSave:", error);
@@ -187,11 +190,12 @@ export const SaveButton = () => {
 
   const sendData = async (
     formData: Record<string, any>,
-    photosBase64: Record<string, string>
+    photosBase64: Record<string, string>,
   ) => {
     try {
+      // Sanitizar datos (trim strings)
       const sanitizedData: Record<string, any> = {};
-      
+
       for (const key in formData) {
         if (typeof formData[key] === "string") {
           sanitizedData[key] = formData[key].trim();
@@ -200,8 +204,9 @@ export const SaveButton = () => {
         }
       }
 
+      // Agregar timestamp y hora de guardado
       const dateHelper = new Date();
-      sanitizedData.timeStampSave = dateHelper.toISOString();
+      sanitizedData.timeStampSave = dateHelper;
       sanitizedData.hourSaveUser = dateHelper.toLocaleTimeString();
 
       await workflowMutation.mutateAsync({
@@ -216,7 +221,7 @@ export const SaveButton = () => {
       console.error("Error en sendData:", error);
       Alert.alert(
         "Error al Guardar",
-        "No se pudo guardar el workflow. Por favor, intenta nuevamente."
+        "No se pudo guardar el workflow. Por favor, intenta nuevamente.",
       );
     }
   };
@@ -235,7 +240,7 @@ export const SaveButton = () => {
           onPress: handleSave,
           style: "default",
         },
-      ]
+      ],
     );
   };
 

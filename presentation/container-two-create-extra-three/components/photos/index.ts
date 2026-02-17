@@ -1,3 +1,1 @@
-export * from "./libs/ChargingProcessSection";
-export * from "./libs/ContainerFullSection";
-
+export * from "./libs/DynamicPhotosSection";

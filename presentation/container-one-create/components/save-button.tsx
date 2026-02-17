@@ -11,7 +11,9 @@ export const SaveButton = () => {
 
   const handleSave = async () => {
     try {
+      // ============================================
       // 1. PREPARAR DATOS DEL FORMULARIO
+      // ============================================
       const formData: Record<string, any> = {};
       for (const key in storeState) {
         if (typeof storeState[key] !== "function") {
@@ -19,29 +21,24 @@ export const SaveButton = () => {
         }
       }
 
+      // ============================================
       // 2. VALIDAR CAMPOS OBLIGATORIOS
+      // ============================================
       const requiredErrors: string[] = [];
       const optionalErrors: string[] = [];
 
-      try {
-        // Validar container (OBLIGATORIO)
-        await validationSchemaOne.validateAt("container", formData);
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
-      }
+      // CAMPOS OBLIGATORIOS (según tu esquema de validación)
+      const requiredFields = [
+        "container",
+        "emptyPanoramicPhoto",
+      ];
 
-      try {
-        // Validar labelSerial (OBLIGATORIO)
-        await validationSchemaOne.validateAt("labelSerial", formData);
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
-      }
-
-      try {
-        // Validar emptyPanoramicPhoto (OBLIGATORIO)
-        await validationSchemaOne.validateAt("emptyPanoramicPhoto", formData);
-      } catch (err: any) {
-        requiredErrors.push(`❌ ${err.message}`);
+      for (const field of requiredFields) {
+        try {
+          await validationSchemaOne.validateAt(field, formData);
+        } catch (err: any) {
+          requiredErrors.push(`❌ ${err.message}`);
+        }
       }
 
       // Si faltan campos obligatorios, DETENER
@@ -54,8 +51,11 @@ export const SaveButton = () => {
         return;
       }
 
+      // ============================================
       // 3. VALIDAR CAMPOS OPCIONALES (solo si tienen contenido)
+      // ============================================
       const optionalFields = [
+        // CAMPOS BÁSICOS
         "plateVehicle",
         "driverName",
         "driverIdentification",
@@ -63,13 +63,60 @@ export const SaveButton = () => {
         "naviera",
         "companyTransport",
         "size",
+        "address",
+        "city",
+        "typeReview",
+        "storageName",
+        "entryPort",
+        "observation",
+
+        // NUEVOS CAMPOS DE LA WEB ✨
+        "typeService",
+        "date",
+        "exporterSupervisor",
+        "exporterSupervisorIdentification",
+        "associated",
+        "associatedIdentification",
+        "others",
+        "othersIdentification",
+        "workplace",
+        "inspectedBy",
+        "inspectedWas",
+
+        // COMENTARIOS DE FOTOS
+        "emptyPanoramicComment",
+        "emptyStampNavieraComment",
+        "emptyOtherStampComment",
+        "emptyAditionalStampComment",
+        "emptySatelliteLockStampComment",
+        "emptySatelliteLockComment",
+        "emptyFloorComment",
+        "emptyRoofComment",
+        "emptyMirrorCoverComment",
+        "emptyInternalComment1",
+        "emptyInternalComment2",
+        "emptyInternalComment3",
+        "emptyInternalComment4",
+        "emptyInternalComment5",
+        "emptyInternalComment6",
+        "exitOtherStampComment",
+        "exitSatelliteLockStampComment",
+        "exitPanoramicComment",
+        "exitStampNavieraComment",
+        "exitEngineryComment1",
+        "exitEngineryComment2",
+
+        // NUEVOS COMENTARIOS ✨
+        "engineryComment1",
+        "engineryComment2",
+        "exitTemporarySealingComment",
       ];
 
       for (const field of optionalFields) {
         const value = formData[field];
 
         // Si el campo tiene contenido, validar las reglas
-        if (value && value.trim() !== "") {
+        if (value && String(value).trim() !== "") {
           try {
             await validationSchemaOne.validateAt(field, formData);
           } catch (err: any) {
@@ -88,7 +135,20 @@ export const SaveButton = () => {
         return;
       }
 
-      // 4. PROCESAR FOTOS
+      // ============================================
+      // 4. VALIDAR CAMPOS ESPECIALES: CAN y LEADER (arrays)
+      // ============================================
+      // Convertir arrays a strings para enviar al backend
+      if (formData.can && Array.isArray(formData.can)) {
+        formData.can = formData.can.join(",");
+      }
+      if (formData.leader && Array.isArray(formData.leader)) {
+        formData.leader = formData.leader.join(",");
+      }
+
+      // ============================================
+      // 5. PROCESAR FOTOS
+      // ============================================
       const photosBase64: Record<string, string> = {};
       let processedPhotos = 0;
       let missingPhotos: string[] = [];
@@ -127,7 +187,9 @@ export const SaveButton = () => {
         }
       }
 
-      // 5. PROCESAR IMÁGENES DINÁMICAS
+      // ============================================
+      // 6. PROCESAR IMÁGENES DINÁMICAS
+      // ============================================
       const dynamicImages = formData.images || [];
       for (const image of dynamicImages) {
         if (image.src && typeof image.src === "string") {
@@ -150,7 +212,9 @@ export const SaveButton = () => {
         }
       }
 
-      // 6. ADVERTIR SOBRE FOTOS FALTANTES (OPCIONAL)
+      // ============================================
+      // 7. ADVERTIR SOBRE FOTOS FALTANTES (OPCIONAL)
+      // ============================================
       if (missingPhotos.length > 0) {
         // Si faltan más de la mitad de las fotos, preguntar
         if (missingPhotos.length > photosToGenerateOne.length / 2) {
@@ -174,7 +238,9 @@ export const SaveButton = () => {
         }
       }
 
-      // 7. ENVIAR DATOS
+      // ============================================
+      // 8. ENVIAR DATOS
+      // ============================================
       await sendData(formData, photosBase64);
     } catch (error) {
       console.error("Error en handleSave:", error);

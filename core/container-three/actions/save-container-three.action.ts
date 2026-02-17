@@ -1,13 +1,13 @@
 import { ObjPostI, ServiceResponseI } from "@/common/interface";
 import { puceApi } from "@/core/api/puceApi";
-import { WorkflowThreeI } from "../interfaces";
+import { WorkflowContainerThreeI } from "../interfaces";
 
 export const saveContainerThree = async (
-  formData: Partial<WorkflowThreeI>,
+  formData: Partial<WorkflowContainerThreeI>,
 ): Promise<string | null> => {
   try {
     const { data } = await puceApi.post<ServiceResponseI<ObjPostI>>(
-      "/workflow-three/",
+      "/malimax-three/",
       formData,
     );
 

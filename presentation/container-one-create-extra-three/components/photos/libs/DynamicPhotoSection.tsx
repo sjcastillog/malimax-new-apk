@@ -77,9 +77,7 @@ const DynamicPhotoItem: React.FC<DynamicPhotoItemProps> = ({
   onDelete,
 }) => {
   const [loading, setLoading] = useState(false);
-  const updateImage = useWorkflowStoreOneExtraThree(
-    (state) => state.updateImage,
-  );
+  const updateImage = useWorkflowStoreOneExtraThree((state) => state.updateImage);
   const uri = usePhotoUri(image.src);
 
   const handleTakePhoto = async () => {

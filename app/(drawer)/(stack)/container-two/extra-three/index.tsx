@@ -1,9 +1,8 @@
 import { ButtonClean } from "@/presentation/container-two-create-extra-three/components/clear-button";
-import { ContainerFormScreenTwo } from "@/presentation/container-two-create-extra-three/components/form-page";
-import { FotosScreenTwo } from "@/presentation/container-two-create-extra-three/components/photos-page";
+import { ContainerFormScreen } from "@/presentation/container-two-create-extra-three/components/form-page";
+import { FotosScreen } from "@/presentation/container-two-create-extra-three/components/photos-page";
 import { SaveButton } from "@/presentation/container-two-create-extra-three/components/save-button";
 import WorkflowSimulator from "@/presentation/container-two-create-extra-three/components/simulator";
-import { ValidationScreenTwo } from "@/presentation/container-two-create-extra-three/components/validation-page";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
@@ -45,9 +44,8 @@ const ContainerTwo = () => {
             paddingHorizontal: 5,
           }}
         >
-          {option === 0 && <ContainerFormScreenTwo />}
-          {option === 1 && <FotosScreenTwo />}
-          {option === 2 && <ValidationScreenTwo />}
+          {option === 0 && <ContainerFormScreen />}
+          {option === 1 && <FotosScreen />}
         </View>
       </KeyboardAvoidingView>
     </View>
