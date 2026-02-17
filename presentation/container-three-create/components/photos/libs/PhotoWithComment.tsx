@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { useWorkflowStoreThreeZero } from "../../../store";
+import * as MediaLibrary from "expo-media-library";
 
 interface PhotoWithCommentProps {
   photoIdKey: string;
@@ -47,9 +48,11 @@ export const PhotoWithComment: React.FC<PhotoWithCommentProps> = ({
       Alert.alert("Permiso denegado", "Se necesita acceso a la cámara");
       return;
     }
+    const mediaPermission = await MediaLibrary.requestPermissionsAsync();
+    const hasMediaPermission = mediaPermission.status === "granted";
 
     const result = await ImagePicker.launchCameraAsync({
-      quality: 0.8,
+      quality: 1,
       allowsEditing: false,
     });
 
@@ -76,6 +79,21 @@ export const PhotoWithComment: React.FC<PhotoWithCommentProps> = ({
 
         await file.write(base64, { encoding: "base64" });
         setPhoto(filename);
+
+        if (hasMediaPermission) {
+          try {
+            const asset = await MediaLibrary.createAssetAsync(filepath);
+
+            let album = await MediaLibrary.getAlbumAsync("malimax");
+            if (album === null) {
+              await MediaLibrary.createAlbumAsync("malimax", asset, false);
+            } else {
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+            }
+          } catch (galleryError) {
+            console.warn("No se pudo guardar en galería:", galleryError);
+          }
+        }
       } catch (error) {
         console.error("Error guardando foto:", error);
         Alert.alert("Error", "No se pudo guardar la foto");

@@ -93,7 +93,7 @@ export const ContainerThreeListCard = ({ container, dark }: Props) => {
                 lightColor="#8E8E93"
                 darkColor="#98989D"
               >
-                Cliente
+                Puerto de Ingreso
               </ThemedText>
               <ThemedText
                 style={styles.infoValue}
@@ -101,28 +101,9 @@ export const ContainerThreeListCard = ({ container, dark }: Props) => {
                 lightColor="#1C1C1E"
                 darkColor="#F2F2F7"
               >
-                {container.client || "N/A"}
+                {container.entryPort || "N/A"}
               </ThemedText>
             </View>
-            {/* Finca */}
-            {container.entryPort && (
-              <View style={styles.infoItem}>
-                <ThemedText
-                  style={styles.infoLabel}
-                  lightColor="#8E8E93"
-                  darkColor="#98989D"
-                >
-                  Puerto de Ingreso
-                </ThemedText>
-                <ThemedText
-                  style={styles.farmLabel}
-                  lightColor="#8E8E93"
-                  darkColor="#98989D"
-                >
-                  🏡 {container.entryPort}
-                </ThemedText>
-              </View>
-            )}
           </View>
         </TouchableOpacity>
       </ThemedView>

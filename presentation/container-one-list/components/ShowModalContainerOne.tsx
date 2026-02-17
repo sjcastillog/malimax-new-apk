@@ -10,7 +10,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import {
   Gesture,
@@ -638,14 +638,14 @@ const FormTab = ({
       </View>
       <FormField
         label="CAN"
-        value={data.can?.join(", ")}
+        value={data.can ?? ""}
         textColor={textColor}
         fieldBg={fieldBg}
         borderColor={borderColor}
       />
       <FormField
         label="Guía/Leader"
-        value={data.leader?.join(", ")}
+        value={data.leader ?? ""}
         textColor={textColor}
         fieldBg={fieldBg}
         borderColor={borderColor}

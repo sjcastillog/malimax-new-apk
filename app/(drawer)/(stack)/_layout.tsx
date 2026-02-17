@@ -49,7 +49,7 @@ const StackLayout = () => {
       <Stack.Screen
         name="container-one/index"
         options={{
-          title: "Proceso 1",
+          title: "Malimax 1",
           animation: "flip",
         }}
       />
@@ -57,7 +57,7 @@ const StackLayout = () => {
         name="container-one/create/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 1 🚚",
+          title: "Nuevo Malimax 1 🚚",
           animation: "flip",
         }}
       />
@@ -65,7 +65,7 @@ const StackLayout = () => {
         name="container-one/extra-one/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 1 Extra 1🚚",
+          title: "Nuevo Malimax 1 Extra 1🚚",
           animation: "flip",
         }}
       />
@@ -73,7 +73,7 @@ const StackLayout = () => {
         name="container-one/extra-two/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 1 Extra 2 🚚",
+          title: "Nuevo Malimax 1 Extra 2 🚚",
           animation: "flip",
         }}
       />
@@ -81,18 +81,18 @@ const StackLayout = () => {
         name="container-one/extra-three/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 1 Extra 3 🚚",
+          title: "Nuevo Malimax 1 Extra 3 🚚",
           animation: "flip",
         }}
       />
       <Stack.Screen
         name="container-one/list/index"
         options={{
-          title: "Procesos 1🚚",
+          title: "Malimax 1🚚",
           animation: "flip",
         }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="container-complete/index"
         options={{
           title: "Consolidado",
@@ -102,14 +102,14 @@ const StackLayout = () => {
       <Stack.Screen
         name="container-one/queue/index"
         options={{
-          title: "Procesos 1 Encolados ⏳",
+          title: "Malimax 1 Encolados ⏳",
           animation: "flip",
         }}
       />
       <Stack.Screen
         name="container-two/index"
         options={{
-          title: "Proceso 2",
+          title: "Malimax 2",
           animation: "flip",
         }}
       />
@@ -117,7 +117,7 @@ const StackLayout = () => {
         name="container-two/create/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 2 🚛",
+          title: "Nuevo Malimax 2 🚛",
           animation: "flip",
         }}
       />
@@ -125,7 +125,7 @@ const StackLayout = () => {
         name="container-two/extra-one/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 2 Extra 1 🚛",
+          title: "Nuevo Malimax 2 Extra 1 🚛",
           animation: "flip",
         }}
       />
@@ -133,7 +133,7 @@ const StackLayout = () => {
         name="container-two/extra-two/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 2 Extra 2 🚛",
+          title: "Nuevo Malimax 2 Extra 2 🚛",
           animation: "flip",
         }}
       />
@@ -141,28 +141,28 @@ const StackLayout = () => {
         name="container-two/extra-three/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 2 Extra 3 🚛",
+          title: "Nuevo Malimax 2 Extra 3 🚛",
           animation: "flip",
         }}
       />
       <Stack.Screen
         name="container-two/list/index"
         options={{
-          title: "Procesos 2 🚛",
+          title: "Malimax 2 🚛",
           animation: "flip",
         }}
       />
       <Stack.Screen
         name="container-two/queue/index"
         options={{
-          title: "Procesos 2 Encolados ⏳",
+          title: "Malimax 2 Encolados ⏳",
           animation: "flip",
         }}
       />
       <Stack.Screen
         name="container-three/index"
         options={{
-          title: "Proceso 3",
+          title: "Malimax 3",
           animation: "flip",
         }}
       />
@@ -170,7 +170,7 @@ const StackLayout = () => {
         name="container-three/create/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 3 🚛",
+          title: "Nuevo Malimax 3 🚛",
           animation: "flip",
         }}
       />
@@ -178,7 +178,7 @@ const StackLayout = () => {
         name="container-three/extra-one/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 3 Extra 1 🚛",
+          title: "Nuevo Malimax 3 Extra 1 🚛",
           animation: "flip",
         }}
       />
@@ -186,7 +186,7 @@ const StackLayout = () => {
         name="container-three/extra-two/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 3 Extra 2 🚛",
+          title: "Nuevo Malimax 3 Extra 2 🚛",
           animation: "flip",
         }}
       />
@@ -194,25 +194,24 @@ const StackLayout = () => {
         name="container-three/extra-three/index"
         options={{
           headerShown: false,
-          title: "Nuevo Proceso 3 Extra 3 🚛",
+          title: "Nuevo Malimax 3 Extra 3 🚛",
           animation: "flip",
         }}
       />
       <Stack.Screen
         name="container-three/list/index"
         options={{
-          title: "Procesos 3 🚛",
+          title: "Malimax 3 🚛",
           animation: "flip",
         }}
       />
       <Stack.Screen
         name="container-three/queue/index"
         options={{
-          title: "Procesos 3 Encolados ⏳",
+          title: "Malimax 3 Encolados ⏳",
           animation: "flip",
         }}
       />
-      
     </Stack>
   );
 };

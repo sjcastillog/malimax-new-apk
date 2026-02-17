@@ -1,6 +1,7 @@
 import { validationSchemaTwo } from "@/common/constants";
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
 import * as FileSystem from "expo-file-system/legacy";
+import { router } from "expo-router";
 import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useSaveWorkflow } from "../../container-two-create/hooks/useSaveWorkflow";
 import { useWorkflowStoreTwoExtraTwo } from "../store";
@@ -8,6 +9,7 @@ import { useWorkflowStoreTwoExtraTwo } from "../store";
 export const SaveButton = () => {
   const { workflowMutation } = useSaveWorkflow();
   const storeState = useWorkflowStoreTwoExtraTwo((state) => state) as any;
+  const onClearNext = useWorkflowStoreTwoExtraTwo((state) => state.onClear);
 
   const handleSave = async () => {
     try {
@@ -147,15 +149,22 @@ export const SaveButton = () => {
       const dateHelper = new Date();
       sanitizedData.timeStampSave = dateHelper;
       sanitizedData.hourSaveUser = dateHelper.toLocaleTimeString();
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("es-EC", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      sanitizedData.hourEnd = timeString;
 
       await workflowMutation.mutateAsync({
         formData: sanitizedData,
       });
 
-      // Mostrar mensaje de éxito
-      Alert.alert("¡Éxito!", "El workflow se ha guardado correctamente", [
-        { text: "OK", style: "default" },
-      ]);
+      // ============================================
+      // MOSTRAR OPCIONES POST-GUARDADO
+      // ============================================
+      showPostSaveOptions();
     } catch (error) {
       console.error("Error en sendData:", error);
       Alert.alert(
@@ -163,6 +172,43 @@ export const SaveButton = () => {
         "No se pudo guardar el workflow. Por favor, intenta nuevamente.",
       );
     }
+  };
+
+  const showPostSaveOptions = () => {
+    Alert.alert(
+      "✅ Guardado Exitoso",
+      "El proceso 2 (Llenado) se ha guardado correctamente.\n\n¿Qué deseas hacer ahora?",
+      [
+        {
+          text: "Limpiar Formulario",
+          onPress: () => {
+            onClearNext();
+            Alert.alert(
+              "Formulario Limpio",
+              "Puedes iniciar un nuevo proceso 2",
+              [{ text: "OK" }],
+            );
+          },
+          style: "default",
+        },
+        {
+          text: "Ir a Malimax 3",
+          onPress: () => {
+            onClearNext();
+            router.push("/container-three/create");
+          },
+          style: "default",
+        },
+        {
+          text: "Quedarme Aquí",
+          onPress: () => {
+            // No hace nada, se queda en la pantalla actual
+          },
+          style: "cancel",
+        },
+      ],
+      { cancelable: false },
+    );
   };
 
   const handlePreSave = () => {

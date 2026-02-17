@@ -4,6 +4,7 @@ import {
 } from "@/common/constants";
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
 import * as FileSystem from "expo-file-system/legacy";
+import { router } from "expo-router";
 import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useSaveWorkflow } from "../hooks/useSaveWorkflow";
 import { useWorkflowStoreThreeZero } from "../store";
@@ -11,6 +12,7 @@ import { useWorkflowStoreThreeZero } from "../store";
 export const SaveButton = () => {
   const { workflowMutation } = useSaveWorkflow();
   const storeState = useWorkflowStoreThreeZero((state) => state) as any;
+  const onClearNext = useWorkflowStoreThreeZero((state) => state.onClear);
 
   const handleSave = async () => {
     try {
@@ -209,14 +211,23 @@ export const SaveButton = () => {
       sanitizedData.timeStampSave = dateHelper;
       sanitizedData.hourSaveUser = dateHelper.toLocaleTimeString();
 
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("es-EC", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      sanitizedData.hourEnd = timeString;
+
       await workflowMutation.mutateAsync({
         formData: sanitizedData,
         photosData: photosBase64,
       });
 
-      Alert.alert("¡Éxito!", "El workflow se ha guardado correctamente", [
-        { text: "OK", style: "default" },
-      ]);
+      // ============================================
+      // MOSTRAR OPCIONES POST-GUARDADO
+      // ============================================
+      showPostSaveOptions();
     } catch (error) {
       console.error("Error en sendData:", error);
       Alert.alert(
@@ -224,6 +235,43 @@ export const SaveButton = () => {
         "No se pudo guardar el workflow. Por favor, intenta nuevamente.",
       );
     }
+  };
+
+  const showPostSaveOptions = () => {
+    Alert.alert(
+      "✅ Proceso Completado",
+      "El proceso 3 (Salida) se ha guardado correctamente.\n\n¡Has completado los 3 procesos de Malimax!\n\n¿Qué deseas hacer ahora?",
+      [
+        {
+          text: "Limpiar Formulario",
+          onPress: () => {
+            onClearNext();
+            Alert.alert(
+              "Formulario Limpio",
+              "Puedes iniciar un nuevo proceso 3",
+              [{ text: "OK" }],
+            );
+          },
+          style: "default",
+        },
+        {
+          text: "Ver Procesos Completos",
+          onPress: () => {
+            onClearNext();
+            router.push("/container-complete");
+          },
+          style: "default",
+        },
+        {
+          text: "Quedarme Aquí",
+          onPress: () => {
+            // No hace nada, se queda en la pantalla actual
+          },
+          style: "cancel",
+        },
+      ],
+      { cancelable: false },
+    );
   };
 
   const handlePreSave = () => {

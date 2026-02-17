@@ -14,8 +14,13 @@ import { useWorkflowStoreOneExtraOne } from "../../../store";
 
 export const ContainerSection = () => {
   const container = useWorkflowStoreOneExtraOne((state) => state.container);
-  const setContainer = useWorkflowStoreOneExtraOne((state) => state.setContainer);
-  const startProcess = useWorkflowStoreOneExtraOne((state) => state.startProcess);
+  const setContainer = useWorkflowStoreOneExtraOne(
+    (state) => state.setContainer,
+  );
+  const setHourInit = useWorkflowStoreOneExtraOne((state) => state.setHourInit);
+  const startProcess = useWorkflowStoreOneExtraOne(
+    (state) => state.startProcess,
+  );
   const setStartProcess = useWorkflowStoreOneExtraOne(
     (state) => state.setStartProcess,
   );
@@ -38,6 +43,7 @@ export const ContainerSection = () => {
         second: "2-digit",
       });
       setStartProcess(timeString);
+      setHourInit(timeString);
 
       // 2. Solicitar permisos de ubicación
       const { status } = await Location.requestForegroundPermissionsAsync();

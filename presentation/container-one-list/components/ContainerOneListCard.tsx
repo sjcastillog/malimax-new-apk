@@ -61,7 +61,7 @@ export const ContainerOneListCard = ({ container, dark }: Props) => {
             </View>
             <View style={{ width: "100%" }}>
               <ThemedText style={[styles.dateText, { color: textSecondary }]}>
-                {container.timeStampSave || "Sin fecha"}
+                {container.date || "Sin fecha"}
               </ThemedText>
             </View>
           </View>
@@ -101,25 +101,25 @@ export const ContainerOneListCard = ({ container, dark }: Props) => {
                 lightColor="#1C1C1E"
                 darkColor="#F2F2F7"
               >
-                {container.city || "N/A"}
+                🏡 {container.city || "N/A"}
               </ThemedText>
             </View>
             {/* Finca */}
-            {container.companyTransport && (
+            {container.typeService && (
               <View style={styles.infoItem}>
                 <ThemedText
                   style={styles.infoLabel}
                   lightColor="#8E8E93"
                   darkColor="#98989D"
                 >
-                  Compania Transporte
+                  Tipo de Servicio
                 </ThemedText>
                 <ThemedText
                   style={styles.farmLabel}
                   lightColor="#8E8E93"
                   darkColor="#98989D"
                 >
-                  🏡 {container.companyTransport}
+                  {container.typeService}
                 </ThemedText>
               </View>
             )}
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 3, 
+    elevation: 3,
   },
   touchable: {
     paddingTop: 10,

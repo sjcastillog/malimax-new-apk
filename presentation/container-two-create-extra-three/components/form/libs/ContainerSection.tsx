@@ -27,10 +27,17 @@ export const ContainerSection = () => {
 };
 
 const ContainerSearchField = () => {
+  const setHourInit = useWorkflowStoreTwoExtraThree(
+    (state) => state.setHourInit,
+  );
   const container = useWorkflowStoreTwoExtraThree((state) => state.container);
-  const setContainer = useWorkflowStoreTwoExtraThree((state) => state.setContainer);
+  const setContainer = useWorkflowStoreTwoExtraThree(
+    (state) => state.setContainer,
+  );
   const setClient = useWorkflowStoreTwoExtraThree((state) => state.setClient);
-  const setClientId = useWorkflowStoreTwoExtraThree((state) => state.setClientId);
+  const setClientId = useWorkflowStoreTwoExtraThree(
+    (state) => state.setClientId,
+  );
   const setClientIdentification = useWorkflowStoreTwoExtraThree(
     (state) => state.setClientIdentification,
   );
@@ -71,11 +78,17 @@ const ContainerSearchField = () => {
         );
         return;
       }
-
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("es-EC", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
       // Cargar datos del proceso 1
       setClient(data.client);
       setClientId(data.clientId);
       setClientIdentification(data.clientIdentification);
+      setHourInit(timeString);
 
       Alert.alert(
         "✅ Datos Cargados",

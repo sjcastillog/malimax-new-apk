@@ -94,10 +94,16 @@ export const PhotoButton: React.FC<PhotoButtonProps> = ({
         // 6. Intentar guardar en galería (solo si hay permiso)
         if (hasMediaPermission) {
           try {
-            await MediaLibrary.createAssetAsync(permanentUri);
+            const asset = await MediaLibrary.createAssetAsync(permanentUri);
+
+            let album = await MediaLibrary.getAlbumAsync("malimax");
+            if (album === null) {
+              await MediaLibrary.createAlbumAsync("malimax", asset, false);
+            } else {
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+            }
           } catch (galleryError: any) {
             console.warn("No se pudo guardar en galería:", galleryError);
-            // No mostrar alert porque la foto YA está guardada en PHOTOS_DIR
           }
         }
 

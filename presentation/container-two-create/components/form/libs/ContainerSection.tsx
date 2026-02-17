@@ -30,6 +30,7 @@ const ContainerSearchField = () => {
   const container = useWorkflowStoreTwoZero((state) => state.container);
   const setContainer = useWorkflowStoreTwoZero((state) => state.setContainer);
   const setClient = useWorkflowStoreTwoZero((state) => state.setClient);
+  const setHourInit = useWorkflowStoreTwoZero((state) => state.setHourInit);
   const setClientId = useWorkflowStoreTwoZero((state) => state.setClientId);
   const setClientIdentification = useWorkflowStoreTwoZero(
     (state) => state.setClientIdentification,
@@ -71,11 +72,17 @@ const ContainerSearchField = () => {
         );
         return;
       }
-
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("es-EC", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
       // Cargar datos del proceso 1
       setClient(data.client);
       setClientId(data.clientId);
       setClientIdentification(data.clientIdentification);
+      setHourInit(timeString);
 
       Alert.alert(
         "✅ Datos Cargados",

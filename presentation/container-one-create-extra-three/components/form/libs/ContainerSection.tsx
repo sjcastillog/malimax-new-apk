@@ -15,6 +15,7 @@ import { useWorkflowStoreOneExtraThree } from "../../../store";
 export const ContainerSection = () => {
   const container = useWorkflowStoreOneExtraThree((state) => state.container);
   const setContainer = useWorkflowStoreOneExtraThree((state) => state.setContainer);
+  const setHourInit = useWorkflowStoreOneExtraThree((state) => state.setHourInit);
   const startProcess = useWorkflowStoreOneExtraThree((state) => state.startProcess);
   const setStartProcess = useWorkflowStoreOneExtraThree(
     (state) => state.setStartProcess,
@@ -38,6 +39,7 @@ export const ContainerSection = () => {
         second: "2-digit",
       });
       setStartProcess(timeString);
+      setHourInit(timeString);
 
       // 2. Solicitar permisos de ubicación
       const { status } = await Location.requestForegroundPermissionsAsync();

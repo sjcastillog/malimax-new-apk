@@ -1,6 +1,7 @@
 import { photosToGenerateOne, validationSchemaOne } from "@/common/constants";
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
 import * as FileSystem from "expo-file-system/legacy";
+import { router } from "expo-router";
 import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useSaveWorkflow } from "../../container-one-create/hooks/useSaveWorkflow";
 import { useWorkflowStoreOneExtraThree } from "../store";
@@ -8,12 +9,14 @@ import { useWorkflowStoreOneExtraThree } from "../store";
 export const SaveButton = () => {
   const { workflowMutation } = useSaveWorkflow();
   const storeState = useWorkflowStoreOneExtraThree((state) => state) as any;
+  const onClearNext = useWorkflowStoreOneExtraThree((state) => state.onClear);
 
   const handleSave = async () => {
     try {
       // ============================================
       // 1. PREPARAR DATOS DEL FORMULARIO
       // ============================================
+
       const formData: Record<string, any> = {};
       for (const key in storeState) {
         if (typeof storeState[key] !== "function") {
@@ -28,10 +31,7 @@ export const SaveButton = () => {
       const optionalErrors: string[] = [];
 
       // CAMPOS OBLIGATORIOS (según tu esquema de validación)
-      const requiredFields = [
-        "container",
-        "emptyPanoramicPhoto",
-      ];
+      const requiredFields = ["container", "emptyPanoramicPhoto"];
 
       for (const field of requiredFields) {
         try {
@@ -257,16 +257,23 @@ export const SaveButton = () => {
       const dateHelper = new Date();
       formData.timeStampSave = dateHelper;
       formData.hourSaveUser = dateHelper.toLocaleTimeString();
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("es-EC", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      formData.hourEnd = timeString;
 
       await workflowMutation.mutateAsync({
         formData: formData,
         photosData: photosBase64,
       });
 
-      // Mostrar mensaje de éxito
-      Alert.alert("¡Éxito!", "El workflow se ha guardado correctamente", [
-        { text: "OK", style: "default" },
-      ]);
+      // ============================================
+      // MOSTRAR OPCIONES POST-GUARDADO
+      // ============================================
+      showPostSaveOptions();
     } catch (error) {
       console.error("Error en sendData:", error);
       Alert.alert(
@@ -274,6 +281,43 @@ export const SaveButton = () => {
         "No se pudo guardar el workflow. Por favor, intenta nuevamente.",
       );
     }
+  };
+
+  const showPostSaveOptions = () => {
+    Alert.alert(
+      "✅ Guardado Exitoso",
+      "El proceso 1 se ha guardado correctamente.\n\n¿Qué deseas hacer ahora?",
+      [
+        {
+          text: "Limpiar Formulario",
+          onPress: () => {
+            onClearNext();
+            Alert.alert(
+              "Formulario Limpio",
+              "Puedes iniciar un nuevo proceso 1",
+              [{ text: "OK" }],
+            );
+          },
+          style: "default",
+        },
+        {
+          text: "Ir a Malimax 2",
+          onPress: () => {
+            onClearNext();
+            router.push("/container-two/extra-three");
+          },
+          style: "default",
+        },
+        {
+          text: "Quedarme Aquí",
+          onPress: () => {
+            // No hace nada, se queda en la pantalla actual
+          },
+          style: "cancel",
+        },
+      ],
+      { cancelable: false },
+    );
   };
 
   const handlePreSave = () => {

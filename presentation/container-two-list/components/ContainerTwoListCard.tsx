@@ -93,7 +93,7 @@ export const ContainerTwoListCard = ({ container, dark }: Props) => {
                 lightColor="#8E8E93"
                 darkColor="#98989D"
               >
-                Cliente
+                Producto
               </ThemedText>
               <ThemedText
                 style={styles.infoValue}
@@ -101,25 +101,25 @@ export const ContainerTwoListCard = ({ container, dark }: Props) => {
                 lightColor="#1C1C1E"
                 darkColor="#F2F2F7"
               >
-                {container.client || "N/A"}
+                {container.product || "N/A"}
               </ThemedText>
             </View>
             {/* Finca */}
-            {container.product && (
+            {container.presentation && (
               <View style={styles.infoItem}>
                 <ThemedText
                   style={styles.infoLabel}
                   lightColor="#8E8E93"
                   darkColor="#98989D"
                 >
-                  Producto
+                  Presentación
                 </ThemedText>
                 <ThemedText
                   style={styles.farmLabel}
                   lightColor="#8E8E93"
                   darkColor="#98989D"
                 >
-                  {container.product}
+                  {container.presentation}
                 </ThemedText>
               </View>
             )}

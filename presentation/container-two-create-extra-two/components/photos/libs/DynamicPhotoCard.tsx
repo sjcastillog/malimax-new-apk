@@ -2,6 +2,7 @@ import { PHOTOS_DIR } from "@/common/constants";
 import { WorkflowImageI } from "@/core/container-two/interfaces";
 import { File } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
+import * as MediaLibrary from "expo-media-library";
 import React from "react";
 import {
   Alert,
@@ -33,8 +34,11 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
       return;
     }
 
+    const mediaPermission = await MediaLibrary.requestPermissionsAsync();
+    const hasMediaPermission = mediaPermission.status === "granted";
+
     const result = await ImagePicker.launchCameraAsync({
-      quality: 0.8,
+      quality: 1,
       allowsEditing: false,
     });
 
@@ -61,6 +65,20 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
 
         await file.write(base64, { encoding: "base64" });
         await updateImage(image.uuid, "src", filename);
+        if (hasMediaPermission) {
+          try {
+            const asset = await MediaLibrary.createAssetAsync(filepath);
+
+            let album = await MediaLibrary.getAlbumAsync("malimax");
+            if (album === null) {
+              await MediaLibrary.createAlbumAsync("malimax", asset, false);
+            } else {
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+            }
+          } catch (galleryError) {
+            console.warn("No se pudo guardar en galería:", galleryError);
+          }
+        }
       } catch (error) {
         console.error("Error guardando foto:", error);
         Alert.alert("Error", "No se pudo guardar la foto");
