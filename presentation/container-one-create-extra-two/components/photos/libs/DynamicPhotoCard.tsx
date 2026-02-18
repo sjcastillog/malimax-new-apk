@@ -43,7 +43,6 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
     if (!result.canceled && result.assets[0]) {
       const filename = `dynamic_${image.uuid}_${Date.now()}.jpg`;
       const filepath = `${PHOTOS_DIR}${filename}`;
-      const permanentUri = `${PHOTOS_DIR}${filename}`;
 
       try {
         const file = new File(filepath);
@@ -66,7 +65,9 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
         await updateImage(image.uuid, "src", filename);
         if (hasMediaPermission) {
           try {
-            const asset = await MediaLibrary.createAssetAsync(permanentUri);
+            const asset = await MediaLibrary.createAssetAsync(
+              result.assets[0].uri,
+            );
 
             let album = await MediaLibrary.getAlbumAsync("malimax");
             if (album === null) {

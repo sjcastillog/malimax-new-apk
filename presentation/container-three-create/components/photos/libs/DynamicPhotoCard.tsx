@@ -66,7 +66,7 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
         await updateImage(image.uuid, "src", filename);
         if (hasMediaPermission) {
           try {
-            const asset = await MediaLibrary.createAssetAsync(filepath);
+            const asset = await MediaLibrary.createAssetAsync(result.assets[0].uri);
 
             let album = await MediaLibrary.getAlbumAsync("malimax");
             if (album === null) {
