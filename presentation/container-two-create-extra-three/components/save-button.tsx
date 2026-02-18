@@ -157,14 +157,14 @@ export const SaveButton = () => {
       });
       sanitizedData.hourEnd = timeString;
 
-      await workflowMutation.mutateAsync({
+      const awaited = await workflowMutation.mutateAsync({
         formData: sanitizedData,
       });
 
       // ============================================
       // MOSTRAR OPCIONES POST-GUARDADO
       // ============================================
-      showPostSaveOptions();
+      if (!awaited.queued) showPostSaveOptions();
     } catch (error) {
       console.error("Error en sendData:", error);
       Alert.alert(
@@ -195,7 +195,7 @@ export const SaveButton = () => {
           text: "Ir a Malimax 3",
           onPress: () => {
             onClearNext();
-            router.push("/(drawer)/(stack)/container-three/extra-three");
+            router.replace("/(drawer)/(stack)/container-three/extra-three");
           },
           style: "default",
         },

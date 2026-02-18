@@ -58,18 +58,19 @@ export const useSaveWorkflow = () => {
 
     onSuccess: (data) => {
       if (hasInternetRef.current) {
-        Alert.alert(
-          "✅ Guardado exitosamente",
-          "Los datos se guardaron correctamente",
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                router.push("/container-one/list");
-              },
-            },
-          ],
-        );
+        console.log("✅ Guardado exitosamente");
+        // Alert.alert(
+        //   "✅ Guardado exitosamente",
+        //   "Los datos se guardaron correctamente",
+        //   [
+        //     {
+        //       text: "OK",
+        //       onPress: () => {
+        //         router.push("/container-one/list");
+        //       },
+        //     },
+        //   ],
+        // );
       } else {
         Alert.alert(
           "✅ Proceso encolado",

@@ -217,7 +217,7 @@ export const SaveButton = () => {
         second: "2-digit",
       });
       sanitizedData.hourEnd = timeString;
-      await workflowMutation.mutateAsync({
+      const awaited = await workflowMutation.mutateAsync({
         formData: sanitizedData,
         photosData: photosBase64,
       });
@@ -225,7 +225,7 @@ export const SaveButton = () => {
       // ============================================
       // MOSTRAR OPCIONES POST-GUARDADO
       // ============================================
-      showPostSaveOptions();
+      if (!awaited.queued) showPostSaveOptions();
     } catch (error) {
       console.error("Error en sendData:", error);
       Alert.alert(
@@ -274,7 +274,7 @@ export const SaveButton = () => {
           text: "Ver Procesos Completos",
           onPress: () => {
             onClearNext();
-            router.push("/container-complete");
+            router.replace("/(drawer)/(stack)/container-two/extra-two");
           },
           style: "default",
         },

@@ -59,18 +59,19 @@ export const useSaveWorkflow = () => {
 
     onSuccess: (data) => {
       if (hasInternetRef.current) {
-        Alert.alert(
-          "✅ Guardado exitosamente",
-          "El proceso de llenado se guardó correctamente",
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                router.push("/container-two/list");
-              },
-            },
-          ],
-        );
+        console.log("✅ Guardado exitosamente");
+        // Alert.alert(
+        //   "✅ Guardado exitosamente",
+        //   "El proceso de llenado se guardó correctamente",
+        //   [
+        //     {
+        //       text: "OK",
+        //       onPress: () => {
+        //         router.push("/container-two/list");
+        //       },
+        //     },
+        //   ],
+        // );
       } else {
         Alert.alert(
           "✅ Proceso encolado",
