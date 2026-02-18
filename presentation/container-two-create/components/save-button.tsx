@@ -1,8 +1,8 @@
 import { validationSchemaTwo } from "@/common/constants";
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
 import * as FileSystem from "expo-file-system/legacy";
-import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useSaveWorkflow } from "../hooks/useSaveWorkflow";
 import { useWorkflowStoreTwoZero } from "../store";
 
@@ -195,7 +195,7 @@ export const SaveButton = () => {
           text: "Ir a Malimax 3",
           onPress: () => {
             onClearNext();
-            router.push("/container-three/create");
+            router.push("/(drawer)/(stack)/container-three/create");
           },
           style: "default",
         },

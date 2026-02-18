@@ -304,7 +304,7 @@ export const SaveButton = () => {
           text: "Ir a Malimax 2",
           onPress: () => {
             onClearNext();
-            router.push("/container-two/extra-one");
+            router.push("/(drawer)/(stack)/container-two/extra-one");
           },
           style: "default",
         },
