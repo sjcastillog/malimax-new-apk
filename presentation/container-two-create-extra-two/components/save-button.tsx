@@ -180,7 +180,7 @@ export const SaveButton = () => {
       "El proceso 2 (Llenado) se ha guardado correctamente.\n\n¿Qué deseas hacer ahora?",
       [
         {
-          text: "Limpiar Formulario",
+          text: "Limpiar Formulario, hacer otro proceso",
           onPress: () => {
             onClearNext();
             Alert.alert(
@@ -198,13 +198,6 @@ export const SaveButton = () => {
             router.replace("/(drawer)/(stack)/container-three/extra-two");
           },
           style: "default",
-        },
-        {
-          text: "Quedarme Aquí",
-          onPress: () => {
-            // No hace nada, se queda en la pantalla actual
-          },
-          style: "cancel",
         },
       ],
       { cancelable: false },

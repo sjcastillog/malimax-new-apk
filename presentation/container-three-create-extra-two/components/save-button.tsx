@@ -259,7 +259,7 @@ export const SaveButton = () => {
       "El proceso 3 (Salida) se ha guardado correctamente.\n\n¡Has completado los 3 procesos de Malimax!\n\n¿Qué deseas hacer ahora?",
       [
         {
-          text: "Limpiar Formulario",
+          text: "Limpiar Formulario, hacer otro proceso",
           onPress: () => {
             onClearNext();
             Alert.alert(
@@ -277,13 +277,6 @@ export const SaveButton = () => {
             router.replace("/(drawer)/(stack)/container-two/extra-two");
           },
           style: "default",
-        },
-        {
-          text: "Quedarme Aquí",
-          onPress: () => {
-            // No hace nada, se queda en la pantalla actual
-          },
-          style: "cancel",
         },
       ],
       { cancelable: false },

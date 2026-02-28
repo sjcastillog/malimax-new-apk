@@ -16,8 +16,7 @@ export const useSaveWorkflow = () => {
       photosData: any;
     }) => {
       const dateHelper = new Date();
-      payload.formData.timeStampSave =
-        payload.formData.firstTakePhoto ?? dateHelper.toISOString();
+      payload.formData.timeStampSave = dateHelper.toISOString();
       payload.formData.hourSaveUser = dateHelper.toLocaleTimeString();
       const hasInternet = await checkInternetQuality();
       hasInternetRef.current = hasInternet;
