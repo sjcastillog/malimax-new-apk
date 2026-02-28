@@ -7,13 +7,13 @@ import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useWorkflowStoreOneExtraTwo } from "../../../store";
 
@@ -98,9 +98,9 @@ export const PhotoButton: React.FC<PhotoButtonProps> = ({
               manipulatedImage.uri,
             );
 
-            let album = await MediaLibrary.getAlbumAsync("malimax");
+            let album = await MediaLibrary.getAlbumAsync("Malimax");
             if (album === null) {
-              await MediaLibrary.createAlbumAsync("malimax", asset, true);
+              await MediaLibrary.createAlbumAsync("Malimax", asset, true);
             } else {
               await MediaLibrary.addAssetsToAlbumAsync([asset], album, true);
             }

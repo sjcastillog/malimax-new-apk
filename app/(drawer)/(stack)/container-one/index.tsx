@@ -32,6 +32,13 @@ const index = () => {
             bgColor={"#030521"}
             route="/container-one/queue"
           />
+          <CardSmall
+            title="Video"
+            icon="videocam-outline"
+            iconColor="#3B82F6"
+            bgColor={primaryColor}
+            route="/container-one/video"
+          />
         </View>
       </View>
       <View

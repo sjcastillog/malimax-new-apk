@@ -1,10 +1,7 @@
-// common/services/geocoding.service.ts
-
 import axios from "axios";
 
-// Clave API gratuita de OpenCage (regístrate en https://opencagedata.com)
-// 2,500 requests/día gratis
-const OPENCAGE_API_KEY = process.env.EXPO_PUBLIC_OPENCAGE_API_KEY ?? "TU_API_KEY_AQUI"; // Cámbiala por tu key
+const OPENCAGE_API_KEY =
+  process.env.EXPO_PUBLIC_OPENCAGE_API_KEY ?? "TU_API_KEY_AQUI";
 
 export interface GeocodeResult {
   city: string;

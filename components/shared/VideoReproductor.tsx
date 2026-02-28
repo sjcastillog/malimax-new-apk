@@ -5,7 +5,7 @@ import { Button, StyleSheet, Text, View } from "react-native";
 
 export default function VideoReproductorComponent({ videoSource }: { videoSource: string }) {
 
-  if (!videoSource || videoSource === "https://puce.younet.ec") {
+  if (!videoSource || videoSource === "https://app.securecontainer-ec.com") {
     return (
       <View
         style={{

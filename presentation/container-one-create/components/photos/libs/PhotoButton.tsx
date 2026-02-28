@@ -94,11 +94,13 @@ export const PhotoButton: React.FC<PhotoButtonProps> = ({
         // 6. Intentar guardar en galería (solo si hay permiso)
         if (hasMediaPermission) {
           try {
-            const asset = await MediaLibrary.createAssetAsync(manipulatedImage.uri);
+            const asset = await MediaLibrary.createAssetAsync(
+              manipulatedImage.uri,
+            );
 
-            let album = await MediaLibrary.getAlbumAsync("malimax");
+            let album = await MediaLibrary.getAlbumAsync("Malimax");
             if (album === null) {
-              await MediaLibrary.createAlbumAsync("malimax", asset, true);
+              await MediaLibrary.createAlbumAsync("Malimax", asset, true);
             } else {
               await MediaLibrary.addAssetsToAlbumAsync([asset], album, true);
             }

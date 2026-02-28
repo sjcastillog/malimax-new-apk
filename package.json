@@ -25,6 +25,7 @@
     "@tanstack/react-table": "^8.21.3",
     "axios": "^1.12.2",
     "expo": "~54.0.12",
+    "expo-av": "^16.0.8",
     "expo-camera": "^17.0.8",
     "expo-constants": "~18.0.9",
     "expo-crypto": "~15.0.8",

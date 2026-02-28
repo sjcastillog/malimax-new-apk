@@ -60,13 +60,13 @@ export const authCheckStatus = async () => {
       ServiceResponseI<UsersLoginResponseI>
     >("/users/check-status");
 
-    if (!dataAuth) throw new Error("Error renovando token");
+    if (!dataAuth) return false;
 
     const result = returnUserToken(dataAuth.data!);
     await saveToCache(result);
     return result;
   } catch (error) {
     console.log("⚠️ Error en servidor, usando caché");
-    return await getFromCache();
+    return false;
   }
 };

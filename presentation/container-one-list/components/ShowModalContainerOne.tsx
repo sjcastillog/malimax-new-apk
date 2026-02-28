@@ -1,3 +1,4 @@
+import VideoReproductorComponent from "@/components/shared/VideoReproductor";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
@@ -30,6 +31,11 @@ interface PhotoItem {
   title: string;
   alt?: string;
   comment?: string | null;
+}
+
+interface VideoItem {
+  uri: string;
+  title: string;
 }
 
 interface ShowContainerOneModalProps {
@@ -123,8 +129,12 @@ export const ShowContainerOneModal = ({
 }: ShowContainerOneModalProps) => {
   const { containerOneQuery } = useContainerOne(containerId);
 
-  const [activeTab, setActiveTab] = useState<"form" | "photos">("form");
+  const [activeTab, setActiveTab] = useState<"form" | "photos" | "videos">(
+    "form",
+  );
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+
   const [selectedImage, setSelectedImage] = useState<PhotoItem | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
@@ -142,12 +152,13 @@ export const ShowContainerOneModal = ({
     if (containerOneQuery.data) {
       const data = containerOneQuery.data;
       const photoArray: PhotoItem[] = [];
+      const videoArray: VideoItem[] = [];
 
       // Procesar todas las fotos
       Object.entries(data).forEach(([key, value]) => {
         if (key.includes("Photo") && value && typeof value === "string") {
           const commentField = commentFields[key] as any;
-          const comment = commentField ? data[commentField] : null;
+          const comment = commentField ? (data as any)[commentField] : null;
 
           photoArray.push({
             uri: value,
@@ -171,7 +182,15 @@ export const ShowContainerOneModal = ({
         });
       }
 
+      if ((data as any)["videoMalimax1"]) {
+        videoArray.push({
+          uri: (data as any)["videoMalimax1"],
+          title: "Video Proceso",
+        });
+      }
+
       setPhotos(photoArray);
+      setVideos(videoArray);
     }
   }, [containerOneQuery.data]);
 
@@ -197,6 +216,19 @@ export const ShowContainerOneModal = ({
         )}
       </View>
     </TouchableOpacity>
+  );
+
+  const renderVideoItem = ({ item }: { item: VideoItem }) => (
+    <View style={[styles.videoCard, { backgroundColor: cardBg, borderColor }]}>
+      <VideoReproductorComponent videoSource={item.uri} />
+      <View
+        style={[styles.videoTitleContainer, { borderTopColor: borderColor }]}
+      >
+        <Text style={[styles.videoTitle, { color: textColor }]}>
+          {item.title}
+        </Text>
+      </View>
+    </View>
   );
 
   const scale = useSharedValue(1);
@@ -274,7 +306,7 @@ export const ShowContainerOneModal = ({
                   { color: textColor, opacity: 0.6 },
                 ]}
               >
-                Inspección Proceso 1
+                Malimax 1
               </Text>
             </View>
 
@@ -348,6 +380,36 @@ export const ShowContainerOneModal = ({
                 Fotos ({photos.length})
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === "videos" && {
+                  borderBottomColor: primaryColor,
+                  borderBottomWidth: 3,
+                },
+              ]}
+              onPress={() => setActiveTab("videos")}
+            >
+              <Ionicons
+                name="videocam"
+                size={20}
+                color={activeTab === "videos" ? primaryColor : textColor}
+                style={{ opacity: activeTab === "videos" ? 1 : 0.5 }}
+              />
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: textColor },
+                  activeTab === "videos" && {
+                    color: primaryColor,
+                    fontWeight: "700",
+                  },
+                ]}
+              >
+                Videos ({videos.length})
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* CONTENT */}
@@ -391,6 +453,24 @@ export const ShowContainerOneModal = ({
                       <Ionicons name="images" size={64} color={borderColor} />
                       <Text style={[styles.emptyText, { color: textColor }]}>
                         No hay fotos disponibles
+                      </Text>
+                    </View>
+                  }
+                />
+              )}
+              {activeTab === "videos" && (
+                <FlatList
+                  data={videos}
+                  renderItem={renderVideoItem}
+                  keyExtractor={(item, index) => `video-${index}`}
+                  numColumns={1}
+                  contentContainerStyle={styles.listContent}
+                  showsVerticalScrollIndicator={false}
+                  ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                      <Ionicons name="videocam" size={64} color={borderColor} />
+                      <Text style={[styles.emptyText, { color: textColor }]}>
+                        No hay videos disponibles
                       </Text>
                     </View>
                   }
@@ -857,6 +937,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  videoCard: {
+    width: width - 32,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  videoTitleContainer: { padding: 12, borderTopWidth: 1 },
+  videoTitle: { fontSize: 14, fontWeight: "600", textAlign: "center" },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -899,6 +994,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
   },
   tab: {

@@ -4,13 +4,13 @@ import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import React from "react";
 import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useWorkflowStoreThreeZero } from "../../../store";
 
@@ -86,9 +86,9 @@ export const PhotoWithComment: React.FC<PhotoWithCommentProps> = ({
               result.assets[0].uri,
             );
 
-            let album = await MediaLibrary.getAlbumAsync("malimax");
+            let album = await MediaLibrary.getAlbumAsync("Malimax");
             if (album === null) {
-              await MediaLibrary.createAlbumAsync("malimax", asset, true);
+              await MediaLibrary.createAlbumAsync("Malimax", asset, true);
             } else {
               await MediaLibrary.addAssetsToAlbumAsync([asset], album, true);
             }

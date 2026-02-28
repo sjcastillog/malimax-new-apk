@@ -107,18 +107,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const resp = await authCheckStatus();
 
     if (!resp) {
-      set({
-        status: "unauthenticated",
-        isOfflineMode: false,
-        processOne: false,
-        processTwo: false,
-        processThree: false,
-        processReports: false,
-        malimaxOne: false,
-        malimaxTwo: false,
-        malimaxThree: false,
-        malimaxReports: false,
-      });
+      get().logout();
       return;
     }
 
