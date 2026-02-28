@@ -2,11 +2,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Animated,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 interface __CardDashboardProps__ {
@@ -23,7 +23,7 @@ const CardDashboard = ({
   icon,
   route,
   iconSize = 32,
-  accentColor = "#5ae51f",
+  accentColor = "#11e011",
   badge,
 }: __CardDashboardProps__) => {
   const [scaleAnim] = useState(new Animated.Value(1));

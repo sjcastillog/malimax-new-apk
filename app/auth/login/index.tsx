@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
   useColorScheme,
   useWindowDimensions,
   View,
@@ -89,18 +90,18 @@ const LoginScreen = () => {
               </View>
             </View>
 
-            <View className="flex-1 items-center justify-center pt-12">
-              <View className="bg-white rounded-3xl p-6 shadow-lg">
+            <View className="flex-1 items-center justify-center pt-8">
+              <View className="bg-transparent rounded-3xl p-1">
                 <Image
                   source={require("@/assets/images/logo-puce.png")}
-                  className="w-28 h-28"
+                  className="w-52 h-52"
                   resizeMode="contain"
                 />
               </View>
 
               <ThemedText
                 type="title"
-                className="text-white text-center mt-6 font-bold"
+                className="text-black text-center font-bold"
               >
                 Bienvenido
               </ThemedText>
@@ -173,7 +174,12 @@ const LoginScreen = () => {
 
             {/* Footer */}
             <View className="items-center mt-8 mb-6">
-              <ThemedText className="text-xs opacity-40">MALIMAX ©</ThemedText>
+              <Text
+                className="text-2xl opacity-40 text-secondary font-bold"
+                // color="secondary"
+              >
+                MALIMAX ©
+              </Text>
             </View>
           </View>
         </View>

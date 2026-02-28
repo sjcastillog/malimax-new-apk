@@ -940,7 +940,7 @@ const styles = StyleSheet.create({
   videoCard: {
     width: width - 32,
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginLeft: 2,
     borderRadius: 12,
     borderWidth: 1,
     overflow: "hidden",

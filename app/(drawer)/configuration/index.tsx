@@ -130,17 +130,18 @@ const ConfigurationScreen = () => {
         text: "Sí, Invalidar",
         style: "destructive",
         onPress: () => {
+          queryClient.invalidateQueries({ queryKey: ["client_malimax"] });
           queryClient.invalidateQueries({
-            queryKey: ["clientBox"],
+            queryKey: ["leader_malimax"],
           });
           queryClient.invalidateQueries({
-            queryKey: ["clientBrand"],
+            queryKey: ["can_malimax"],
           });
           queryClient.invalidateQueries({
-            queryKey: ["clientProducer"],
+            queryKey: ["container_types_malimax"],
           });
           queryClient.invalidateQueries({
-            queryKey: ["clientProducerFarm"],
+            queryKey: ["type_service_malimax"],
           });
           Alert.alert("✅ Hecho", "Todas las queries han sido invalidadas");
         },
@@ -165,10 +166,11 @@ const ConfigurationScreen = () => {
               setLoading(true);
 
               // 1. Remover queries de React Query
-              queryClient.removeQueries({ queryKey: ["clientProducer"] });
-              queryClient.removeQueries({ queryKey: ["clientProducerFarm"] });
-              queryClient.removeQueries({ queryKey: ["clientBox"] });
-              queryClient.removeQueries({ queryKey: ["clientBrand"] });
+              queryClient.removeQueries({ queryKey: ["leader_malimax"] });
+              queryClient.removeQueries({ queryKey: ["can_malimax"] });
+              queryClient.removeQueries({ queryKey: ["container_types_malimax"] });
+              queryClient.removeQueries({ queryKey: ["type_service_malimax"] });
+              queryClient.removeQueries({ queryKey: ["client_malimax"] });
 
               // 2. Limpiar cache persistente (SecureStorage)
               await QueryCacheHelper.clearAllCache();
@@ -186,16 +188,19 @@ const ConfigurationScreen = () => {
 
               // 4. Forzar recarga desde servidor
               await queryClient.refetchQueries({
-                queryKey: ["clientProducer"],
+                queryKey: ["leader_malimax"],
               });
               await queryClient.refetchQueries({
-                queryKey: ["clientProducerFarm"],
+                queryKey: ["can_malimax"],
               });
               await queryClient.refetchQueries({
-                queryKey: ["clientBox"],
+                queryKey: ["container_types_malimax"],
               });
               await queryClient.refetchQueries({
-                queryKey: ["clientBrand"],
+                queryKey: ["type_service_malimax"],
+              });
+              await queryClient.refetchQueries({
+                queryKey: ["client_malimax"],
               });
 
               Alert.alert(

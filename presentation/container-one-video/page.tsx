@@ -1,3 +1,4 @@
+import { useClients } from "@/common/hooks";
 import { Ionicons } from "@expo/vector-icons";
 import NetInfo from "@react-native-community/netinfo";
 import { ResizeMode, Video } from "expo-av";
@@ -37,7 +38,6 @@ interface UploadVideoScreenProps {
   iconName?: keyof typeof Ionicons.glyphMap;
   apiEndpoint: string;
   authToken?: string;
-  useClients: any;
   onUploadSuccess?: (data: any) => void;
 }
 
@@ -51,7 +51,6 @@ const UploadVideoScreen = ({
   iconName = "videocam",
   apiEndpoint,
   authToken,
-  useClients,
   onUploadSuccess,
 }: UploadVideoScreenProps) => {
   // ── Estado ──
@@ -68,7 +67,8 @@ const UploadVideoScreen = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadSpeed, setUploadSpeed] = useState<string>("");
 
-  const { data: clients, isLoading: clientsLoading } = useClients();
+  const { clientsQuery } = useClients();
+  const { data: clients, isLoading: clientsLoading } = clientsQuery;
 
   const filteredClients = (clients ?? []).filter(
     (c: any) =>
@@ -290,13 +290,11 @@ const UploadVideoScreen = ({
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <View style={styles.iconContainer}>
           <Ionicons name={iconName} size={40} color="#FFFFFF" />
         </View>
-        <Text style={styles.headerTitle}>{title}</Text>
-        {subtitle && <Text style={styles.headerSubtitle}>{subtitle}</Text>}
-      </View>
+      </View> */}
 
       {/* ── PASO 1: Cliente ── */}
       <View style={styles.card}>

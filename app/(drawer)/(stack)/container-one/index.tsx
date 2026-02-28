@@ -35,8 +35,8 @@ const index = () => {
           <CardSmall
             title="Video"
             icon="videocam-outline"
-            iconColor="#3B82F6"
-            bgColor={primaryColor}
+            iconColor="#FFC47E"
+            bgColor={"#030521"}
             route="/container-one/video"
           />
         </View>

@@ -1,8 +1,8 @@
-import { getAllCatalogueChildrenbyParentCode } from "@/core/catalogue/actions/get-all-catalogue-children-by-parent-code";
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { useWorkflowStoreOneZero } from "../../../store";
+import { useTypesService } from "@/common/hooks/libs/useTypesService";
 
 interface TypeServiceI {
   id: number;
@@ -10,31 +10,18 @@ interface TypeServiceI {
   label: string;
 }
 export const TypeServiceSection = () => {
-  const code = process.env.EXPO_PUBLIC_TYPE_SERVICES_MALIMAX_CODE ?? "TYPE";
-  const [typeServiceOptions, setTypeServiceOptions] = useState<TypeServiceI[]>(
-    [],
-  );
   const typeService = useWorkflowStoreOneZero((state) => state.typeService);
   const setTypeService = useWorkflowStoreOneZero(
     (state) => state.setTypeService,
   );
-
-  useEffect(() => {
-    handleGetLeaders();
-  }, []);
-
-  const handleGetLeaders = async () => {
-    try {
-      const response = await getAllCatalogueChildrenbyParentCode(code);
-      if (!response) return;
-      setTypeServiceOptions(
-        response.map((el) => ({ id: el.id, value: el.name, label: el.name })),
-      );
-    } catch (error: any) {
-      console.error("Error cargando CAN:", error);
-      Alert.alert("Error", "No se pudieron cargar los Tipos de Servicio");
-    }
-  };
+  const { typesServiceQuery } = useTypesService();
+  const typeServiceOptions = React.useMemo(() => {
+    return (typesServiceQuery.data ?? []).map((el) => ({
+      id: el.id,
+      value: el.name,
+      label: el.name,
+    }));
+  }, [typesServiceQuery.data]);
 
   return (
     <View style={styles.formGroup}>

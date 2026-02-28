@@ -1,4 +1,3 @@
-import { useClients } from "@/common/hooks";
 import { API_URL } from "@/core/api/puceApi";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import UploadVideoScreen from "@/presentation/container-one-video/page";
@@ -7,7 +6,6 @@ import { SafeAreaView } from "react-native";
 
 const VideoUploadScreen = () => {
   const { token } = useAuthStore();
-
   const API_ENDPOINT = `${API_URL}/malimax-videos`;
 
   const handleUploadSuccess = (responseData: any) => {
@@ -18,11 +16,10 @@ const VideoUploadScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F5F7FA" }}>
       <UploadVideoScreen
-        useClients={useClients}
         videoType="videoMalimax1"
         containerType="malimax"
-        title="Video Contenedor"
-        subtitle="Proceso de Inspección"
+        title="Video Malimax 1"
+        subtitle=""
         iconName="cube-outline"
         apiEndpoint={API_ENDPOINT}
         authToken={token}

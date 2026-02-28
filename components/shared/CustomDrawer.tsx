@@ -87,7 +87,7 @@ const CustomDrawer = (props: DrawerContentComponentProps) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: "#5ae51f",
+    backgroundColor: "#11e011",
     marginHorizontal: 12,
     marginBottom: 20,
     borderRadius: 20,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 16,
     position: "relative",
-    shadowColor: "#5ae51f",
+    shadowColor: "#11e011",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   initialsText: {
-    color: "#5ae51f",
+    color: "#11e011",
     fontSize: 32,
     fontWeight: "900",
     letterSpacing: -1,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 3,
-    borderColor: "#5ae51f",
+    borderColor: "#11e011",
   },
   activeDot: {
     width: 8,

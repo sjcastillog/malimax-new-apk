@@ -1,4 +1,7 @@
-import React, { use, useEffect, useState } from "react";
+import { useCans } from "@/common/hooks/libs/useCans";
+import { CatalogueI } from "@/common/interface";
+import { getAllCatalogueChildrenbyParentCode } from "@/core/catalogue/actions/get-all-catalogue-children-by-parent-code";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -9,8 +12,7 @@ import {
   View,
 } from "react-native";
 import { useWorkflowStoreOneZero } from "../../../store";
-import { CatalogueI } from "@/common/interface";
-import { getAllCatalogueChildrenbyParentCode } from "@/core/catalogue/actions/get-all-catalogue-children-by-parent-code";
+import { useLeaders } from "@/common/hooks/libs/useLeader";
 
 export const CanLeaderSection = () => {
   return (
@@ -22,26 +24,10 @@ export const CanLeaderSection = () => {
 };
 
 const CanSelector = () => {
-  const code = process.env.EXPO_PUBLIC_CANS_MALIMAX_CODE ?? "CAN";
   const can = useWorkflowStoreOneZero((state) => state.can);
   const setCan = useWorkflowStoreOneZero((state) => state.setCan);
   const [showModal, setShowModal] = useState(false);
-  const [cans, setCans] = useState<CatalogueI[]>([]);
-
-  useEffect(() => {
-    handleGetCans();
-  }, []);
-
-  const handleGetCans = async () => {
-    try {
-      const response = await getAllCatalogueChildrenbyParentCode(code);
-      if (!response) return;
-      setCans(response);
-    } catch (error: any) {
-      console.error("Error cargando CAN:", error);
-      Alert.alert("Error", "No se pudieron cargar los CAN");
-    }
-  };
+  const { cansQuery } = useCans();
 
   const toggleOption = (value: string) => {
     const currentValues = can || [];
@@ -74,7 +60,7 @@ const CanSelector = () => {
             </View>
 
             <FlatList
-              data={cans}
+              data={cansQuery.data ?? []}
               keyExtractor={(item) => `${item.id}-can`}
               renderItem={({ item }) => (
                 <TouchableOpacity
@@ -110,27 +96,10 @@ const CanSelector = () => {
 };
 
 const LeaderSelector = () => {
-  const code = process.env.EXPO_PUBLIC_LEADERS_MALIMAX_CODE ?? "LEADER";
-
-  const [leaders, setLeaders] = useState<CatalogueI[]>([]);
+  const { leadersQuery } = useLeaders();
   const leader = useWorkflowStoreOneZero((state) => state.leader);
   const setLeader = useWorkflowStoreOneZero((state) => state.setLeader);
   const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    handleGetLeaders();
-  }, []);
-
-  const handleGetLeaders = async () => {
-    try {
-      const response = await getAllCatalogueChildrenbyParentCode(code);
-      if (!response) return;
-      setLeaders(response);
-    } catch (error: any) {
-      console.error("Error cargando CAN:", error);
-      Alert.alert("Error", "No se pudieron cargar los CAN");
-    }
-  };
 
   const toggleOption = (value: string) => {
     const currentValues = leader || [];
@@ -163,7 +132,8 @@ const LeaderSelector = () => {
             </View>
 
             <FlatList
-              data={leaders}
+              data={leadersQuery.data ?? []}
+              
               keyExtractor={(item) => `${item.id}-leader`}
               renderItem={({ item }) => (
                 <TouchableOpacity

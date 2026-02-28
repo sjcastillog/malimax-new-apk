@@ -93,6 +93,13 @@ const StackLayout = () => {
         }}
       />
       <Stack.Screen
+        name="container-one/video/index"
+        options={{
+          title: "Video Malimax 1 📹",
+          animation: "flip",
+        }}
+      />
+      <Stack.Screen
         name="container-complete/index"
         options={{
           title: "Consolidado",

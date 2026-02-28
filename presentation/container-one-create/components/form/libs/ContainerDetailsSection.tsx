@@ -1,6 +1,6 @@
-import { getAllCatalogueChildrenbyParentCode } from "@/core/catalogue/actions/get-all-catalogue-children-by-parent-code";
-import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { useContainerTypes } from "@/common/hooks/libs/useContainerTypes";
+import React from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { useWorkflowStoreOneZero } from "../../../store";
 
@@ -23,29 +23,19 @@ export const ContainerDetailsSection = () => {
 };
 
 const ContainerTypeField = () => {
-  const code = process.env.EXPO_PUBLIC_CONTAINER_TYPES_CODE ?? "CONTAINER_TYPE";
   const typeContainer = useWorkflowStoreOneZero((state) => state.typeContainer);
   const setTypeContainer = useWorkflowStoreOneZero(
     (state) => state.setTypeContainer,
   );
-  const [containerTypes, setTypeServiceOptions] = useState<TypeServiceI[]>([]);
+  const { containerTypesQuery } = useContainerTypes();
 
-  useEffect(() => {
-    handleGetLeaders();
-  }, []);
-
-  const handleGetLeaders = async () => {
-    try {
-      const response = await getAllCatalogueChildrenbyParentCode(code);
-      if (!response) return;
-      setTypeServiceOptions(
-        response.map((el) => ({ id: el.id, value: el.name, label: el.name })),
-      );
-    } catch (error: any) {
-      console.error("Error cargando CAN:", error);
-      Alert.alert("Error", "No se pudieron cargar los Tipos de Servicio");
-    }
-  };
+  const containerTypes = React.useMemo(() => {
+    return (containerTypesQuery.data ?? []).map((el) => ({
+      id: el.id,
+      value: el.name,
+      label: el.name,
+    }));
+  }, [containerTypesQuery.data]);
 
   return (
     <View style={styles.formGroup}>
