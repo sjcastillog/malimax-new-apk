@@ -46,7 +46,7 @@ const LoginScreen = () => {
     setIsPosting(true);
 
     try {
-      const wasSuccessful = await login(user.trim(), password);
+      const wasSuccessful = await login(user.trim(), password.trim());
 
       if (wasSuccessful) {
         router.replace("/home");

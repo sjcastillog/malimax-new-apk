@@ -47,6 +47,13 @@ const StackLayout = () => {
         }}
       />
       <Stack.Screen
+        name="client/index"
+        options={{
+          title: "Nuevo Cliente",
+          animation: "flip",
+        }}
+      />
+      <Stack.Screen
         name="container-one/index"
         options={{
           title: "Malimax 1",

@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { useWorkflowStoreOneZero } from "../../../store";
+import * as ImageManipulator from "expo-image-manipulator";
 
 interface DynamicPhotoCardProps {
   image: WorkflowImageI;
@@ -44,9 +45,15 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
       const filename = `dynamic_${image.uuid}_${Date.now()}.jpg`;
       const filepath = `${PHOTOS_DIR}${filename}`;
 
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        result.assets[0].uri,
+        [{ resize: { width: 1280 } }],
+        { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG },
+      );
+
       try {
         const file = new File(filepath);
-        const base64 = await fetch(result.assets[0].uri)
+        const base64 = await fetch(manipulatedImage.uri)
           .then((res) => res.blob())
           .then(
             (blob) =>
@@ -66,7 +73,7 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
         if (hasMediaPermission) {
           try {
             const asset = await MediaLibrary.createAssetAsync(
-              result.assets[0].uri,
+              manipulatedImage.uri,
             );
 
             let album = await MediaLibrary.getAlbumAsync("Malimax");

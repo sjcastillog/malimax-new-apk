@@ -13,10 +13,7 @@ export type AuthModule =
   | "MODULE_MALIMAX_TWO_00020001"
   | "MODULE_MALIMAX_TRHEE_00030001"
   | "MODULE_MALIMAX_REPORTS_00030001"
-  | "MODULE_WORKFLOW_ONE_00010001"
-  | "MODULE_WORKFLOW_TWO_00020001"
-  | "MODULE_WORKFLOW_TRHEE_00030001"
-  | "MODULE_WORKFLOW_REPORTS_00040001";
+  | "MODELS_CLIENTS_CODE";
 
 export interface AuthState {
   status: AuthStatus;
@@ -31,14 +28,11 @@ export interface AuthState {
     user?: UsersLoginDataResponseI,
     isFromCache?: boolean,
   ) => Promise<boolean>;
-  processOne: boolean;
-  processTwo: boolean;
-  processThree: boolean;
-  processReports: boolean;
   malimaxOne: boolean;
   malimaxTwo: boolean;
   malimaxThree: boolean;
   malimaxReports: boolean;
+  createClient:boolean;
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
@@ -46,14 +40,11 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   token: undefined,
   user: undefined,
   isOfflineMode: false,
-  processOne: false,
-  processTwo: false,
-  processThree: false,
-  processReports: false,
   malimaxOne: false,
   malimaxTwo: false,
   malimaxThree: false,
   malimaxReports: false,
+  createClient:false,
 
   changeStatus: async (
     token?: string,
@@ -84,14 +75,11 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       token: token,
       user: user,
       isOfflineMode: isFromCache,
-      processOne: modules.includes("MODULE_WORKFLOW_ONE_00010001"),
-      processTwo: modules.includes("MODULE_WORKFLOW_TWO_00020001"),
-      processThree: modules.includes("MODULE_WORKFLOW_TRHEE_00030001"),
-      processReports: modules.includes("MODULE_WORKFLOW_REPORTS_00040001"),
       malimaxOne: modules.includes("MODULE_MALIMAX_ONE_00010001"),
       malimaxTwo: modules.includes("MODULE_MALIMAX_TWO_00020001"),
       malimaxThree: modules.includes("MODULE_MALIMAX_TRHEE_00030001"),
       malimaxReports: modules.includes("MODULE_MALIMAX_REPORTS_00030001"),
+      createClient:modules.includes("MODELS_CLIENTS_CODE"),
     });
 
     await SecureStorageAdapter.setItem("token", token);
@@ -124,14 +112,11 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       token: undefined,
       user: undefined,
       isOfflineMode: false,
-      processOne: false,
-      processTwo: false,
-      processThree: false,
-      processReports: false,
       malimaxOne: false,
       malimaxTwo: false,
       malimaxThree: false,
       malimaxReports: false,
+      createClient:false,
     });
   },
 }));

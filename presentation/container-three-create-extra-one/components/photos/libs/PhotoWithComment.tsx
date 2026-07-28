@@ -1,16 +1,17 @@
 import { PHOTOS_DIR } from "@/common/constants";
 import { File } from "expo-file-system";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import React from "react";
 import {
-    Alert,
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useWorkflowStoreThreeExtraOne } from "../../../store";
 
@@ -61,9 +62,15 @@ export const PhotoWithComment: React.FC<PhotoWithCommentProps> = ({
       const filename = `${photoIdKey}_${Date.now()}.jpg`;
       const filepath = `${PHOTOS_DIR}${filename}`;
 
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        result.assets[0].uri,
+        [{ resize: { width: 1280 } }],
+        { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG },
+      );
+
       try {
         const file = new File(filepath);
-        const base64 = await fetch(result.assets[0].uri)
+        const base64 = await fetch(manipulatedImage.uri)
           .then((res) => res.blob())
           .then(
             (blob) =>
@@ -84,7 +91,7 @@ export const PhotoWithComment: React.FC<PhotoWithCommentProps> = ({
         if (hasMediaPermission) {
           try {
             const asset = await MediaLibrary.createAssetAsync(
-              result.assets[0].uri,
+              manipulatedImage.uri,
             );
 
             let album = await MediaLibrary.getAlbumAsync("Malimax");

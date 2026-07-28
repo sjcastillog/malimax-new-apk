@@ -17,14 +17,11 @@ const index = () => {
   const {
     user,
     token,
-    processOne,
-    processTwo,
-    processThree,
-    processReports,
     malimaxOne,
     malimaxTwo,
     malimaxThree,
     malimaxReports,
+    createClient,
   } = useAuthStore();
   const [dbReady, setDbReady] = useState(false);
   const [dbError, setDbError] = useState<string | null>(null);
@@ -148,7 +145,7 @@ const index = () => {
               justifyContent: "space-between",
             }}
           >
-            {processOne && (
+            {malimaxOne && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
                   title="Malimax 1"
@@ -157,7 +154,7 @@ const index = () => {
                 />
               </View>
             )}
-            {processTwo && (
+            {malimaxTwo && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
                   title="Malimax 2"
@@ -166,7 +163,7 @@ const index = () => {
                 />
               </View>
             )}
-            {processThree && (
+            {malimaxThree && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
                   title="Malimax 3"
@@ -175,12 +172,21 @@ const index = () => {
                 />
               </View>
             )}
-            {processReports && (
+            {malimaxReports && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
                   title="Consolidado"
                   icon="document-text-outline"
                   route="/container-complete"
+                />
+              </View>
+            )}
+            {createClient && (
+              <View style={{ width: "48%" }}>
+                <CardDashboard
+                  title="Cliente"
+                  icon="person-add-outline"
+                  route="/client"
                 />
               </View>
             )}
