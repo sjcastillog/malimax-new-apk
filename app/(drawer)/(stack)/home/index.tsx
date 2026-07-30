@@ -148,7 +148,7 @@ const index = () => {
             {malimaxOne && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
-                  title="Malimax 1"
+                  title="Cont. Vacío"
                   icon="file-tray-outline"
                   route="/container-one"
                 />
@@ -157,7 +157,7 @@ const index = () => {
             {malimaxTwo && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
-                  title="Malimax 2"
+                  title="Proc. de Carga"
                   icon="file-tray-full-outline"
                   route="/container-two"
                 />
@@ -166,7 +166,7 @@ const index = () => {
             {malimaxThree && (
               <View style={{ width: "48%" }}>
                 <CardDashboard
-                  title="Malimax 3"
+                  title="Sellado de Cont."
                   icon="subway-outline"
                   route="/container-three"
                 />
