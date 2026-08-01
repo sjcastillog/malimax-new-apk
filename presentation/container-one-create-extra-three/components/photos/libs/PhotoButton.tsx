@@ -1,9 +1,9 @@
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
 import { usePhotoUri } from "@/common/hooks";
 import { ModalPhotoPreview } from "@/components/shared/ModalPhotoPreview";
+import { pickImagePrompt } from "@/helpers";
 import { File } from "expo-file-system/next";
 import * as ImageManipulator from "expo-image-manipulator";
-import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import { useState } from "react";
 import {
@@ -49,31 +49,12 @@ export const PhotoButton: React.FC<PhotoButtonProps> = ({
     setLoading(true);
 
     try {
-      // 1. Solicitar permiso de cámara
-      const cameraPermission =
-        await ImagePicker.requestCameraPermissionsAsync();
-
-      if (cameraPermission.status !== "granted") {
-        Alert.alert(
-          "Permiso requerido",
-          "Necesitamos acceso a la cámara para tomar fotos. Por favor, habilita el permiso en la configuración de tu dispositivo.",
-          [{ text: "OK" }],
-        );
-        setLoading(false);
-        return;
-      }
-
-      // 2. Solicitar permiso de galería (opcional)
+      // 1. Solicitar permiso de galería (para guardar copia en el álbum)
       const mediaPermission = await MediaLibrary.requestPermissionsAsync();
       const hasMediaPermission = mediaPermission.status === "granted";
 
-      // 3. Tomar la foto
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
-        exif: false,
-        allowsEditing: false,
-      });
+      // 2. Preguntar si tomar foto o elegir de galería
+      const result = await pickImagePrompt();
 
       if (!result.canceled && result.assets?.[0]?.uri) {
         // 4. Procesar la imagen (redimensionar y comprimir)

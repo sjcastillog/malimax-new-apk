@@ -1,7 +1,7 @@
 import { validationSchemaTwo } from "@/common/constants";
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
+import { ObjPostI } from "@/common/interface";
 import * as FileSystem from "expo-file-system/legacy";
-import { router } from "expo-router";
 import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useSaveWorkflow } from "../../container-two-create/hooks/useSaveWorkflow";
 import { useWorkflowStoreTwoExtraTwo } from "../store";
@@ -9,7 +9,6 @@ import { useWorkflowStoreTwoExtraTwo } from "../store";
 export const SaveButton = () => {
   const { workflowMutation } = useSaveWorkflow();
   const storeState = useWorkflowStoreTwoExtraTwo((state) => state) as any;
-  const onClearNext = useWorkflowStoreTwoExtraTwo((state) => state.onClear);
 
   const handleSave = async () => {
     try {
@@ -162,9 +161,9 @@ export const SaveButton = () => {
       });
 
       // ============================================
-      // MOSTRAR OPCIONES POST-GUARDADO
+      // MOSTRAR RESPUESTA DEL BACKEND (solo si no se encoló)
       // ============================================
-      if (!awaited.queued) showPostSaveOptions();
+      if (!awaited.queued) showBackendResponse(awaited.response);
     } catch (error) {
       console.error("Error en sendData:", error);
       Alert.alert(
@@ -174,33 +173,18 @@ export const SaveButton = () => {
     }
   };
 
-  const showPostSaveOptions = () => {
+  const showBackendResponse = (response: ObjPostI | null) => {
+    const title =
+      response?.variant === "warning"
+        ? "⚠️ Aviso"
+        : response?.variant === "error"
+          ? "❌ Error"
+          : "✅ Guardado Exitoso";
+
     Alert.alert(
-      "✅ Guardado Exitoso",
-      "El proceso 2 (Llenado) se ha guardado correctamente.\n\n¿Qué deseas hacer ahora?",
-      [
-        {
-          text: "Limpiar Formulario, hacer otro proceso",
-          onPress: () => {
-            onClearNext();
-            Alert.alert(
-              "Formulario Limpio",
-              "Puedes iniciar un nuevo proceso 2",
-              [{ text: "OK" }],
-            );
-          },
-          style: "default",
-        },
-        {
-          text: "Ir a Malimax 3",
-          onPress: () => {
-            onClearNext();
-            router.replace("/(drawer)/(stack)/container-three/extra-two");
-          },
-          style: "default",
-        },
-      ],
-      { cancelable: false },
+      title,
+      response?.alert ?? "El proceso 2 (Llenado) se ha guardado correctamente.",
+      [{ text: "OK" }],
     );
   };
 

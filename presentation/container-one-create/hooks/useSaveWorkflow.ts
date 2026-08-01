@@ -1,3 +1,4 @@
+import { ObjPostI } from "@/common/interface";
 import { workflowDB } from "@/common/storage/database";
 import { saveContainerOne } from "@/core/container-one/actions";
 import { WorkflowContainerOneI } from "@/core/container-one/interfaces";
@@ -27,17 +28,18 @@ export const useSaveWorkflow = () => {
             ...payload.formData,
             ...payload.photosData,
           };
-          const message = await saveContainerOne(dataToSend);
-          return { message, queued: false };
+          const response = await saveContainerOne(dataToSend);
+          return { response, queued: false as const };
         } catch (error) {
+          console.error("❌ Error al enviar al backend, se encola:", error);
           const queueId = await workflowDB.addToQueue(
             payload.formData,
             payload.photosData,
             "one", //
           );
           return {
-            message: "Encolado para envío posterior",
-            queued: true,
+            response: null as ObjPostI | null,
+            queued: true as const,
             queueId,
           };
         }
@@ -48,8 +50,8 @@ export const useSaveWorkflow = () => {
           "one", //
         );
         return {
-          message: "Encolado para envío posterior",
-          queued: true,
+          response: null as ObjPostI | null,
+          queued: true as const,
           queueId,
         };
       }

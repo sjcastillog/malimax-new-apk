@@ -3,8 +3,8 @@ import {
   validationSchemaThree,
 } from "@/common/constants";
 import { PHOTOS_DIR } from "@/common/constants/libs/photos";
+import { ObjPostI } from "@/common/interface";
 import * as FileSystem from "expo-file-system/legacy";
-import { router } from "expo-router";
 import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useSaveWorkflow } from "../../container-three-create/hooks/useSaveWorkflow";
 import { useWorkflowStoreThreeExtraOne } from "../store";
@@ -12,7 +12,6 @@ import { useWorkflowStoreThreeExtraOne } from "../store";
 export const SaveButton = () => {
   const { workflowMutation } = useSaveWorkflow();
   const storeState = useWorkflowStoreThreeExtraOne((state) => state) as any;
-  const onClearNext = useWorkflowStoreThreeExtraOne((state) => state.onClear);
 
   const handleSave = async () => {
     try {
@@ -223,9 +222,9 @@ export const SaveButton = () => {
       });
 
       // ============================================
-      // MOSTRAR OPCIONES POST-GUARDADO
+      // MOSTRAR RESPUESTA DEL BACKEND (solo si no se encoló)
       // ============================================
-      if (!awaited.queued) showPostSaveOptions();
+      if (!awaited.queued) showBackendResponse(awaited.response);
     } catch (error) {
       console.error("Error en sendData:", error);
       Alert.alert(
@@ -253,33 +252,18 @@ export const SaveButton = () => {
     );
   };
 
-  const showPostSaveOptions = () => {
+  const showBackendResponse = (response: ObjPostI | null) => {
+    const title =
+      response?.variant === "warning"
+        ? "⚠️ Aviso"
+        : response?.variant === "error"
+          ? "❌ Error"
+          : "✅ Proceso Completado";
+
     Alert.alert(
-      "✅ Proceso Completado",
-      "El proceso 3 se ha guardado correctamente.\n\n¡Has completado los 3 procesos de Malimax!\n\n¿Qué deseas hacer ahora?",
-      [
-        {
-          text: "Limpiar Formulario, hacer otro proceso",
-          onPress: () => {
-            onClearNext();
-            Alert.alert(
-              "Formulario Limpio",
-              "Puedes iniciar un nuevo proceso 3",
-              [{ text: "OK" }],
-            );
-          },
-          style: "default",
-        },
-        {
-          text: "Ver Procesos Completos",
-          onPress: () => {
-            onClearNext();
-            router.replace("/(drawer)/(stack)/container-two/extra-two");
-          },
-          style: "default",
-        },
-      ],
-      { cancelable: false },
+      title,
+      response?.alert ?? "El proceso 3 se ha guardado correctamente.",
+      [{ text: "OK" }],
     );
   };
 

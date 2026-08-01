@@ -4,17 +4,11 @@ import { WorkflowContainerThreeI } from "../interfaces";
 
 export const saveContainerThree = async (
   formData: Partial<WorkflowContainerThreeI>,
-): Promise<string | null> => {
-  try {
-    const { data } = await puceApi.post<ServiceResponseI<ObjPostI>>(
-      "/malimax-three/",
-      formData,
-    );
+): Promise<ObjPostI> => {
+  const { data } = await puceApi.post<ServiceResponseI<ObjPostI>>(
+    "/malimax-three/",
+    formData,
+  );
 
-    if (data.message) return data.message;
-    return null;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return data.data as ObjPostI;
 };

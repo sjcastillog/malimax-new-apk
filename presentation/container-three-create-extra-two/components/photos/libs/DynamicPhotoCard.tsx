@@ -1,8 +1,8 @@
 import { PHOTOS_DIR } from "@/common/constants";
 import { WorkflowImageI } from "@/core/container-three/interfaces";
+import { pickImagePrompt } from "@/helpers";
 import { File } from "expo-file-system";
 import * as ImageManipulator from "expo-image-manipulator";
-import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import React from "react";
 import {
@@ -33,18 +33,10 @@ export const DynamicPhotoCard: React.FC<DynamicPhotoCardProps> = ({
   );
 
   const handleTakePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permiso denegado", "Se necesita acceso a la cámara");
-      return;
-    }
     const mediaPermission = await MediaLibrary.requestPermissionsAsync();
     const hasMediaPermission = mediaPermission.status === "granted";
 
-    const result = await ImagePicker.launchCameraAsync({
-      quality: 1,
-      allowsEditing: false,
-    });
+    const result = await pickImagePrompt();
 
     if (!result.canceled && result.assets[0]) {
       const filename = `exit_${image.uuid}_${Date.now()}.jpg`;

@@ -1,3 +1,4 @@
+import { ObjPostI } from "@/common/interface";
 import { workflowDB } from "@/common/storage/database";
 import { saveContainerTwo } from "@/core/container-two/actions";
 import { WorkflowContainerTwoI } from "@/core/container-two/interfaces";
@@ -27,9 +28,10 @@ export const useSaveWorkflow = () => {
       if (hasInternet) {
         try {
           // Enviar directamente (ya no hay photosData separado)
-          const message = await saveContainerTwo(payload.formData);
-          return { message, queued: false };
+          const response = await saveContainerTwo(payload.formData);
+          return { response, queued: false as const };
         } catch (error) {
+          console.error("❌ Error al enviar al backend, se encola:", error);
           // Si falla, encolar
           const queueId = await workflowDB.addToQueue(
             payload.formData,
@@ -37,8 +39,8 @@ export const useSaveWorkflow = () => {
             "two",
           );
           return {
-            message: "Encolado para envío posterior",
-            queued: true,
+            response: null as ObjPostI | null,
+            queued: true as const,
             queueId,
           };
         }
@@ -50,8 +52,8 @@ export const useSaveWorkflow = () => {
           "two",
         );
         return {
-          message: "Encolado para envío posterior",
-          queued: true,
+          response: null as ObjPostI | null,
+          queued: true as const,
           queueId,
         };
       }

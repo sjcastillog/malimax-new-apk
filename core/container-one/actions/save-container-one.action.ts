@@ -4,17 +4,11 @@ import { WorkflowContainerOneRequiredI } from "../interfaces";
 
 export const saveContainerOne = async (
   formData: Partial<WorkflowContainerOneRequiredI>,
-): Promise<string | null> => {
-  try {
-    const { data } = await puceApi.post<ServiceResponseI<ObjPostI>>(
-      "/malimax-one/",
-      formData,
-    );
+): Promise<ObjPostI> => {
+  const { data } = await puceApi.post<ServiceResponseI<ObjPostI>>(
+    "/malimax-one/",
+    formData,
+  );
 
-    if (data.message) return data.message;
-    return null;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return data.data as ObjPostI;
 };

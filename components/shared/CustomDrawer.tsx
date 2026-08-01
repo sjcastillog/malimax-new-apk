@@ -70,7 +70,7 @@ const CustomDrawer = (props: DrawerContentComponentProps) => {
               size={12}
               color="rgba(255,255,255,0.7)"
             />
-            <Text style={styles.versionText}>v1.0.6</Text>
+            <Text style={styles.versionText}>v1.0.7</Text>
           </View>
 
           <View style={styles.decorativeLine} />
